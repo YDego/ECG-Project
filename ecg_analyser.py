@@ -12,7 +12,7 @@ if int(data_file) > file_count or int(data_file) < 1:
 else:
     # Read the CSV file
     df = pd.read_csv(
-        r'C:\Users\ydego\Documents\GitHub\ECG-Project\ecg_dataset\lobachevsky-university-electrocardiography-database-1.0.1\ludb.csv')
+        r'ecg_dataset\lobachevsky-university-electrocardiography-database-1.0.1\ludb.csv')
     # Get the details of the selected record
     rhythms = df.iloc[int(data_file) - 1]['Rhythms']
     sex = df.iloc[int(data_file) - 1]['Sex']
