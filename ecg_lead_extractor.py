@@ -128,17 +128,24 @@ def choose_lead_from_dataset():
         return None, numpy.empty(0)
 
 
-if __name__ == "__main__":
+def ecg_processing(ecg_record, ecg_signal):
 
-    # Call the function with leads and file_count as inputs
-    record, signal = choose_lead_from_dataset()
     # Apply QRS detection using the Pan-Tompkins algorithm
-    if record is not None:
-        qrs_inds = processing.qrs.gqrs_detect(sig=signal, fs=record.fs)
+    if ecg_record is not None:
+        qrs_inds = processing.qrs.gqrs_detect(sig=ecg_signal, fs=ecg_record.fs)
         # Plot the ECG signal and the detected QRS complexes
-        plt.plot(signal)
+        plt.plot(ecg_signal)
         plt.title('Processed data')
-        plt.scatter(qrs_inds, signal[qrs_inds], c='r')
+        plt.scatter(qrs_inds, ecg_signal[qrs_inds], c='r')
         plt.xlabel('Sample number')
         plt.ylabel('Voltage (mV)')
         plt.show()
+
+
+if __name__ == "__main__":
+
+    # Call the function with leads and file_count as inputs
+    ecg_record, ecg_signal = choose_lead_from_dataset()
+
+    # Apply QRS detection using the Pan-Tompkins algorithm
+    ecg_processing(ecg_record, ecg_signal)
