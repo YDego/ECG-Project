@@ -5,20 +5,33 @@ import numpy
 from wfdb import processing
 
 
+def get_records(records_file):
+    with open(records_file, 'r') as f:
+        records = f.readlines()
+    return records, len(records)
+
+
+def select_lead(leads):
+    # Get user input for which lead to plot
+    lead = str(input(f"Choose a lead to plot ({', '.join(leads)}) [default ii]: ") or 'ii')
+
+    if lead not in leads:
+        print("Invalid lead selection!")
+        return None
+
+    return lead
+
+
 def ecg_lead_ludb():
     # Load the RECORDS file and get the number of records
     records_file = r'ecg_dataset\lobachevsky-university-electrocardiography-database-1.0.1\RECORDS'
-    with open(records_file, 'r') as f:
-        records = f.readlines()
-    num_records = len(records)
+    records, num_records = get_records(records_file)
     data_file = int(input(f"There are {num_records} records available, choose one (1-{num_records}) [default 1]: ") or 1)
-    signal = numpy.empty(0)
-    record = None
 
     # Check if the user input is valid
     if data_file > num_records or data_file < 1:
         print("Invalid data selection!")
-        return record, signal
+        return None, numpy.empty(0)
     # Read the CSV file
     df = pd.read_csv(
         r'ecg_dataset\lobachevsky-university-electrocardiography-database-1.0.1\ludb.csv')
@@ -30,78 +43,74 @@ def ecg_lead_ludb():
     # Chose data file
     record_path = fr'ecg_dataset\lobachevsky-university-electrocardiography-database-1.0.1\data\{data_file}'
     # Read the record
-    record = wfdb.rdrecord(record_path)
+    ecg_record = wfdb.rdrecord(record_path)
     # record = wfdb.rdrecord('a103l', pn_dir='challenge-2015/training/')
 
     # Define the list of leads available
     leads = ['i', 'ii', 'iii', 'avr', 'avl', 'avf', 'v1', 'v2', 'v3', 'v4', 'v5', 'v6', 'all']
 
     # Get user input for which lead to plot
-    lead = str(input(f"Choose a lead to plot ({', '.join(leads)}) [default ii]: ") or 'ii')
+    lead = select_lead(leads)
 
-    if lead not in leads:
-        print("Invalid lead selection!")
-        return record, signal
+    if lead is None:
+        return None, None
 
     if lead == 'All' or lead == 'all':
         # Plot
-        wfdb.plot_wfdb(record=record, title='ECG')
-    else:
-        # Get a single signal from the records
-        signal = record.__dict__['p_signal'][:, leads.index(lead)]
-        # Plot
-        title = f'ECG signal over time\nECG Lead: {lead}, Rhythm: {rhythms}, Age: {age},Sex: {sex}'
-        wfdb.plot_items(signal=signal, fs=record.fs, title=title, time_units='seconds', sig_units=['mV'],
-                        ylabel=['Voltage [mV]'])
+        wfdb.plot_wfdb(record=ecg_record, title='ECG')
+        return ecg_record, None
+
+    # Get a single signal from the records
+    ecg_signal = ecg_record.__dict__['p_signal'][:, leads.index(lead)]
+    # Plot
+    title = f'ECG signal over time\nECG Lead: {lead}, Rhythm: {rhythms}, Age: {age},Sex: {sex}'
+    wfdb.plot_items(signal=ecg_signal, fs=ecg_record.fs, title=title, time_units='seconds', sig_units=['mV'],
+                    ylabel=['Voltage [mV]'])
     # display(record.__dict__)
 
-    return record, signal
+    return ecg_record, ecg_signal
 
 
 def ecg_lead_qt():
-    signal = numpy.empty(0)
-    record = None
     # Load the RECORDS file and get the number of records
     records_file = 'ecg_dataset/qt-database-1.0.0/RECORDS'
-    with open(records_file, 'r') as f:
-        records = f.readlines()
-    num_records = len(records)
+    records, num_records = get_records(records_file)
 
     # Ask the user to choose a record
     data_file = int(input(f"There are {num_records} records available, choose one (1-{num_records}) [default 1]: ") or 1)
     if data_file < 1 or data_file > num_records:
         print(f"Invalid record number! Please choose a number between 1 and {num_records}.")
-        return record, signal
+        return None, None
 
     # Get the selected record name and load the ECG record
     record_name = records[data_file - 1].strip()
     record_path = f'ecg_dataset/qt-database-1.0.0/{record_name}'
-    record = wfdb.rdrecord(record_path)
+    ecg_record = wfdb.rdrecord(record_path)
 
     # Define the list of leads available
     leads = ['i', 'ii']
 
     # Get user input for which lead to plot
-    lead = str(input(f"Choose a lead to plot ({', '.join(leads)}) [default ii]: ") or 'ii')
+    lead = select_lead(leads)
 
-    if lead not in leads:
-        print("Invalid lead selection!")
-    else:
-        # Get a single signal from the records
-        signal = record.__dict__['p_signal'][:, leads.index(lead)]
-        fs = record.fs
+    if lead is None:
+        return None, None
 
-        # Calculate time array
-        times = [i / fs for i in range(len(signal))]
+    # Get a single signal from the records
+    ecg_signal = ecg_record.__dict__['p_signal'][:, leads.index(lead)]
+    fs = ecg_record.fs
 
-        # Plot the signal
-        plt.plot(times, signal)
-        plt.title(f'ECG Lead II for {record_name}')
-        plt.xlabel('Time (s)')
-        plt.ylabel('Voltage (mV)')
-        plt.show()
+    # Calculate time array
+    times = [i / fs for i in range(len(ecg_signal))]
 
-    return record, signal
+    # Plot the signal
+    plt.plot(times, ecg_signal)
+    plt.title(f'ECG Lead II for {record_name}')
+    plt.xlabel('Time (s)')
+    plt.ylabel('Voltage (mV)')
+    plt.show()
+
+    return ecg_record, ecg_signal
 
 
 def choose_lead_from_dataset():
