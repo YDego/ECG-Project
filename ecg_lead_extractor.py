@@ -87,10 +87,15 @@ def ecg_lead_qt():
     else:
         # Get a single signal from the records
         signal = record.__dict__['p_signal'][:, leads.index(lead)]
+        fs = record.fs
+
+        # Calculate time array
+        times = [i / fs for i in range(len(signal))]
+
         # Plot the signal
-        plt.plot(signal)
-        plt.title(f'ECG Lead I - {record_name}')
-        plt.xlabel('Sample Number')
+        plt.plot(times, signal)
+        plt.title(f'ECG Lead II for {record_name}')
+        plt.xlabel('Time (s)')
         plt.ylabel('Voltage (mV)')
         plt.show()
 
