@@ -1,5 +1,8 @@
 import wfdb
 import pandas as pd
+from wfdb import processing
+import matplotlib.pyplot as plt
+
 # from IPython.display import display
 # import os
 
@@ -24,6 +27,7 @@ else:
     record = wfdb.rdrecord(record_path)
     # record = wfdb.rdrecord('a103l', pn_dir='challenge-2015/training/')
 
+
     # Define the list of leads available
     leads = ['i', 'ii', 'iii', 'avr', 'avl', 'avf', 'v1', 'v2', 'v3', 'v4', 'v5', 'v6', 'all']
 
@@ -41,6 +45,14 @@ else:
             signal = record.__dict__['p_signal'][:, leads.index(lead)]
             # Plot
             title = f'ECG signal over time\nECG Lead: {lead}, Rhythm: {rhythms}, Age: {age},Sex: {sex}'
-            wfdb.plot_items(signal=signal, fs=record.fs, title=title, time_units='seconds', sig_units=['mV'], ylabel=['Voltage [mV]'])
+            # wfdb.plot_items(signal=signal, fs=record.fs, title=title, time_units='seconds', sig_units=['mV'], ylabel=['Voltage [mV]'])
 
+            # Apply QRS detection using the Pan-Tompkins algorithm
+            qrs_inds = processing.qrs.gqrs_detect(sig=signal, fs=record.fs)
+            # Plot the ECG signal and the detected QRS complexes
+            plt.plot(signal)
+            plt.scatter(qrs_inds, signal[qrs_inds], c='r')
+            plt.xlabel('Sample number')
+            plt.ylabel('Voltage (mV)')
+            plt.show()
         # display(record.__dict__)
