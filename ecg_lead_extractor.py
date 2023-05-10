@@ -41,18 +41,20 @@ def ecg_lead_ludb():
 
     if lead not in leads:
         print("Invalid lead selection!")
+        return record, signal
+
+    if lead == 'All' or lead == 'all':
+        # Plot
+        wfdb.plot_wfdb(record=record, title='ECG')
     else:
-        if lead == 'All' or lead == 'all':
-            # Plot
-            wfdb.plot_wfdb(record=record, title='ECG')
-        else:
-            # Get a single signal from the records
-            signal = record.__dict__['p_signal'][:, leads.index(lead)]
-            # Plot
-            title = f'ECG signal over time\nECG Lead: {lead}, Rhythm: {rhythms}, Age: {age},Sex: {sex}'
-            wfdb.plot_items(signal=signal, fs=record.fs, title=title, time_units='seconds', sig_units=['mV'],
-                            ylabel=['Voltage [mV]'])
-        # display(record.__dict__)
+        # Get a single signal from the records
+        signal = record.__dict__['p_signal'][:, leads.index(lead)]
+        # Plot
+        title = f'ECG signal over time\nECG Lead: {lead}, Rhythm: {rhythms}, Age: {age},Sex: {sex}'
+        wfdb.plot_items(signal=signal, fs=record.fs, title=title, time_units='seconds', sig_units=['mV'],
+                        ylabel=['Voltage [mV]'])
+    # display(record.__dict__)
+
     return record, signal
 
 
