@@ -3,6 +3,48 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy
 from wfdb import processing
+from scipy.signal import butter, lfilter
+from scipy import signal
+
+
+def butter_bandpass(lowcut, highcut, fs, order=5):
+    nyq = 0.5 * fs
+    low = lowcut / nyq
+    high = highcut / nyq
+    b, a = butter(order, [low, high], btype='band')
+    return b, a
+
+
+def butter_bandpass_filter(data, lowcut, highcut, fs, order=5):
+    b, a = butter_bandpass(lowcut, highcut, fs, order=order)
+    y = signal.filtfilt(b, a, data)
+    return y
+
+
+def notch_filter(signal_data, sample_rate, freq_list):
+    nyquist_rate = sample_rate / 2.0
+    filtered_signal = signal_data.copy()
+
+    for freq in freq_list:
+        notch_width = 5.0  # in Hz
+        notch_freq = freq / nyquist_rate
+        b, a = signal.iirnotch(notch_freq, notch_width, sample_rate)
+        filtered_signal = signal.filtfilt(b, a, filtered_signal)
+
+    return filtered_signal
+
+
+def butter_lowpass(cutoff, fs, order=5):
+    nyq = 0.5 * fs
+    normal_cutoff = cutoff / nyq
+    b, a = butter(order, normal_cutoff, btype='low', analog=False, output='ba')
+    return b, a
+
+
+def butter_lowpass_filter(data, cutoff, fs, order=5):
+    b, a = butter_lowpass(cutoff, fs, order=order)
+    y = lfilter(b, a, data)
+    return y
 
 
 def get_records(records_file):
@@ -31,7 +73,7 @@ def ecg_lead_ludb():
     # Check if the user input is valid
     if data_file > num_records or data_file < 1:
         print("Invalid data selection!")
-        return None, numpy.empty(0)
+        return
     # Read the CSV file
     df = pd.read_csv(
         r'ecg_dataset\lobachevsky-university-electrocardiography-database-1.0.1\ludb.csv')
@@ -53,12 +95,12 @@ def ecg_lead_ludb():
     lead = select_lead(leads)
 
     if lead is None:
-        return None, None
+        return
 
     if lead == 'All' or lead == 'all':
         # Plot
         wfdb.plot_wfdb(record=ecg_record, title='ECG')
-        return ecg_record, None
+        return ecg_record
 
     # Get a single signal from the records
     ecg_signal = ecg_record.__dict__['p_signal'][:, leads.index(lead)]
@@ -67,7 +109,7 @@ def ecg_lead_ludb():
     wfdb.plot_items(signal=ecg_signal, fs=ecg_record.fs, title=title, time_units='seconds', sig_units=['mV'],
                     ylabel=['Voltage [mV]'])
 
-    return ecg_record, ecg_signal
+    return ecg_record, ecg_signal, lead
 
 
 def ecg_lead_qt():
@@ -79,7 +121,7 @@ def ecg_lead_qt():
     data_file = int(input(f"There are {num_records} records available, choose one (1-{num_records}) [default 1]: ") or 1)
     if data_file < 1 or data_file > num_records:
         print(f"Invalid record number! Please choose a number between 1 and {num_records}.")
-        return None, None
+        return
 
     # Get the selected record name and load the ECG record
     record_name = records[data_file - 1].strip()
@@ -93,7 +135,7 @@ def ecg_lead_qt():
     lead = select_lead(leads)
 
     if lead is None:
-        return None, None
+        return
 
     # Get a single signal from the records
     ecg_signal = ecg_record.__dict__['p_signal'][:, leads.index(lead)]
@@ -109,7 +151,7 @@ def ecg_lead_qt():
     plt.ylabel('Voltage (mV)')
     plt.show()
 
-    return ecg_record, ecg_signal
+    return ecg_record, ecg_signal, lead
 
 
 def choose_lead_from_dataset():
@@ -125,27 +167,42 @@ def choose_lead_from_dataset():
         return ecg_lead_qt()
     else:
         print("Invalid dataset selection!")
-        return None, numpy.empty(0)
+        return
 
 
-def ecg_processing(ecg_record, ecg_signal):
+def ecg_processing(ecg_record, ecg_signal, lead='ii'):
 
-    # Apply QRS detection using the Pan-Tompkins algorithm
-    if ecg_record is not None:
-        qrs_inds = processing.qrs.gqrs_detect(sig=ecg_signal, fs=ecg_record.fs)
-        # Plot the ECG signal and the detected QRS complexes
-        plt.plot(ecg_signal)
-        plt.title('Processed data')
-        plt.scatter(qrs_inds, ecg_signal[qrs_inds], c='r')
-        plt.xlabel('Sample number')
-        plt.ylabel('Voltage (mV)')
-        plt.show()
+    fs = ecg_record.fs
+    ecg_filtered_signal = ecg_signal
+
+    # Remove baseline wander
+    ecg_filtered_signal = processing.normalize_bound(ecg_filtered_signal)
+    baseline = butter_lowpass_filter(ecg_filtered_signal, cutoff=0.05, fs=fs, order=5)
+    ecg_filtered_signal -= baseline
+
+    # # Remove powerline interference
+    # powerline = [60, 120, 180, 240]
+    # ecg_filtered_signal = notch_filter(ecg_filtered_signal, fs, powerline)
+    #
+    # # Remove high frequency noise
+    # ecg_filtered_signal = butter_lowpass_filter(ecg_filtered_signal, 0.5, fs=fs, order=4)
+
+    # Plot the signal
+    plt.figure(figsize=(12, 4))
+    plt.plot(numpy.arange(len(ecg_filtered_signal)) / fs, ecg_filtered_signal)
+    plt.title(f'ECG Lead {lead}')
+    plt.xlabel('Time (s)')
+    plt.ylabel('Voltage (mV)')
+    plt.show()
+
+    return ecg_record, signal
 
 
 if __name__ == "__main__":
 
     # Call the function with leads and file_count as inputs
-    ecg_record, ecg_signal = choose_lead_from_dataset()
+    ecg_record, ecg_signal, lead = choose_lead_from_dataset()
 
     # Apply QRS detection using the Pan-Tompkins algorithm
-    ecg_processing(ecg_record, ecg_signal)
+    ecg_processing(ecg_record, ecg_signal, lead)
+
