@@ -66,7 +66,6 @@ def ecg_lead_ludb():
     title = f'ECG signal over time\nECG Lead: {lead}, Rhythm: {rhythms}, Age: {age},Sex: {sex}'
     wfdb.plot_items(signal=ecg_signal, fs=ecg_record.fs, title=title, time_units='seconds', sig_units=['mV'],
                     ylabel=['Voltage [mV]'])
-    # display(record.__dict__)
 
     return ecg_record, ecg_signal
 
