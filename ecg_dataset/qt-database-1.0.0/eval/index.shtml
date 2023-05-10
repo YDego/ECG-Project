@@ -1,0 +1,51 @@
+<!--#set var="TITLE" value="Evaluation of an Automatic Threshold Based Detector of Waveform Limits in Holter ECG with the QT database"-->
+<!--#include virtual="/head.shtml"-->
+
+
+<p align="center">R. Jan&eacute;<sup>1</sup>, A. Blasi<sup>1</sup>,
+J. Garc&iacute;a<sup>2</sup>, P. Laguna<sup>2</sup></p>
+
+<p align="center"><sup>1</sup>Dep. ESAII, Centre de Recerca en
+Enginyeria Biom&egrave;dica, UPC, Barcelona, Spain.</p>
+<p align="center"><sup>2</sup>Dep. Ingenier&iacute;a Electr&oacute;nica y
+Comunicaciones, Centro Polit&eacute;cnico Superior. Univ. de Zaragoza,
+Spain<p>
+<p><p>
+<center><table bgcolor="lightblue">
+<tr><td>
+This article originally appeared in <em>Computers in Cardiology 1997</em>,
+vol. 24, pp. 295-298 (Piscataway, NJ: IEEE Computer Society Press).  Please
+cite this publication when referencing this material.  This HTML version
+incorporates minor revisions for publication on PhysioNet.
+</td></tr>
+</table></center>
+
+<ul>
+<li><a href="wflimits.html#abstract">Abstract</a>
+<li><a href="wflimits.html#intro">Introduction</a>
+<li><a href="wflimits.html#qtdb">The QT Database</a>
+<li><a href="wflimits.html#valpar">The validation parameters</a>
+<li><a href="wflimits.html#results">Results</a>
+<ul>
+<li><a href="wflimits.html#global">Global results obtained analyzing all
+ records available</a>
+<li><a href="wflimits.html#details">Results obtained after classifying the
+ signals</a>
+</ul>
+<li><a href="wflimits.html#discussion">Discussion and Conclusions</a>
+<li><a href="wflimits.html#thanks">Acknowledgments</a>
+<li><a href="wflimits.html#refs">References</a>
+</UL>
+
+<p>
+The software described in this article is available <a
+href="/physiotools/ecgpuwave/">here</a>.  The QT Database itself is available
+<a href="../">here</a>.
+
+<p><font size=-1>
+This work was supported in part by grant TIC94-0608-C02, from CICYT, Spain.
+</p>
+
+<!--#include virtual="/footer.shtml"-->
+</body>
+</html>

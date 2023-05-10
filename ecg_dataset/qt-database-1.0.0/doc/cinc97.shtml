@@ -1,0 +1,75 @@
+<!--#set var="TITLE" value="A Database for Evaluation of Algorithms for Measurement of QT and Other Waveform Intervals in the ECG"-->
+<!--#include virtual="/head.shtml"-->
+
+<!-- <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN"> -->
+<!-- <\!--Converted with LaTeX2HTML 98.2 beta6 (August 14th, 1998) -->
+<!-- original version by:  Nikos Drakos, CBLU, University of Leeds -->
+<!-- * revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan -->
+<!-- * with significant contributions from: -->
+<!--   Jens Lippmann, Marek Rouchal, Martin Wilck and others -\-> -->
+<!-- <HTML> -->
+<!-- <HEAD> -->
+<!-- <TITLE>A Database for Evaluation of Algorithms for Measurement of QT and Other Waveform Intervals in the ECG 1 </TITLE> -->
+<!-- <META NAME="description" CONTENT="A Database for Evaluation of Algorithms for Measurement of QT and Other Waveform Intervals in the ECG 1 "> -->
+<!-- <META NAME="keywords" CONTENT="cinc97"> -->
+<!-- <META NAME="resource-type" CONTENT="document"> -->
+<!-- <META NAME="distribution" CONTENT="global"> -->
+<!-- <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1"> -->
+<!-- <LINK REL="STYLESHEET" HREF="cinc97.css"> -->
+<!-- <LINK REL="next" HREF="node1.html"> -->
+<!-- </HEAD> -->
+<!-- <body bgcolor=white> -->
+
+<!-- <\!--#include virtual="/links-physiobank.html"-\-> -->
+
+<!-- <H1 ALIGN="CENTER"><FONT SIZE="+2"><B>A Database for Evaluation of Algorithms for Measurement -->
+<!-- of QT and Other Waveform Intervals in the ECG</B> </FONT> </H1> -->
+<P ALIGN="CENTER"><STRONG><FONT SIZE="+1">Pablo Laguna<SUP>1</SUP>, Roger G. Mark<SUP>2,3</SUP>, Ary
+Goldberger<SUP>3</SUP> and  George B. Moody<SUP>2,3</SUP></FONT> </STRONG></P>
+<P ALIGN="CENTER"><STRONG> <FONT SIZE="+1"><SUP>1</SUP> Dept. Ingenier&#237;a Electr&#243;nica y Comunicaciones.
+ Centro Polit&#233;cnico Superior,   Univ. de Zaragoza, Spain 
+<BR>
+<SUP>2</SUP> Harvard-MIT Division of Health Sciences and Technology, Cambridge, MA, USA 
+<BR>
+<SUP>3</SUP> Cardiovascular Division, Beth Israel Deaconess Medical Center, Boston, MA USA
+ 
+<BR></FONT> </STRONG></P>
+
+
+<P><p>
+<center><table bgcolor="lightblue">
+<tr><td>
+This article originally appeared in <em>Computers in Cardiology 1997</em>,
+vol. 24, pp. 673-676 (Piscataway, NJ: IEEE Computer Society Press).  Please
+cite this publication when referencing this material.  This HTML version
+incorporates minor revisions for publication on PhysioNet.
+</td></tr>
+</table></center>
+
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS">&#160;</A>
+
+<UL>
+<LI><A NAME="tex2html8"
+ HREF="node1.html">Abstract</A>
+<LI><A NAME="tex2html9"
+ HREF="node2.html">Introduction</A>
+<LI><A NAME="tex2html10"
+ HREF="node3.html">The QT Database</A>
+<LI><A NAME="tex2html11"
+ HREF="node4.html">The Records</A>
+<LI><A NAME="tex2html12"
+ HREF="node5.html">Manual Annotations</A>
+<LI><A NAME="tex2html13"
+ HREF="node6.html">Bibliography</A>
+</UL>
+<!--End of Table of Child-Links-->
+
+<p>
+The QT Database itself is available <a href="../">here</a>.
+
+<p><font size=-1>
+This  work  was  supported by grant TIC94-0608-C02-02 from CICYT, and PIT06/93
+from CONAI, Spain.</font>
+
+<!--#include virtual="/dir-footer.shtml"-->
