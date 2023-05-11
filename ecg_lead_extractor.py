@@ -176,9 +176,12 @@ def ecg_processing(ecg_record, ecg_signal):
     fs = ecg_record.fs
     ecg_filtered_signal = ecg_signal
 
+    if input("Perform normalization [y/N]? ") == "y":
+        # Normalization
+        ecg_filtered_signal = processing.normalize_bound(ecg_filtered_signal)
+
     if input("Perform baseline filter [y/N]? ") == "y":
         # Remove baseline wander
-        ecg_filtered_signal = processing.normalize_bound(ecg_filtered_signal)
         baseline = butter_lowpass_filter(ecg_filtered_signal, cutoff=3, fs=fs, order=5)
         ecg_filtered_signal -= baseline
 
