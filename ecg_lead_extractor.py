@@ -180,7 +180,7 @@ def ecg_processing(ecg_record, ecg_signal):
         # Normalization
         ecg_filtered_signal = processing.normalize_bound(ecg_filtered_signal)
 
-    if input("Perform baseline filter [y/N]? ") == "y":
+    if input("Perform baseline removal [y/N]? ") == "y":
         # Remove baseline wander
         baseline = butter_lowpass_filter(ecg_filtered_signal, cutoff=3, fs=fs, order=5)
         ecg_filtered_signal -= baseline
@@ -213,12 +213,27 @@ def plot_ecg_signals(signal1, signal2, fs):
     plt.show()
 
 
+def qrs_detection(ecg_record, ecg_signal):
+    # Apply QRS detection using the Pan-Tompkins algorithm
+    qrs_inds = processing.qrs.gqrs_detect(sig=ecg_signal, fs=ecg_record.fs)
+    # Plot the ECG signal and the detected QRS complexes
+    plt.plot(ecg_signal)
+    plt.scatter(qrs_inds, ecg_signal[qrs_inds], c='r')
+    plt.title('ECG Signal - QRS Detection')
+    plt.xlabel('Sample number')
+    plt.ylabel('Voltage (mV)')
+    plt.show()
+
+
 if __name__ == "__main__":
 
     # Call the function with leads and file_count as inputs
     ecg_record, ecg_signal, lead, fs = choose_lead_from_dataset()
 
     # Apply QRS detection using the Pan-Tompkins algorithm
+    qrs_detection(ecg_record, ecg_signal)
+
+    # ECG processing
     ecg_processed_signal = ecg_processing(ecg_record, ecg_signal)
 
     # Plot
