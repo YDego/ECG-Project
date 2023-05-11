@@ -1,7 +1,6 @@
 import wfdb
 import pandas as pd
 import matplotlib.pyplot as plt
-import numpy
 from wfdb import processing
 from scipy.signal import butter, lfilter
 from scipy import signal
@@ -37,7 +36,7 @@ def notch_filter(signal_data, sample_rate, freq_list):
 def butter_lowpass(cutoff, fs, order=5):
     nyq = 0.5 * fs
     normal_cutoff = cutoff / nyq
-    b, a = butter(order, normal_cutoff, btype='low', analog=False, output='ba')
+    b, a = butter(order, normal_cutoff)
     return b, a
 
 
@@ -104,12 +103,14 @@ def ecg_lead_ludb():
 
     # Get a single signal from the records
     ecg_signal = ecg_record.__dict__['p_signal'][:, leads.index(lead)]
+    fs = ecg_record.fs
+
     # Plot
     title = f'ECG signal over time\nECG Lead: {lead}, Rhythm: {rhythms}, Age: {age},Sex: {sex}'
     wfdb.plot_items(signal=ecg_signal, fs=ecg_record.fs, title=title, time_units='seconds', sig_units=['mV'],
                     ylabel=['Voltage [mV]'])
 
-    return ecg_record, ecg_signal, lead
+    return ecg_record, ecg_signal, lead, fs
 
 
 def ecg_lead_qt():
@@ -151,7 +152,7 @@ def ecg_lead_qt():
     plt.ylabel('Voltage (mV)')
     plt.show()
 
-    return ecg_record, ecg_signal, lead
+    return ecg_record, ecg_signal, lead, fs
 
 
 def choose_lead_from_dataset():
@@ -170,39 +171,53 @@ def choose_lead_from_dataset():
         return
 
 
-def ecg_processing(ecg_record, ecg_signal, lead='ii'):
+def ecg_processing(ecg_record, ecg_signal):
 
     fs = ecg_record.fs
     ecg_filtered_signal = ecg_signal
 
-    # Remove baseline wander
-    ecg_filtered_signal = processing.normalize_bound(ecg_filtered_signal)
-    baseline = butter_lowpass_filter(ecg_filtered_signal, cutoff=0.05, fs=fs, order=5)
-    ecg_filtered_signal -= baseline
+    if input("Perform baseline filter [y/N]? ") == "y":
+        # Remove baseline wander
+        ecg_filtered_signal = processing.normalize_bound(ecg_filtered_signal)
+        baseline = butter_lowpass_filter(ecg_filtered_signal, cutoff=3, fs=fs, order=5)
+        ecg_filtered_signal -= baseline
 
-    # # Remove powerline interference
-    # powerline = [60, 120, 180, 240]
-    # ecg_filtered_signal = notch_filter(ecg_filtered_signal, fs, powerline)
-    #
-    # # Remove high frequency noise
-    # ecg_filtered_signal = butter_lowpass_filter(ecg_filtered_signal, 0.5, fs=fs, order=4)
+    if input("Perform powerline filter [y/N]? ") == "y":
+        # Remove powerline interference
+        powerline = [50, 60]
+        ecg_filtered_signal = notch_filter(ecg_filtered_signal, fs, powerline)
 
-    # Plot the signal
-    plt.figure(figsize=(12, 4))
-    plt.plot(numpy.arange(len(ecg_filtered_signal)) / fs, ecg_filtered_signal)
-    plt.title(f'ECG Lead {lead}')
-    plt.xlabel('Time (s)')
-    plt.ylabel('Voltage (mV)')
+    if input("Perform HP filter [y/N]? ") == "y":
+        # Remove high frequency noise
+        ecg_filtered_signal = butter_bandpass_filter(ecg_filtered_signal, 0.5, 35, fs=fs, order=4)
+
+    return ecg_filtered_signal
+
+
+def plot_ecg_signals(signal1, signal2, fs):
+    fig, axs = plt.subplots(2, 1, figsize=(10, 6), sharex=True)
+    t = [i / fs for i in range(len(signal1))]
+
+    axs[0].plot(t, signal1)
+    axs[0].set_ylabel('Amplitude (mV)')
+    axs[0].set_title('Original ECG Signal')
+
+    axs[1].plot(t, signal2)
+    axs[1].set_ylabel('Amplitude (mV)')
+    axs[1].set_xlabel('Time (s)')
+    axs[1].set_title('Processed ECG Signal')
+
     plt.show()
-
-    return ecg_record, signal
 
 
 if __name__ == "__main__":
 
     # Call the function with leads and file_count as inputs
-    ecg_record, ecg_signal, lead = choose_lead_from_dataset()
+    ecg_record, ecg_signal, lead, fs = choose_lead_from_dataset()
 
     # Apply QRS detection using the Pan-Tompkins algorithm
-    ecg_processing(ecg_record, ecg_signal, lead)
+    ecg_processed_signal = ecg_processing(ecg_record, ecg_signal)
+
+    # Plot
+    plot_ecg_signals(ecg_signal, ecg_processed_signal, fs)
 
