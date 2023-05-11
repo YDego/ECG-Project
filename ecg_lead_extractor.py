@@ -190,7 +190,7 @@ def ecg_processing(ecg_record, ecg_signal):
         powerline = [50, 60]
         ecg_filtered_signal = notch_filter(ecg_filtered_signal, fs, powerline)
 
-    if input("Perform HP filter [y/N]? ") == "y":
+    if input("Perform BP filter [y/N]? ") == "y":
         # Remove high frequency noise
         ecg_filtered_signal = butter_bandpass_filter(ecg_filtered_signal, 0.5, 35, fs=fs, order=4)
 
