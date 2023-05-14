@@ -1,8 +1,9 @@
 import wfdb
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 from wfdb import processing
-from scipy.signal import butter, lfilter
+from scipy.signal import butter
 from scipy import signal
 
 
@@ -32,18 +33,26 @@ def notch_filter(signal_data, sample_rate, freq_list):
 
     return filtered_signal
 
+def baseline_removal_moving_median(signal, window_size=201):
+    """
+    Perform baseline removal using a moving median.
 
-def butter_lowpass(cutoff, fs, order=5):
-    nyq = 0.5 * fs
-    normal_cutoff = cutoff / nyq
-    b, a = butter(order, normal_cutoff)
-    return b, a
+    Parameters:
+    -----------
+    signal : numpy array
+        The signal to be filtered.
+    window_size : int
+        The size of the window for the moving median filter.
 
+    Returns:
+    --------
+    filtered_signal : numpy array
+        The baseline-corrected signal.
+    """
+    filtered_signal = signal - np.convolve(signal, np.ones(window_size)/window_size, mode='same')
+    filtered_signal = filtered_signal - np.convolve(filtered_signal, np.ones(window_size)/window_size, mode='same')
+    return filtered_signal
 
-def butter_lowpass_filter(data, cutoff, fs, order=5):
-    b, a = butter_lowpass(cutoff, fs, order=order)
-    y = lfilter(b, a, data)
-    return y
 
 
 def get_records(records_file):
@@ -181,9 +190,10 @@ def ecg_processing(ecg_record, ecg_signal):
         ecg_filtered_signal = processing.normalize_bound(ecg_filtered_signal)
 
     if input("Perform baseline removal [y/N]? ") == "y":
-        # Remove baseline wander
-        baseline = butter_lowpass_filter(ecg_filtered_signal, cutoff=3, fs=fs, order=5)
-        ecg_filtered_signal -= baseline
+        # Remove baseline - moving median
+        window_size_sec = 1
+        window_size = fs * window_size_sec
+        ecg_filtered_signal = baseline_removal_moving_median(ecg_filtered_signal, window_size)
 
     if input("Perform powerline filter [y/N]? ") == "y":
         # Remove powerline interference
