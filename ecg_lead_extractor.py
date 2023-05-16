@@ -33,6 +33,7 @@ def notch_filter(signal_data, sample_rate, freq_list):
 
     return filtered_signal
 
+
 def baseline_removal_moving_median(signal, window_size=201):
     """
     Perform baseline removal using a moving median.
@@ -54,7 +55,6 @@ def baseline_removal_moving_median(signal, window_size=201):
     return filtered_signal
 
 
-
 def get_records(records_file):
     with open(records_file, 'r') as f:
         records = f.readlines()
@@ -73,6 +73,7 @@ def select_lead(leads):
 
 
 def ecg_lead_ludb():
+    sampto = 5000
     # Load the RECORDS file and get the number of records
     records_file = r'ecg_dataset\lobachevsky-university-electrocardiography-database-1.0.1\RECORDS'
     records, num_records = get_records(records_file)
@@ -94,6 +95,7 @@ def ecg_lead_ludb():
     record_path = fr'ecg_dataset\lobachevsky-university-electrocardiography-database-1.0.1\data\{data_file}'
     # Read the record
     ecg_record = wfdb.rdrecord(record_path)
+
     # record = wfdb.rdrecord('a103l', pn_dir='challenge-2015/training/')
 
     # Define the list of leads available
@@ -112,12 +114,29 @@ def ecg_lead_ludb():
 
     # Get a single signal from the records
     ecg_signal = ecg_record.__dict__['p_signal'][:, leads.index(lead)]
+    annotation = wfdb.rdann(record_path, lead)
+    annotation_sample = np.ndarray.tolist(annotation.sample)
     fs = ecg_record.fs
 
     # Plot
     title = f'ECG signal over time\nECG Lead: {lead}, Rhythm: {rhythms}, Age: {age},Sex: {sex}'
     wfdb.plot_items(signal=ecg_signal, fs=ecg_record.fs, title=title, time_units='seconds', sig_units=['mV'],
                     ylabel=['Voltage [mV]'])
+
+    # Plot ECG signal
+    t = np.arange(ecg_signal.shape[0]) / fs
+    fig, ax = plt.subplots()
+    ax.plot(t, ecg_signal, lw=2)
+    ax.set_title("ECG Lead " + lead.upper())
+    ax.set_xlabel("Time (s)")
+    ax.set_ylabel("Amplitude (mV)")
+
+    a = wfdb.io.rdheader('100', pn_dir='mitdb')
+    # Plot QRS complex annotations
+    annotation = wfdb.rdann(record_path, lead, sampto=sampto)
+    # ax.plot(t, ecg_signal[annotation.sample/fs], 'rx')
+    plt.scatter(t[annotation_sample], ecg_signal[annotation_sample], c='r')
+    plt.show()
 
     return ecg_record, ecg_signal, lead, fs
 
@@ -240,15 +259,15 @@ if __name__ == "__main__":
     # Call the function with leads and file_count as inputs
     ecg_record, ecg_signal, lead, fs = choose_lead_from_dataset()
 
-    # Apply QRS detection using the Pan-Tompkins algorithm
-    qrs_detection(ecg_signal, fs)
-
-    # ECG processing
-    ecg_processed_signal = ecg_processing(ecg_record, ecg_signal)
-
-    # Plot
-    plot_ecg_signals(ecg_signal, ecg_processed_signal, fs)
-
-    # Apply QRS detection using the Pan-Tompkins algorithm
-    qrs_detection(ecg_processed_signal, fs)
+    # # Apply QRS detection using the Pan-Tompkins algorithm
+    # qrs_detection(ecg_signal, fs)
+    #
+    # # ECG processing
+    # ecg_processed_signal = ecg_processing(ecg_record, ecg_signal)
+    #
+    # # Plot
+    # plot_ecg_signals(ecg_signal, ecg_processed_signal, fs)
+    #
+    # # Apply QRS detection using the Pan-Tompkins algorithm
+    # qrs_detection(ecg_processed_signal, fs)
 
