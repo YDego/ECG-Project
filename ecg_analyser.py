@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pywt
 import filters_by_fft
+import qrs_detection
 
 # from IPython.display import display
 # import os
@@ -54,24 +55,34 @@ while data_file != 'exit':
                 ## Apply QRS detection using the Pan-Tompkins algorithm
                 ###qrs_inds = processing.qrs.xqrs_detect(sig=signal, fs=record.fs)
                 #local_peaks = wfdb.processing.find_local_peaks(sig=signal, radius=25)
+                original_signal = signal
+                #original_signal, freq, spectrum = filters_by_fft.high_pass_filter(2.5, signal, record.fs)
+                #plt.plot(original_signal)
+                #plt.show()
+                #plt.plot(np.arange(0,5000), np.real(band_pass_filter_signal))
+                #plt.show()
+
+
+
+
 
 
                 ###################try to use in dwt for denoising and then find the right R picks
-                #wavelet = pywt.Wavelet('sym4')
+                wavelet = pywt.Wavelet('sym4')
                 ####levdec = min(pywt.dwt_max_level(signal.shape[-1], wavelet.dec_len), 6)
-                #Ca4,Cd4,Cd3,Cd2,Cd1  = pywt.wavedec(signal, wavelet=wavelet, level=4)
+                Ca4, Cd4, Cd3, Cd2, Cd1 = pywt.wavedec(signal, wavelet=wavelet, level=4)
 
-                #Ca4,Cd2,Cd1 = np.zeros(Ca4.shape[-1]),np.zeros(Cd2.shape[-1]),np.zeros(Cd1.shape[-1])
-                #new_signal = pywt.waverec([Ca4,Cd4,Cd3,Cd2,Cd1], wavelet)
+                Ca4, Cd2, Cd1 = np.zeros(Ca4.shape[-1]),np.zeros(Cd2.shape[-1]),np.zeros(Cd1.shape[-1])
+                new_signal = pywt.waverec([Ca4, Cd4, Cd3, Cd2, Cd1], wavelet)
 
-                ###plt.plot(new_signal)
-                #plt.plot(abs(new_signal)**2)
-                #plt.xlabel('Sample number')
-                #plt.ylabel('Voltage (mV)')
-                #plt.show()
+                plt.plot(new_signal)
+                plt.show()
+                plt.xlabel('Sample number')
+                plt.ylabel('Voltage (mV)')
+
 
                 ######################using cwt for R peaks
-                #scales = np.arange(1,101)
+                #scales = np.arange(1,31)
                 #coef,freqs = pywt.cwt(signal, scales, 'gaus1')
                 ###################ploting scalogram
 
@@ -93,8 +104,12 @@ while data_file != 'exit':
                 #plt.show()
 
 
-                plt.plot(signal)
-                #plt.scatter(local_peaks, signal[local_peaks], c='r')
+                plt.plot(original_signal)
+                threshold = np.mean(abs(new_signal)**2)
+                open_dots, closed_dots = qrs_detection.detection_qrs(abs(new_signal)**2, threshold)
+                plt.plot(abs(new_signal)**2)
+                plt.scatter(open_dots, original_signal[open_dots], c='r')
+                plt.scatter(closed_dots, original_signal[closed_dots], c='r')
                 plt.xlabel('Sample number')
                 plt.ylabel('Voltage (mV)')
                 plt.show()
@@ -105,16 +120,20 @@ while data_file != 'exit':
 
 
 
-                # plt.scatter(R_peaks, signal[R_peaks], c='b')
+
+
+                #plt.scatter(R_peaks, signal[R_peaks], c='b')
                 #plt.plot(freq,np.real(spectrum))
                 #plt.xlabel('Frequency[Hz]')
                 #plt.ylabel('Amplitude')
                 #plt.show(
 
-            band_pass_filter_signal , freq , spectrum = filters_by_fft.band_pass_filter(5,30,signal,record.fs)
-            plt.plot(np.arange(0,5000) ,np.real(band_pass_filter_signal))
-            plt.show()
 
-            #print(record.__dict__)
+
+                #high_pass_filter_signal,  freq, spectrum = filters_by_fft.high_pass_filter(5,signal,record.fs)
+                #plt.plot(np.arange(0, 5000), np.real(high_pass_filter_signal))
+                #plt.show()
+
+                #print(record.__dict__)
 
 
