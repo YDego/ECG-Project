@@ -1,58 +1,8 @@
 import wfdb
-import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from wfdb import processing
-from scipy.signal import butter
-from scipy import signal
-
-
-def butter_bandpass(lowcut, highcut, fs, order=5):
-    nyq = 0.5 * fs
-    low = lowcut / nyq
-    high = highcut / nyq
-    b, a = butter(order, [low, high], btype='band')
-    return b, a
-
-
-def butter_bandpass_filter(data, lowcut, highcut, fs, order=5):
-    b, a = butter_bandpass(lowcut, highcut, fs, order=order)
-    y = signal.filtfilt(b, a, data)
-    return y
-
-
-def notch_filter(signal_data, sample_rate, freq_list):
-    nyquist_rate = sample_rate / 2.0
-    filtered_signal = signal_data.copy()
-
-    for freq in freq_list:
-        notch_width = 5.0  # in Hz
-        notch_freq = freq / nyquist_rate
-        b, a = signal.iirnotch(notch_freq, notch_width, sample_rate)
-        filtered_signal = signal.filtfilt(b, a, filtered_signal)
-
-    return filtered_signal
-
-
-def baseline_removal_moving_median(signal, window_size=201):
-    """
-    Perform baseline removal using a moving median.
-
-    Parameters:
-    -----------
-    signal : numpy array
-        The signal to be filtered.
-    window_size : int
-        The size of the window for the moving median filter.
-
-    Returns:
-    --------
-    filtered_signal : numpy array
-        The baseline-corrected signal.
-    """
-    filtered_signal = signal - np.convolve(signal, np.ones(window_size)/window_size, mode='same')
-    filtered_signal = filtered_signal - np.convolve(filtered_signal, np.ones(window_size)/window_size, mode='same')
-    return filtered_signal
+import ecg_pre_processing as pre_processing
 
 
 def get_records(records_file):
@@ -72,112 +22,67 @@ def select_lead(leads):
     return lead
 
 
-def ecg_lead_ludb():
-    sampto = 5000
+def ecg_lead_ext(dataset_name):
+
+    ludb_dataset = {
+        "name": "ludb",
+        "path": "lobachevsky-university-electrocardiography-database-1.0.1",
+        "leads": ['i', 'ii', 'iii', 'avr', 'avl', 'avf', 'v1', 'v2', 'v3', 'v4', 'v5', 'v6'],
+        "annotations": ""
+    }
+
+    qt_dataset = {
+        "name": "qt",
+        "path": "qt-database-1.0.0",
+        "leads": ['i', 'ii'],
+        "annotations": "pu0"
+    }
+
+    if dataset_name == "qt":
+        dataset = qt_dataset
+    elif dataset_name == "ludb":
+        dataset = ludb_dataset
+    else:
+        raise ValueError("Invalid dataset selection!")
+
     # Load the RECORDS file and get the number of records
-    records_file = r'ecg_dataset\lobachevsky-university-electrocardiography-database-1.0.1\RECORDS'
+    records_file = rf'ecg_dataset\{dataset["path"]}\RECORDS'
     records, num_records = get_records(records_file)
-    data_file = int(input(f"There are {num_records} records available, choose one (1-{num_records}) [default 1]: ") or 1)
+    data_file = int(
+        input(f"There are {num_records} records available, choose one (1-{num_records}) [default 1]: ") or 1)
 
     # Check if the user input is valid
     if data_file > num_records or data_file < 1:
-        print("Invalid data selection!")
-        return
-    # Read the CSV file
-    df = pd.read_csv(
-        r'ecg_dataset\lobachevsky-university-electrocardiography-database-1.0.1\ludb.csv')
-    # Get the details of the selected record
-    rhythms = df.iloc[int(data_file) - 1]['Rhythms']
-    sex = df.iloc[int(data_file) - 1]['Sex']
-    age = df.iloc[int(data_file) - 1]['Age']
-
-    # Chose data file
-    record_path = fr'ecg_dataset\lobachevsky-university-electrocardiography-database-1.0.1\data\{data_file}'
-    # Read the record
-    ecg_record = wfdb.rdrecord(record_path)
-
-    # record = wfdb.rdrecord('a103l', pn_dir='challenge-2015/training/')
-
-    # Define the list of leads available
-    leads = ['i', 'ii', 'iii', 'avr', 'avl', 'avf', 'v1', 'v2', 'v3', 'v4', 'v5', 'v6', 'all']
-
-    # Get user input for which lead to plot
-    lead = select_lead(leads)
-
-    if lead is None:
-        return
-
-    if lead == 'All' or lead == 'all':
-        # Plot
-        wfdb.plot_wfdb(record=ecg_record, title='ECG')
-        return ecg_record
-
-    # Get a single signal from the records
-    ecg_signal = ecg_record.__dict__['p_signal'][:, leads.index(lead)]
-    annotation = wfdb.rdann(record_path, lead)
-    annotation_sample = np.ndarray.tolist(annotation.sample)
-    fs = ecg_record.fs
-
-    # Plot
-    title = f'ECG signal over time\nECG Lead: {lead}, Rhythm: {rhythms}, Age: {age},Sex: {sex}'
-    wfdb.plot_items(signal=ecg_signal, fs=ecg_record.fs, title=title, time_units='seconds', sig_units=['mV'],
-                    ylabel=['Voltage [mV]'])
-
-    # Plot ECG signal
-    t = np.arange(ecg_signal.shape[0]) / fs
-    fig, ax = plt.subplots()
-    ax.plot(t, ecg_signal, lw=2)
-    ax.set_title("ECG Lead " + lead.upper())
-    ax.set_xlabel("Time (s)")
-    ax.set_ylabel("Amplitude (mV)")
-
-    a = wfdb.io.rdheader('100', pn_dir='mitdb')
-    # Plot QRS complex annotations
-    annotation = wfdb.rdann(record_path, lead, sampto=sampto)
-    # ax.plot(t, ecg_signal[annotation.sample/fs], 'rx')
-    plt.scatter(t[annotation_sample], ecg_signal[annotation_sample], c='r')
-    plt.show()
-
-    return ecg_record, ecg_signal, lead, fs
-
-
-def ecg_lead_qt():
-    # Load the RECORDS file and get the number of records
-    records_file = 'ecg_dataset/qt-database-1.0.0/RECORDS'
-    records, num_records = get_records(records_file)
-
-    # Ask the user to choose a record
-    data_file = int(input(f"There are {num_records} records available, choose one (1-{num_records}) [default 1]: ") or 1)
-    if data_file < 1 or data_file > num_records:
-        print(f"Invalid record number! Please choose a number between 1 and {num_records}.")
-        return
+        raise ValueError("Invalid data selection!")
 
     # Get the selected record name and load the ECG record
     record_name = records[data_file - 1].strip()
-    record_path = f'ecg_dataset/qt-database-1.0.0/{record_name}'
+    record_path = f'ecg_dataset/{dataset["path"]}/{record_name}'
     ecg_record = wfdb.rdrecord(record_path)
 
-    # Define the list of leads available
-    leads = ['i', 'ii']
-
     # Get user input for which lead to plot
-    lead = select_lead(leads)
+    lead = select_lead(dataset["leads"])
 
     if lead is None:
-        return
+        raise ValueError("Invalid lead selection!")
+    elif dataset_name == "ludb":
+        dataset["annotations"] = lead
 
     # Get a single signal from the records
-    ecg_signal = ecg_record.__dict__['p_signal'][:, leads.index(lead)]
+    ecg_signal = ecg_record.__dict__['p_signal'][:, dataset["leads"].index(lead)]
+    annotation = wfdb.rdann(record_path, dataset["annotations"])
+    annotation_sample = np.ndarray.tolist(annotation.sample)
     fs = ecg_record.fs
 
     # Calculate time array
-    times = [i / fs for i in range(len(ecg_signal))]
+    time = [i / fs for i in range(len(ecg_signal))]
 
     # Plot the signal
-    plt.plot(times, ecg_signal)
-    plt.title(f'ECG Lead II for {record_name}')
+    plt.plot(time, ecg_signal)
+    plt.title(f'ECG Lead {lead} for {record_name}')
     plt.xlabel('Time (s)')
     plt.ylabel('Voltage (mV)')
+    plt.scatter([time[i] for i in annotation_sample], [ecg_signal[i] for i in annotation_sample], c='r')
     plt.show()
 
     return ecg_record, ecg_signal, lead, fs
@@ -188,42 +93,12 @@ def choose_lead_from_dataset():
     # Data list
     database = ['ludb', 'qt']
     # Get user input for which dataset to plot
-    dataset = str(input(f"Choose a dataset ({', '.join(database)}) [default ludb]: ") or 'ludb')
+    dataset_name = str(input(f"Choose a dataset ({', '.join(database)}) [default ludb]: ") or 'ludb')
 
-    if dataset == 'ludb':
-        return ecg_lead_ludb()
-    elif dataset == 'qt':
-        return ecg_lead_qt()
+    if dataset_name in database:
+        return ecg_lead_ext(dataset_name)
     else:
-        print("Invalid dataset selection!")
-        return
-
-
-def ecg_processing(ecg_record, ecg_signal):
-
-    fs = ecg_record.fs
-    ecg_filtered_signal = ecg_signal
-
-    if input("Perform normalization [y/N]? ") == "y":
-        # Normalization
-        ecg_filtered_signal = processing.normalize_bound(ecg_filtered_signal)
-
-    if input("Perform baseline removal [y/N]? ") == "y":
-        # Remove baseline - moving median
-        window_size_sec = 1
-        window_size = fs * window_size_sec
-        ecg_filtered_signal = baseline_removal_moving_median(ecg_filtered_signal, window_size)
-
-    if input("Perform powerline filter [y/N]? ") == "y":
-        # Remove powerline interference
-        powerline = [50, 60]
-        ecg_filtered_signal = notch_filter(ecg_filtered_signal, fs, powerline)
-
-    if input("Perform BP filter [y/N]? ") == "y":
-        # Remove high frequency noise
-        ecg_filtered_signal = butter_bandpass_filter(ecg_filtered_signal, 0.5, 35, fs=fs, order=4)
-
-    return ecg_filtered_signal
+        raise ValueError("Invalid dataset selection!")
 
 
 def plot_ecg_signals(signal1, signal2, fs):
@@ -244,10 +119,10 @@ def plot_ecg_signals(signal1, signal2, fs):
 
 def qrs_detection(ecg_signal, fs):
     # Apply QRS detection using the Pan-Tompkins algorithm
-    qrs_inds = processing.qrs.xqrs_detect(sig=ecg_signal, fs=fs)
+    qrs_indxs = processing.qrs.xqrs_detect(sig=ecg_signal, fs=fs)
     # Plot the ECG signal and the detected QRS complexes
     plt.plot(ecg_signal)
-    plt.scatter(qrs_inds, ecg_signal[qrs_inds], c='r')
+    plt.scatter(qrs_indxs, ecg_signal[qrs_indxs], c='r')
     plt.title('ECG Signal - QRS Detection')
     plt.xlabel('Sample number')
     plt.ylabel('Voltage (mV)')
@@ -259,15 +134,14 @@ if __name__ == "__main__":
     # Call the function with leads and file_count as inputs
     ecg_record, ecg_signal, lead, fs = choose_lead_from_dataset()
 
-    # # Apply QRS detection using the Pan-Tompkins algorithm
-    # qrs_detection(ecg_signal, fs)
-    #
-    # # ECG processing
-    # ecg_processed_signal = ecg_processing(ecg_record, ecg_signal)
-    #
-    # # Plot
-    # plot_ecg_signals(ecg_signal, ecg_processed_signal, fs)
-    #
-    # # Apply QRS detection using the Pan-Tompkins algorithm
-    # qrs_detection(ecg_processed_signal, fs)
+    # Apply QRS detection using the Pan-Tompkins algorithm
+    qrs_detection(ecg_signal, fs)
 
+    # ECG processing
+    ecg_processed_signal = pre_processing.ecg_pre_processing(ecg_record, ecg_signal)
+
+    # Plot
+    plot_ecg_signals(ecg_signal, ecg_processed_signal, fs)
+
+    # Apply QRS detection using the Pan-Tompkins algorithm
+    qrs_detection(ecg_processed_signal, fs)
