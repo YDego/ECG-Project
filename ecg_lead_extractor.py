@@ -117,25 +117,10 @@ def plot_ecg_signals(signal1, signal2, fs):
     plt.show()
 
 
-def qrs_detection(ecg_signal, fs):
-    # Apply QRS detection using the Pan-Tompkins algorithm
-    qrs_indxs = processing.qrs.xqrs_detect(sig=ecg_signal, fs=fs)
-    # Plot the ECG signal and the detected QRS complexes
-    plt.plot(ecg_signal)
-    plt.scatter(qrs_indxs, ecg_signal[qrs_indxs], c='r')
-    plt.title('ECG Signal - QRS Detection')
-    plt.xlabel('Sample number')
-    plt.ylabel('Voltage (mV)')
-    plt.show()
-
-
 if __name__ == "__main__":
 
     # Call the function with leads and file_count as inputs
     ecg_record, ecg_signal, lead, fs = choose_lead_from_dataset()
-
-    # Apply QRS detection using the Pan-Tompkins algorithm
-    qrs_detection(ecg_signal, fs)
 
     # ECG processing
     ecg_processed_signal = pre_processing.ecg_pre_processing(ecg_record, ecg_signal)

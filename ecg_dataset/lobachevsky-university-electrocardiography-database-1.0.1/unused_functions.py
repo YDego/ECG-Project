@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from wfdb import processing
 
+
 def ecg_lead_ludb():
 
     # Load the RECORDS file and get the number of records
@@ -116,3 +117,14 @@ def ecg_lead_qt():
 
     return ecg_record, ecg_signal, lead, fs
 
+
+def qrs_detection(ecg_signal, fs):
+    # Apply QRS detection using the Pan-Tompkins algorithm
+    qrs_indxs = processing.qrs.xqrs_detect(sig=ecg_signal, fs=fs)
+    # Plot the ECG signal and the detected QRS complexes
+    plt.plot(ecg_signal)
+    plt.scatter(qrs_indxs, ecg_signal[qrs_indxs], c='r')
+    plt.title('ECG Signal - QRS Detection')
+    plt.xlabel('Sample number')
+    plt.ylabel('Voltage (mV)')
+    plt.show()
