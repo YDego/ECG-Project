@@ -1,7 +1,6 @@
 import wfdb
 import numpy as np
 import matplotlib.pyplot as plt
-from wfdb import processing
 import ecg_pre_processing as pre_processing
 
 
@@ -128,5 +127,3 @@ if __name__ == "__main__":
     # Plot
     plot_ecg_signals(ecg_signal, ecg_processed_signal, fs)
 
-    # Apply QRS detection using the Pan-Tompkins algorithm
-    qrs_detection(ecg_processed_signal, fs)
