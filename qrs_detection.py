@@ -1,4 +1,5 @@
 import numpy as np
+import pywt
 
 
 def detection_qrs(signal, threshold):
@@ -70,3 +71,13 @@ def check_radius_closed_dot(signal, index, threshold, distance):
     if false_dot_backward > margin_of_error * orignal_distance:
         flag_backward = False
     return flag_backward and flag_forward
+
+
+def wavelet_filter(signal):
+    wavelet = pywt.Wavelet('sym4')
+    # levdec = min(pywt.dwt_max_level(signal.shape[-1], wavelet.dec_len), 6)
+    Ca4, Cd4, Cd3, Cd2, Cd1 = pywt.wavedec(signal, wavelet=wavelet, level=4)
+
+    Ca4, Cd2, Cd1 = np.zeros(Ca4.shape[-1]),np.zeros(Cd2.shape[-1]),np.zeros(Cd1.shape[-1])
+    fitered_signal = pywt.waverec([Ca4, Cd4, Cd3, Cd2, Cd1], wavelet)
+    return fitered_signal

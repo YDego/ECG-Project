@@ -9,11 +9,17 @@ while input("Choose new datafile? [Y/n]: ") != 'n':
     ecg_original = lead_extractor.choose_lead_from_dataset()
 
     # Plot signal
+    ecg_original["fft"], ecg_original["frequency_bins"] = processing_functions.compute_fft(ecg_original["signal"], ecg_original["fs"])
     plot_manager.plot_single_signal(ecg_original)
 
-    while input("Keep processing? [Y/n]: ") != 'n':
-        # ECG processing
-        ecg_processed = processing_functions.ecg_pre_processing(ecg_original)
+    # ECG processing
+    ecg_processed = processing_functions.ecg_pre_processing(ecg_original)
 
-        # Plot
-        plot_manager.plot_original_vs_processed(ecg_original, ecg_processed)
+    # ecg_wavelet = ecg_original.copy()
+
+    # ecg_wavelet["signal"] = qrs_detection.wavelet_filter(ecg_original["signal"])
+
+    ecg_processed["fft"], ecg_processed["frequency_bins"] = processing_functions.compute_fft(ecg_processed["signal"], ecg_processed["fs"])
+
+    plot_manager.plot_original_vs_processed(ecg_original, ecg_processed)
+

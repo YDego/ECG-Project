@@ -2,7 +2,6 @@
 import numpy as np
 from scipy.fftpack import fft, fftfreq, ifft, fftshift, ifftshift
 
-
 # from wfdb import processing
 # from scipy.signal import butter
 # from scipy import signal
@@ -89,15 +88,7 @@ def notch_filter(signal, freq_list, bandwidth, sample_rate):
 
 def ecg_pre_processing(ecg_dict):
     fs = ecg_dict['fs']
-    ecg_filtered = {
-        "dataset": ecg_dict["dataset"],
-        "record": ecg_dict["record"],
-        "signal": ecg_dict["signal"],
-        "name": ecg_dict["name"],
-        "ann": ecg_dict["ann"],
-        "lead": ecg_dict["lead"],
-        "fs": ecg_dict["fs"]
-    }
+    ecg_filtered = ecg_dict.copy()
 
     if input("Perform baseline removal [y/N]? ") == "y":
         # Remove baseline - moving median
@@ -116,3 +107,11 @@ def ecg_pre_processing(ecg_dict):
         ecg_filtered['signal'] = band_pass_filter(0.5, 50, ecg_filtered['signal'], fs)
 
     return ecg_filtered
+
+
+def compute_fft(signal, sample_rate):
+    N = len(signal)
+    fft_signal = np.abs(fft(signal)[0:N // 2])
+    frequency_bins = fftfreq(N, 1/sample_rate)[:N // 2]
+
+    return fft_signal, frequency_bins
