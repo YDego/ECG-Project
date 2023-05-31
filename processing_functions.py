@@ -1,6 +1,8 @@
 # import matplotlib.pyplot as plt
 import numpy as np
 from scipy.fftpack import fft, fftfreq, ifft, fftshift, ifftshift
+
+
 # from wfdb import processing
 # from scipy.signal import butter
 # from scipy import signal
@@ -22,8 +24,8 @@ def baseline_removal_moving_median(signal, window_size=201):
     filtered_signal : numpy array
         The baseline-corrected signal.
     """
-    filtered_signal = signal - np.convolve(signal, np.ones(window_size)/window_size, mode='same')
-    filtered_signal = filtered_signal - np.convolve(filtered_signal, np.ones(window_size)/window_size, mode='same')
+    filtered_signal = signal - np.convolve(signal, np.ones(window_size) / window_size, mode='same')
+    filtered_signal = filtered_signal - np.convolve(filtered_signal, np.ones(window_size) / window_size, mode='same')
     return filtered_signal
 
 
@@ -31,7 +33,8 @@ def low_pass_filter(cutoff_freq, signal, sampling_rate):
     spectrum = fftshift(fft(signal))
     freq = fftshift(fftfreq(signal.shape[-1], 1 / sampling_rate))
     spectrum[0:(round((len(spectrum) * (sampling_rate / 2 - cutoff_freq)) / sampling_rate) + 1)] = 0
-    spectrum[(signal.shape[-1] - round((len(spectrum) * (sampling_rate / 2 - cutoff_freq)) / sampling_rate)): (signal.shape[-1])] = 0
+    spectrum[(signal.shape[-1] - round((len(spectrum) * (sampling_rate / 2 - cutoff_freq)) / sampling_rate)): (
+        signal.shape[-1])] = 0
     filter_signal = ifft(ifftshift(spectrum))
     return filter_signal, freq, spectrum
 
@@ -40,7 +43,8 @@ def high_pass_filter(cutoff_freq, signal, sampling_rate):
     freq = fftshift(fftfreq(signal.shape[-1], 1 / sampling_rate))
     spectrum_without_shift = (fft(signal))
     spectrum_without_shift[0:(round((len(spectrum_without_shift) * cutoff_freq) / sampling_rate) + 1)] = 0
-    spectrum_without_shift[(signal.shape[-1] - round((len(spectrum_without_shift) * cutoff_freq) / sampling_rate)): (signal.shape[-1])] = 0
+    spectrum_without_shift[
+        (signal.shape[-1] - round((len(spectrum_without_shift) * cutoff_freq) / sampling_rate)): (signal.shape[-1])] = 0
     filter_signal = ifft(spectrum_without_shift)
     return filter_signal, freq, fftshift(spectrum_without_shift)
 
@@ -49,25 +53,41 @@ def band_pass_filter(cutoff_freq_down, cutoff_freq_up, signal, sampling_rate):
     freq = fftshift(fftfreq(signal.shape[-1], 1 / sampling_rate))
     spectrum = fftshift(fft(signal))
     spectrum[0:(round((len(spectrum) * (sampling_rate / 2 - cutoff_freq_up)) / sampling_rate) + 1)] = 0
-    spectrum[(signal.shape[-1] - round((len(spectrum) * (sampling_rate / 2 - cutoff_freq_up)) / sampling_rate)): (signal.shape[-1])] = 0
+    spectrum[(signal.shape[-1] - round((len(spectrum) * (sampling_rate / 2 - cutoff_freq_up)) / sampling_rate)): (
+        signal.shape[-1])] = 0
     spectrum_without_shift = (ifftshift(spectrum))
     spectrum_without_shift[0:(round((len(spectrum_without_shift) * cutoff_freq_down) / sampling_rate) + 1)] = 0
-    spectrum_without_shift[(signal.shape[-1] - round((len(spectrum_without_shift) * cutoff_freq_down) / sampling_rate)): (signal.shape[-1])] = 0
+    spectrum_without_shift[
+        (signal.shape[-1] - round((len(spectrum_without_shift) * cutoff_freq_down) / sampling_rate)): (
+            signal.shape[-1])] = 0
     filter_signal = ifft(spectrum_without_shift)
     return filter_signal
 
 
-def notch_filter(frequencies, bandwidth, signal, sampling_rate):
-    filtered_signal = signal[:]
-    for center_freq in frequencies:
-        cutoff_freq_down = center_freq - bandwidth / 2
-        cutoff_freq_up = center_freq + bandwidth / 2
-        filtered_signal = band_pass_filter(cutoff_freq_down, cutoff_freq_up, filtered_signal, sampling_rate)
-    return filtered_signal
+def notch_filter(signal, freq_list, bandwidth, sample_rate):
+    # Perform FFT on the signal
+    fft_signal = fft(signal)
+
+    # Calculate the frequency bins
+    n = len(signal)
+    frequency_bins = np.fft.fftfreq(n, d=1 / sample_rate)
+
+    # Find the indices of the frequencies within the specified range
+    indices = []
+    for freq in freq_list:
+        indices.extend(np.where((frequency_bins >= freq - bandwidth / 2) & (frequency_bins <= freq + bandwidth / 2))[0])
+
+    # Set the corresponding frequency components to zero
+    fft_signal[indices] = 0
+
+    # Perform inverse FFT to obtain the filtered signal
+    filtered_signal = ifft(fft_signal)
+
+    # Return the real part of the filtered signal
+    return np.real(filtered_signal)
 
 
 def ecg_pre_processing(ecg_dict):
-
     fs = ecg_dict['fs']
     ecg_filtered = {
         "dataset": ecg_dict["dataset"],
@@ -88,7 +108,8 @@ def ecg_pre_processing(ecg_dict):
     if input("Perform powerline filter [y/N]? ") == "y":
         # Remove powerline interference
         powerline = [50, 60]
-        ecg_filtered['signal'] = notch_filter(powerline, 2, ecg_filtered['signal'], fs)
+        bandwidth = 1
+        ecg_filtered['signal'] = notch_filter(ecg_filtered['signal'], powerline, bandwidth, fs)
 
     if input("Perform BP filter [y/N]? ") == "y":
         # Remove high frequency noise

@@ -130,6 +130,23 @@ def qrs_detection(ecg_signal, fs):
     plt.show()
 
 
+def notch_filter(frequencies, bandwidth, signal, sampling_rate):
+    freq = fftshift(fftfreq(signal.shape[-1], 1 / sampling_rate))
+    spectrum = fftshift(fft(signal))
+
+    for center_freq in frequencies:
+        index_p = np.where(
+            (freq >= center_freq - bandwidth / 2) &
+            (freq <= center_freq + bandwidth / 2))[0]
+        index_n = np.where(
+            (freq >= -center_freq - bandwidth / 2) &
+            (freq <= -center_freq + bandwidth / 2))[0]
+        spectrum[index_p] = 0
+        spectrum[index_n] = 0
+
+    filter_signal = ifft(ifftshift(spectrum))
+    return filter_signal
+
 # Normalization
 ecg_filtered_signal = [1, 2]
 ecg_filtered_signal = processing.normalize_bound(ecg_filtered_signal)
