@@ -8,7 +8,7 @@ from wfdb import processing
 def ecg_lead_ludb():
 
     # Load the RECORDS file and get the number of records
-    records_file = r'ecg_dataset\lobachevsky-university-electrocardiography-database-1.0.1\RECORDS'
+    records_file = r'../ecg_dataset/lobachevsky-university-electrocardiography-database-1.0.1/RECORDS'
     records, num_records = get_records(records_file)
     data_file = int(input(f"There are {num_records} records available, choose one (1-{num_records}) [default 1]: ") or 1)
 
@@ -18,7 +18,7 @@ def ecg_lead_ludb():
         return
     # Read the CSV file
     df = pd.read_csv(
-        r'ecg_dataset\lobachevsky-university-electrocardiography-database-1.0.1\ludb.csv')
+        r'../ecg_dataset/lobachevsky-university-electrocardiography-database-1.0.1/ludb.csv')
     # Get the details of the selected record
     rhythms = df.iloc[int(data_file) - 1]['Rhythms']
     sex = df.iloc[int(data_file) - 1]['Sex']
@@ -75,7 +75,7 @@ def ecg_lead_ludb():
 
 def ecg_lead_qt():
     # Load the RECORDS file and get the number of records
-    records_file = 'ecg_dataset/qt-database-1.0.0/RECORDS'
+    records_file = '../ecg_dataset/qt-database-1.0.0/RECORDS'
     records, num_records = get_records(records_file)
 
     # Ask the user to choose a record

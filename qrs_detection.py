@@ -48,7 +48,8 @@ def check_radius_open_dot(signal, index, threshold, distance):
         flag_backward = False
     return flag_backward and flag_forward
 
-def check_radius_closed_dot(signal, index ,threshold, distance):
+
+def check_radius_closed_dot(signal, index, threshold, distance):
     flag_forward = True
     false_dot_forward = 0
     margin_of_error = 0.4
@@ -69,5 +70,3 @@ def check_radius_closed_dot(signal, index ,threshold, distance):
     if false_dot_backward > margin_of_error * orignal_distance:
         flag_backward = False
     return flag_backward and flag_forward
-
-
