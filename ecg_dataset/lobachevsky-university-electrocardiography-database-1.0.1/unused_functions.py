@@ -128,3 +128,8 @@ def qrs_detection(ecg_signal, fs):
     plt.xlabel('Sample number')
     plt.ylabel('Voltage (mV)')
     plt.show()
+
+
+# Normalization
+ecg_filtered_signal = [1, 2]
+ecg_filtered_signal = processing.normalize_bound(ecg_filtered_signal)
