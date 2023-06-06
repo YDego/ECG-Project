@@ -2,6 +2,36 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
+def convert_markers(ann_markers):
+    converter = {
+        '(': '<',
+        ')': '>',
+        'p': 'X',
+        'N': 'X',
+        't': 'X'
+    }
+    markers_converted = ann_markers[:]
+    for i in range(len(ann_markers)):
+        markers_converted[i] = converter[ann_markers[i]]
+
+    return markers_converted
+
+
+def color_coverter(ann_markers):
+    color_converter = {
+        '(': 'k',
+        ')': 'k',
+        'p': 'b',
+        'N': 'g',
+        't': 'r'
+    }
+    color_converted = ann_markers[:]
+    for i in range(len(ann_markers)):
+        color_converted[i] = color_converter[ann_markers[i]]
+
+    return color_converted
+
+
 def plot_single_signal(ecg_dict):
     fft = ecg_dict["fft"]
     frequency_bins = ecg_dict["frequency_bins"]
@@ -16,7 +46,14 @@ def plot_single_signal(ecg_dict):
     plt.xlabel('Time (s)')
     plt.ylabel('Voltage (mV)')
     if ecg_dict['ann'] is not None:
-        plt.scatter([time[i] for i in ecg_dict['ann']], [ecg_dict['signal'][i] for i in ecg_dict['ann']], c='r')
+        ann = ecg_dict['ann']
+        markers = convert_markers(ecg_dict['ann_markers'])
+        colors = color_coverter(ecg_dict['ann_markers'])
+        j = 0
+
+        for i in ann:
+            plt.scatter(time[i], ecg_dict['signal'][i], c=colors[j], marker=markers[j])
+            j += 1
 
     # Plot the FFT
     plt.subplot(2, 1, 2)
@@ -32,14 +69,15 @@ def plot_single_signal(ecg_dict):
 
 def plot_original_vs_processed(signal1, signal2, ann=False):
     fft1 = signal1["fft"]
-    fft2 = signal1["fft"]
+    fft2 = signal2["fft"]
     freq_bin1 = signal1["frequency_bins"]
-    freq_bin2 = signal1["frequency_bins"]
+    freq_bin2 = signal2["frequency_bins"]
 
     fig, axs = plt.subplots(2, 2, figsize=(10, 6))
     fs = signal1['fs']
     time = [i / fs for i in range(len(signal1['signal']))]
 
+    # Plot the signal
     axs[0, 0].plot(time, signal1['signal'])
     axs[0, 0].set_ylabel('Amplitude (mV)')
     axs[0, 0].set_title('Original ECG Signal')
@@ -52,6 +90,7 @@ def plot_original_vs_processed(signal1, signal2, ann=False):
     axs[1, 0].set_ylabel('Magnitude')
     axs[1, 0].set_title('FFT')
 
+    # Plot the signal
     axs[0, 1].plot(time, signal2['signal'], color='red')
     axs[0, 1].set_ylabel('Amplitude (mV)')
     axs[0, 1].set_xlabel('Time (s)')

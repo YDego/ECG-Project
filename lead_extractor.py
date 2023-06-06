@@ -69,6 +69,7 @@ def ecg_lead_ext(dataset_name):
     # Get a single signal from the records
     ecg_signal = ecg_record.__dict__['p_signal'][:, dataset["leads"].index(lead)]
     annotation = wfdb.rdann(data_path, dataset["annotations"])
+    ann_markers = annotation.symbol
     annotation_sample = np.ndarray.tolist(annotation.sample)
     fs = ecg_record.fs
 
@@ -78,6 +79,7 @@ def ecg_lead_ext(dataset_name):
         "signal": ecg_signal,
         "name": record_name,
         "ann": annotation_sample,
+        "ann_markers": ann_markers,
         "lead": lead,
         "fs": fs
     }

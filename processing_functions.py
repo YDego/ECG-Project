@@ -59,7 +59,7 @@ def band_pass_filter(cutoff_freq_down, cutoff_freq_up, signal, sampling_rate):
     spectrum_without_shift[
         (signal.shape[-1] - round((len(spectrum_without_shift) * cutoff_freq_down) / sampling_rate)): (
             signal.shape[-1])] = 0
-    filter_signal = ifft(spectrum_without_shift)
+    filter_signal = np.real(ifft(spectrum_without_shift))
     return filter_signal
 
 
