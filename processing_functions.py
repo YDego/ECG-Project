@@ -86,6 +86,23 @@ def notch_filter(signal, freq_list, bandwidth, sample_rate):
     return np.real(filtered_signal)
 
 
+def compute_fft(signal, sample_rate):
+    N = len(signal)
+    fft_signal = np.abs(fft(signal)[0:N // 2])
+    frequency_bins = fftfreq(N, 1/sample_rate)[:N // 2]
+
+    return fft_signal, frequency_bins
+
+
+def wavelet_filter(signal):
+    wavelet = pywt.Wavelet('sym4')
+    # levdec = min(pywt.dwt_max_level(signal.shape[-1], wavelet.dec_len), 6)
+    Ca4, Cd4, Cd3, Cd2, Cd1 = pywt.wavedec(signal, wavelet=wavelet, level=4)
+    Ca4, Cd2, Cd1 = np.zeros(Ca4.shape[-1]), np.zeros(Cd2.shape[-1]), np.zeros(Cd1.shape[-1])
+    filtered_signal = pywt.waverec([Ca4, Cd4, Cd3, Cd2, Cd1], wavelet)
+    return filtered_signal
+
+
 def ecg_pre_processing(ecg_dict):
     fs = ecg_dict['fs']
     ecg_filtered = ecg_dict.copy()
@@ -106,14 +123,10 @@ def ecg_pre_processing(ecg_dict):
         # Remove high frequency noise
         ecg_filtered['signal'] = band_pass_filter(0.5, 50, ecg_filtered['signal'], fs)
 
+    if input("Perform Wavelet filter [y/N]? ") == "y":
+        # Remove high frequency noise
+        ecg_filtered['signal'] = wavelet_filter(ecg_filtered['signal'])
+
     ecg_filtered["fft"], ecg_filtered["frequency_bins"] = compute_fft(ecg_filtered["signal"], ecg_filtered["fs"])
 
     return ecg_filtered
-
-
-def compute_fft(signal, sample_rate):
-    N = len(signal)
-    fft_signal = np.abs(fft(signal)[0:N // 2])
-    frequency_bins = fftfreq(N, 1/sample_rate)[:N // 2]
-
-    return fft_signal, frequency_bins
