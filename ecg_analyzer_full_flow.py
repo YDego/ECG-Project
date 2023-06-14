@@ -5,7 +5,7 @@ import plot_manager
 
 
 # Call the function with leads and file_count as inputs
-ecg_original = lead_extractor.choose_lead_from_dataset()
+ecg_original = lead_extractor.ecg_lead_ext()
 
 # Plot signal
 ecg_original["fft"], ecg_original["frequency_bins"] = processing_functions.compute_fft(ecg_original["signal"], ecg_original["fs"])
