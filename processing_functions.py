@@ -106,6 +106,8 @@ def ecg_pre_processing(ecg_dict):
         # Remove high frequency noise
         ecg_filtered['signal'] = band_pass_filter(0.5, 50, ecg_filtered['signal'], fs)
 
+    ecg_filtered["fft"], ecg_filtered["frequency_bins"] = compute_fft(ecg_filtered["signal"], ecg_filtered["fs"])
+
     return ecg_filtered
 
 

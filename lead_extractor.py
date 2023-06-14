@@ -1,6 +1,6 @@
 import wfdb
 import numpy as np
-import processing_functions as pre_processing
+import processing_functions as pf
 
 
 def get_records(dataset):
@@ -100,6 +100,7 @@ def ecg_lead_ext(selected_dataset=None, selected_data_file=None, selected_lead=N
     ann_markers = annotation.symbol
     annotation_sample = np.ndarray.tolist(annotation.sample)
     fs = ecg_record.fs
+    fft, frequency_bins = pf.compute_fft(ecg_signal, fs)
 
     ecg_dict = {
         "dataset": dataset['name'],
@@ -109,7 +110,9 @@ def ecg_lead_ext(selected_dataset=None, selected_data_file=None, selected_lead=N
         "ann": annotation_sample,
         "ann_markers": ann_markers,
         "lead": lead,
-        "fs": fs
+        "fs": fs,
+        "fft": fft,
+        "frequency_bins": frequency_bins
     }
 
     return ecg_dict
