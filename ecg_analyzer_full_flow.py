@@ -13,8 +13,5 @@ pm.plot_single_signal(ecg_original)
 # ECG processing
 ecg_processed = pf.ecg_pre_processing(ecg_original)
 
-# ecg_wavelet = ecg_original.copy()
-
-# ecg_wavelet["signal"] = qrs_detection.wavelet_filter(ecg_original["signal"])
-
+# Plot original vs. processed signal
 pm.plot_original_vs_processed(ecg_original, ecg_processed)
