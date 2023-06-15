@@ -1,6 +1,7 @@
 # import matplotlib.pyplot as plt
 import numpy as np
 from scipy.fftpack import fft, fftfreq, ifft, fftshift, ifftshift
+import pywt
 
 # from wfdb import processing
 # from scipy.signal import butter

@@ -1,5 +1,4 @@
 import numpy as np
-import pywt
 
 
 def detection_qrs(signal, threshold):
