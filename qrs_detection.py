@@ -256,7 +256,7 @@ def distance_from_real_dot(qrs_sample , our_samples):
     len_q_s_sample = len(qrs_sample)
     len_iter = min(len_q_s_sample, len(our_samples))
     min_distance = math.inf
-    for index in range(len_iter):##need to check about len iter TODO
+    for index in range(len_iter):##need to check about len iter
         distance = abs(qrs_sample[0] - our_samples[index])
         if distance < min_distance:
             min_distance = distance
@@ -273,7 +273,7 @@ def distance_from_real_dot(qrs_sample , our_samples):
 def check_for_singles_dots(open_dots
                     ,closed_dots,
                            all_dots):
-    ##TODO check that closed dot comes after open and there is not 2 open dot in a row
+    ## check that closed dot comes after open and there is not 2 open dot in a row
 
     impossible_margin = 150
     list_of_single_open_dots = []
