@@ -63,7 +63,7 @@ while data_file != '201':
                 #wfdb.plot_items(signal=signal, fs=record.fs, title=title, time_units='seconds', sig_units=['mV'], ylabel=['Voltage [mV]'])
                 ## Apply QRS detection using the Pan-Tompkins algorithm
                 ###qrs_inds = processing.qrs.xqrs_detect(sig=signal, fs=record.fs)
-                local_peaks = wfdb.processing.find_local_peaks(sig=signal, radius=25)
+                # local_peaks = wfdb.processing.find_local_peaks(sig=signal, radius=25)
 
                 original_signal = signal
                 #original_signal, freq, spectrum = filters_by_fft.band_pass_filter(0.5,100, signal, record.fs)
@@ -71,9 +71,6 @@ while data_file != '201':
                 #plt.show()
                 #plt.plot(np.arange(0,5000), np.real(band_pass_filter_signal))
                 #plt.show()
-
-
-
 
 
 
