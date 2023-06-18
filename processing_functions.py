@@ -2,7 +2,7 @@
 import numpy as np
 from scipy.fftpack import fft, fftfreq, ifft, fftshift, ifftshift
 import pywt
-
+import qrs_detection
 # from wfdb import processing
 # from scipy.signal import butter
 # from scipy import signal
@@ -108,6 +108,13 @@ def ecg_pre_processing(ecg_dict):
     fs = ecg_dict['fs']
     ecg_filtered = ecg_dict.copy()
 
+    #if input("Perform QRS detection [y/N]? ") == "y":
+    ecg_filtered = qrs_detection.detection_qrs(ecg_filtered)
+
+    #if input("Perform comparison between our annotations and real annotations [y/N]? ") == "y":
+    ecg_filtered = qrs_detection.comprasion_r_peaks(ecg_filtered)
+
+    """
     if input("Perform baseline removal [y/N]? ") == "y":
         # Remove baseline - moving median
         window_size_sec = 1
@@ -127,7 +134,7 @@ def ecg_pre_processing(ecg_dict):
     if input("Perform Wavelet filter [y/N]? ") == "y":
         # Remove high frequency noise
         ecg_filtered['signal'] = wavelet_filter(ecg_filtered['signal'])
-
+    """
     ecg_filtered["fft"], ecg_filtered["frequency_bins"] = compute_fft(ecg_filtered["signal"], ecg_filtered["fs"])
 
     return ecg_filtered

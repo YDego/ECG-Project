@@ -1,11 +1,20 @@
 import math
 import wfdb
+import processing_functions
 from wfdb import processing
 import numpy as np
 
-def detection_qrs(original_signal ,signal,threshold):
+def detection_qrs(ecg_original_copy):
+    original_signal = ecg_original_copy["signal"]
+    fs = ecg_original_copy["fs"]
     re_check_samples = 100
     impossible_margin = 150
+    new_signal = processing_functions.band_pass_filter(8, 50, original_signal, fs)
+    signal = abs(new_signal)**3
+    ecg_original_copy["signal"] = signal
+    ecg_original_copy["fft"] , ecg_original_copy["frequency_bins"] = processing_functions.compute_fft(signal, fs)
+    threshold = np.mean(signal)
+
     open_dots, closed_dots, all_dots = detection_qrs_aux_new(signal, threshold, 0.4, 0, False)
     single_open_dots, single_closed_dots = check_for_singles_dots(open_dots, closed_dots, all_dots)
 
@@ -35,8 +44,17 @@ def detection_qrs(original_signal ,signal,threshold):
     R_peaks_potential = wfdb.processing.find_local_peaks(original_signal, radius=25)
     r_peaks = find_r_peak(R_peaks_potential, open_dots, closed_dots , original_signal)
     all_dots = sorted(np.concatenate((open_dots, r_peaks, closed_dots)))
+    ecg_original_copy["our_ann"] = all_dots
+    ecg_original_copy["our_ann_markers"] = np.zeros(len(all_dots), dtype=str)
+    for index, dot in enumerate(all_dots):
+        if dot in open_dots:
+            ecg_original_copy["our_ann_markers"][index] = '('
+        elif dot in closed_dots:
+            ecg_original_copy["our_ann_markers"][index] = ')'
+        else:
+            ecg_original_copy["our_ann_markers"][index] = 'N'
 
-    return open_dots, r_peaks, closed_dots, all_dots
+    return ecg_original_copy
 
 
 def detection_qrs_aux(signal, threshold, margin_error, start_location, one_point):
@@ -216,58 +234,61 @@ def check_radius_open_dot(signal, index, threshold, distance, margin_error):
 
 def check_radius_closed_dot(signal, index ,threshold, distance, margin_error):
     flag_forward = True
-    #false_dot_forward = 0
-    #margin_of_error = margin_error
-    #orignal_distance = distance
-    #while distance > 0:
-        #if signal[index + distance] > threshold:
-            #false_dot_forward = false_dot_forward + 1
-        #distance = distance - 1
-    #if false_dot_forward > margin_of_error * orignal_distance:
+
     if threshold < np.mean(signal[index:index+distance]):#new
         flag_forward = False
-    #istance = distance - 1
     flag_backward = True
-    false_dot_backward = 0
-    #while distance + 1 > - orignal_distance:
-        #if signal[index + distance] < threshold:
-            #false_dot_backward = false_dot_backward + 1
-        #distance = distance - 1
-    #if false_dot_backward > margin_of_error * orignal_distance:
+
     if threshold > np.mean(signal[index-distance:index]):#new
         flag_backward = False
     return flag_backward and flag_forward
 
 
+### changed at 16.6.23 - 22:45
+def r_peaks_annotations(ecg_original, chosen_ann):
+    if chosen_ann == "real":
+        real_annotations_samples = ecg_original["ann"]
+        real_annotations_markers = ecg_original["ann_markers"]
+    else:
+        real_annotations_samples = ecg_original["our_ann"]
+        real_annotations_markers = ecg_original["our_ann_markers"]
 
-def annotation_for_q_and_s(annotation_sample):
-    location = 0
-    only_q_s = np.zeros(len(annotation_sample), dtype=int)
-    for index, value in enumerate(annotation_sample):
-        if index % 9 == 0 or index % 9 == 1 or index % 9 == 2:
-            only_q_s[index] = value
-    only_q_s = only_q_s[only_q_s != 0]
-    return only_q_s
+    r_peaks_real_annotations = np.zeros(len(real_annotations_samples), dtype=int)
+    for index, marker in enumerate(real_annotations_markers):
+        if marker == 'N': ## r_peak marker is 'N'
+            r_peaks_real_annotations = np.insert(r_peaks_real_annotations, 0, real_annotations_samples[index])
+
+    r_peaks_real_annotations = r_peaks_real_annotations[r_peaks_real_annotations != 0]
+    r_peaks_real_annotations = np.sort(r_peaks_real_annotations)
+    return r_peaks_real_annotations
 
 
-
-def distance_from_real_dot(qrs_sample , our_samples):
+### changed at 16.6.23 - 22:45
+def comprasion_r_peaks(ecg_dict):
+    r_peaks_real_annotations = r_peaks_annotations(ecg_dict, 'real')
+    #print(r_peaks_real_annotations)
+    r_peaks_our_annotations = r_peaks_annotations(ecg_dict, 'our')
+    #print(r_peaks_our_annotations)
+    len_iter = min(len(r_peaks_real_annotations), len(r_peaks_our_annotations))
     location_to_start = 0
-    len_q_s_sample = len(qrs_sample)
-    len_iter = min(len_q_s_sample, len(our_samples))
     min_distance = math.inf
     for index in range(len_iter):##need to check about len iter
-        distance = abs(qrs_sample[0] - our_samples[index])
+        distance = abs(r_peaks_real_annotations[0] - r_peaks_our_annotations[index])
         if distance < min_distance:
             min_distance = distance
             location_to_start = index
-
-    distance_from_real = np.zeros(len_q_s_sample, dtype=int)
-    our_samples = np.delete(our_samples, np.arange(0, location_to_start, 1))
-    len_iter = min(len_q_s_sample, len(our_samples))
+    distance_from_real = np.zeros(len(r_peaks_real_annotations), dtype=int)
+    r_peaks_our_annotations = np.delete(r_peaks_our_annotations, np.arange(0, location_to_start, 1))
+    len_iter = min(len(r_peaks_real_annotations), len(r_peaks_our_annotations))
+    success = 0
+    number_of_dots = 0
     for index in range(len_iter):
-        distance_from_real[index] = qrs_sample[index] - our_samples[index]
-    return distance_from_real
+        distance_from_real[index] = abs(r_peaks_real_annotations[index] - r_peaks_our_annotations[index])
+        number_of_dots = number_of_dots + 1
+        if distance_from_real[index] <= 3:## 6 ms
+            success = success + 1
+    ecg_dict["r_peak_success"] = [success, number_of_dots]
+    return ecg_dict
 
 
 def check_for_singles_dots(open_dots

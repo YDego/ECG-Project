@@ -37,11 +37,11 @@ def plot_single_signal(ecg_dict):
     frequency_bins = ecg_dict["frequency_bins"]
 
     # Calculate time array
-    time = [i / ecg_dict['fs'] for i in range(len(ecg_dict['signal']))]
+    time = [i / ecg_dict['fs'] for i in range(len(ecg_dict['original_signal']))] ####### 16.6 change to ecg_dict['original_signal'] from ecg_dict['signal']
 
     # Plot the signal
     plt.subplot(2, 1, 1)
-    plt.plot(time, ecg_dict['signal'])
+    plt.plot(time, ecg_dict['original_signal'])#######
     plt.title(f'ECG Lead {ecg_dict["lead"]} for datafile {ecg_dict["name"]}')
     plt.xlabel('Time (s)')
     plt.ylabel('Voltage (mV)')
@@ -52,8 +52,19 @@ def plot_single_signal(ecg_dict):
         j = 0
 
         for i in ann:
-            plt.scatter(time[i], ecg_dict['signal'][i], c=colors[j], marker=markers[j])
+            plt.scatter(time[i], ecg_dict['original_signal'][i], c=colors[j], marker=markers[j])
             j += 1
+
+    if ecg_dict['our_ann'] is not None:
+        our_ann = ecg_dict['our_ann']
+        markers = convert_markers(ecg_dict['our_ann_markers'].copy()) ## todo ask why with copy its not working
+        colors = color_coverter(ecg_dict['our_ann_markers'])
+        j = 0
+
+        for i in our_ann:
+            plt.scatter(time[i], ecg_dict['original_signal'][i], c=colors[j], marker=markers[j])
+            j += 1
+
 
     # Plot the FFT
     plt.subplot(2, 1, 2)

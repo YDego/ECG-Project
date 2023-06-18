@@ -105,10 +105,14 @@ def ecg_lead_ext(selected_dataset=None, selected_data_file=None, selected_lead=N
     ecg_dict = {
         "dataset": dataset['name'],
         "record": ecg_record,
+        "original_signal" : ecg_signal,
         "signal": ecg_signal,
         "name": record_name,
         "ann": annotation_sample,
         "ann_markers": ann_markers,
+        "our_ann": [], ## samples
+        "our_ann_markers": [], ## strings
+        "r_peak_success": [0, 0],
         "lead": lead,
         "fs": fs,
         "fft": fft,
