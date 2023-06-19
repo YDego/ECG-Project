@@ -89,7 +89,7 @@ def notch_filter(signal, freq_list, bandwidth, sample_rate):
 
 def compute_fft(signal, sample_rate):
     N = len(signal)
-    fft_signal = np.abs(fft(signal)[0:N // 2])
+    fft_signal = np.abs(fft(signal-np.mean(signal))[0:N // 2])
     frequency_bins = fftfreq(N, 1/sample_rate)[:N // 2]
 
     return fft_signal, frequency_bins
