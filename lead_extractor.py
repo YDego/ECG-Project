@@ -109,7 +109,7 @@ def ecg_lead_ext(selected_dataset=None, selected_data_file=None, selected_lead=N
     ann_markers = ann_markers[1:cut_index]
 
     # FFT
-    fft, frequency_bins = pf.compute_fft(ecg_signal, fs)
+    fft, frequency_bins = pf.compute_fft(ecg_signal-np.mean(ecg_signal), fs)
 
     ecg_dict = {
         "dataset": dataset['name'],
