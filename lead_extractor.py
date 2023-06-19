@@ -100,6 +100,15 @@ def ecg_lead_ext(selected_dataset=None, selected_data_file=None, selected_lead=N
     ann_markers = annotation.symbol
     annotation_sample = np.ndarray.tolist(annotation.sample)
     fs = ecg_record.fs
+
+    # Cut signals
+    signal_len = 10  # [sec]
+    ecg_signal = ecg_signal[1:signal_len * fs]
+    cut_index = np.argmin(np.abs(np.array(annotation_sample)-(signal_len * fs)))
+    annotation_sample = annotation_sample[1:cut_index]
+    ann_markers = ann_markers[1:cut_index]
+
+    # FFT
     fft, frequency_bins = pf.compute_fft(ecg_signal, fs)
 
     ecg_dict = {
@@ -128,4 +137,4 @@ if __name__ == "__main__":
     ecg_dict = ecg_lead_ext()
 
     # ECG processing
-    ecg_processed_signal = pre_processing.ecg_pre_processing(ecg_dict)
+    ecg_processed_signal = pf.ecg_pre_processing(ecg_dict)

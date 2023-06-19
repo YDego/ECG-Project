@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def convert_markers(ann_markers):
+def marker_converter(ann_markers):
     converter = {
         '(': '<',
         ')': '>',
@@ -47,7 +47,7 @@ def plot_single_signal(ecg_dict):
     plt.ylabel('Voltage (mV)')
     if ecg_dict['ann'] is not None:
         ann = ecg_dict['ann']
-        markers = convert_markers(ecg_dict['ann_markers'])
+        markers = marker_converter(ecg_dict['ann_markers'])
         colors = color_coverter(ecg_dict['ann_markers'])
         j = 0
 
@@ -57,7 +57,7 @@ def plot_single_signal(ecg_dict):
 
     if ecg_dict['our_ann'] is not None:
         our_ann = ecg_dict['our_ann']
-        markers = convert_markers(ecg_dict['our_ann_markers'].copy()) ## todo ask why with copy its not working
+        markers = marker_converter(ecg_dict['our_ann_markers'].copy()) ## todo ask why with copy its not working
         colors = color_coverter(ecg_dict['our_ann_markers'])
         j = 0
 

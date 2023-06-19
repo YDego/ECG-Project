@@ -6,8 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="d8d475bc-520b-42e2-87af-b9dcea367782" name="Changes" comment="...">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ecg_analyser.py" beforeDir="false" afterPath="$PROJECT_DIR$/ecg_analyser.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ecg_analyzer_full_flow.py" beforeDir="false" afterPath="$PROJECT_DIR$/ecg_analyzer_full_flow.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lead_extractor.py" beforeDir="false" afterPath="$PROJECT_DIR$/lead_extractor.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/plot_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/plot_manager.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -24,7 +24,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="main" />
+        <entry key="$PROJECT_DIR$" value="Shahar-1" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -149,7 +149,7 @@
         <item itemvalue="Python.lead_extractor_gui" />
         <item itemvalue="Python.ecg_lead_extractor" />
         <item itemvalue="Python.ecg_gui" />
-        <item itemvalue="Python.lead_extractor_gui" />
+        <item itemvalue="Python.ecg_analyzer_full_flow" />
       </list>
     </recent_temporary>
   </component>
