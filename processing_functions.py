@@ -108,6 +108,7 @@ def ecg_pre_processing(ecg_dict):
     fs = ecg_dict['fs']
     ecg_filtered = ecg_dict.copy()
 
+
     #if input("Perform QRS detection [y/N]? ") == "y":
     ecg_filtered = qrs_detection.detection_qrs(ecg_filtered)
 
