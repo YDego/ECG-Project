@@ -114,13 +114,14 @@ def ecg_pre_processing(ecg_dict):
     #if input("Perform comparison between our annotations and real annotations [y/N]? ") == "y":
     ecg_filtered = qrs_detection.comprasion_r_peaks(ecg_filtered)
 
-    """
-    if input("Perform baseline removal [y/N]? ") == "y":
-        # Remove baseline - moving median
-        window_size_sec = 1
-        window_size = fs * window_size_sec
-        ecg_filtered['signal'] = baseline_removal_moving_median(ecg_filtered['signal'], window_size)
 
+    #if input("Perform baseline removal [y/N]? ") == "y":
+        # Remove baseline - moving median
+        #window_size_sec = 1
+        #window_size = fs * window_size_sec
+        #ecg_filtered['signal'] = baseline_removal_moving_median(ecg_filtered['signal'], window_size)
+
+    """
     if input("Perform powerline filter [y/N]? ") == "y":
         # Remove powerline interference
         powerline = [50, 60]
@@ -135,6 +136,6 @@ def ecg_pre_processing(ecg_dict):
         # Remove high frequency noise
         ecg_filtered['signal'] = wavelet_filter(ecg_filtered['signal'])
     """
-    ecg_filtered["fft"], ecg_filtered["frequency_bins"] = compute_fft(ecg_filtered["signal"], ecg_filtered["fs"])
+    # ecg_filtered["fft"], ecg_filtered["frequency_bins"] = compute_fft(ecg_filtered["signal"], ecg_filtered["fs"])
 
     return ecg_filtered

@@ -10,13 +10,20 @@ def get_records(dataset):
     return records, len(records)
 
 
-def select_lead(dataset, selected_lead=None):
+def select_lead(dataset, selected_lead=None, data_path=''):
 
     if not selected_lead:
-        leads = dataset['leads']
+        leads = []
+        if dataset["name"] == 'mit':
+            with open(data_path + '.hea') as f:
+                lines = f.readlines()
+                leads = [lines[1].split()[-1], lines[2].split()[-1]]
+            dataset['leads'] = leads
+        else:
+            leads = dataset['leads']
 
         # Get user input for which lead to plot
-        lead = str(input(f"Choose a lead to plot ({', '.join(leads)}) [default ii]: ") or 'ii')
+        lead = str(input(f"Choose a lead to plot ({', '.join(leads)}) [default first lead]: ") or leads[0])
 
         if lead not in leads:
             raise ValueError("Invalid lead selection!")
@@ -31,7 +38,7 @@ def select_lead(dataset, selected_lead=None):
 
 def get_dataset(selected_dataset_name=None):
 
-    database = ['ludb', 'qt']
+    database = ['ludb', 'qt', 'mit']
 
     ludb_dataset = {
         "name": "ludb",
@@ -47,6 +54,13 @@ def get_dataset(selected_dataset_name=None):
         "annotations": "pu0"
     }
 
+    mit_dataset = {
+        "name": "mit",
+        "path": "ecg_dataset\mit-bih-arrhythmia-database-1.0.0",
+        "leads": [],
+        "annotations": "atr"
+    }
+
     if not selected_dataset_name:
         # Get user input for which dataset to plot
         dataset_name = str(input(f"Choose a dataset ({', '.join(database)}) [default ludb]: ") or 'ludb')
@@ -57,6 +71,8 @@ def get_dataset(selected_dataset_name=None):
         dataset = qt_dataset
     elif dataset_name == "ludb":
         dataset = ludb_dataset
+    elif dataset_name == "mit":
+        dataset = mit_dataset
     else:
         raise ValueError("Invalid dataset selection!")
 
@@ -92,7 +108,7 @@ def ecg_lead_ext(selected_dataset=None, selected_data_file=None, selected_lead=N
     data_path = dataset['path'] + f'\\data\\{record_name}'
     ecg_record = wfdb.rdrecord(data_path)
 
-    lead = select_lead(dataset, selected_lead)
+    lead = select_lead(dataset, selected_lead, data_path=data_path)
 
     # Get a single signal from the records
     ecg_signal = ecg_record.__dict__['p_signal'][:, dataset["leads"].index(lead)]
@@ -107,15 +123,17 @@ def ecg_lead_ext(selected_dataset=None, selected_data_file=None, selected_lead=N
     cut_index = np.argmin(np.abs(np.array(annotation_sample)-(signal_len * fs)))
     annotation_sample = annotation_sample[1:cut_index]
     ann_markers = ann_markers[1:cut_index]
-
+    if dataset['name'] == 'mit':
+        ann_markers = np.full(len(ann_markers), 'N').tolist()
+    baseline_removal_signal = pf.baseline_removal_moving_median(ecg_signal, fs * 1)
     # FFT
     fft, frequency_bins = pf.compute_fft(ecg_signal, fs)
 
     ecg_dict = {
         "dataset": dataset['name'],
         "record": ecg_record,
-        "original_signal" : ecg_signal,
-        "signal": ecg_signal,
+        "original_signal" : baseline_removal_signal, ## changed 23.6 01:24
+        "signal": baseline_removal_signal,
         "name": record_name,
         "ann": annotation_sample,
         "ann_markers": ann_markers,

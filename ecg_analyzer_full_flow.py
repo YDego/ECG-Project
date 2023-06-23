@@ -33,26 +33,20 @@ if all_signals == 'l' or all_signals == 'q':
     print(dict_bad_examples)
     print(len(dict_bad_examples))
 
-
-
-
     with open('score2.csv', 'w', encoding='UTF8') as f:
         writer = csv.writer(f)
 
         # write the data
         writer.writerow(dict_success.items())
         writer.writerow(dict_bad_examples.items())
-else:
 
+else:
     # Call the function with leads and file_count as inputs
 
     ecg_original = le.ecg_lead_ext()
-
-    # Plot signal
     pm.plot_single_signal(ecg_original)
 
     # ECG processing
-
     ecg_processed = pf.ecg_pre_processing(ecg_original)
     pm.plot_single_signal(ecg_processed)
 

@@ -4,10 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d8d475bc-520b-42e2-87af-b9dcea367782" name="Changes" comment="...">
+    <list default="true" id="d8d475bc-520b-42e2-87af-b9dcea367782" name="Changes" comment="fft also works again">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ecg_analyzer_full_flow.py" beforeDir="false" afterPath="$PROJECT_DIR$/ecg_analyzer_full_flow.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lead_extractor.py" beforeDir="false" afterPath="$PROJECT_DIR$/lead_extractor.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/plot_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/plot_manager.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/processing_functions.py" beforeDir="false" afterPath="$PROJECT_DIR$/processing_functions.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/qrs_detection.py" beforeDir="false" afterPath="$PROJECT_DIR$/qrs_detection.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -204,7 +207,28 @@
       <option name="project" value="LOCAL" />
       <updated>1686854975053</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="qt data cut (first 10 seconds)">
+      <created>1687182193576</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1687182193576</updated>
+    </task>
+    <task id="LOCAL-00008" summary="fft also works">
+      <created>1687183573979</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1687183573979</updated>
+    </task>
+    <task id="LOCAL-00009" summary="fft also works again">
+      <created>1687183634742</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1687183634742</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -240,6 +264,9 @@
     <MESSAGE value="unnecessary" />
     <MESSAGE value="pywt mooving" />
     <MESSAGE value="..." />
-    <option name="LAST_COMMIT_MESSAGE" value="..." />
+    <MESSAGE value="qt data cut (first 10 seconds)" />
+    <MESSAGE value="fft also works" />
+    <MESSAGE value="fft also works again" />
+    <option name="LAST_COMMIT_MESSAGE" value="fft also works again" />
   </component>
 </project>

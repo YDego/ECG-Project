@@ -65,7 +65,6 @@ def plot_single_signal(ecg_dict):
             plt.scatter(time[i], ecg_dict['original_signal'][i], c=colors[j], marker=markers[j])
             j += 1
 
-
     # Plot the FFT
     plt.subplot(2, 1, 2)
     plt.plot(frequency_bins, np.abs(fft), color='red')
