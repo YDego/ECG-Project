@@ -3,6 +3,7 @@ import numpy as np
 import processing_functions as pf
 
 
+
 def get_records(dataset):
     record_path = dataset['path'] + '\RECORDS'
     with open(record_path, 'r') as f:
@@ -108,14 +109,18 @@ def ecg_lead_ext(selected_dataset=None, selected_data_file=None, selected_lead=N
     annotation_sample = annotation_sample[1:cut_index]
     ann_markers = ann_markers[1:cut_index]
 
+
+
+
+    baseline_removal_signal = pf.baseline_removal_moving_median(ecg_signal, fs * 1)
     # FFT
     fft, frequency_bins = pf.compute_fft(ecg_signal, fs)
 
     ecg_dict = {
         "dataset": dataset['name'],
         "record": ecg_record,
-        "original_signal" : ecg_signal,
-        "signal": ecg_signal,
+        "original_signal" : baseline_removal_signal, ## changed 23.6 01:24
+        "signal": baseline_removal_signal,
         "name": record_name,
         "ann": annotation_sample,
         "ann_markers": ann_markers,

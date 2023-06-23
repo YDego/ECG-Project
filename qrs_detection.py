@@ -275,7 +275,7 @@ def comprasion_r_peaks(ecg_dict):
     for index in range(len_iter):
         distance_from_real[index] = abs(r_peaks_real_annotations[index] - r_peaks_our_annotations[index])
         number_of_dots = number_of_dots + 1
-        if distance_from_real[index] <= 10:## 6 ms
+        if distance_from_real[index] <= 5:## 6 ms
             success = success + 1
     ecg_dict["r_peak_success"] = [success, number_of_dots]
     return ecg_dict
@@ -326,6 +326,7 @@ def find_r_peak(r_peak_potential, q_peak, s_peak, original_signal, fs):
             r_peak[index] = max(potential_r_peak_one_interval, key=potential_r_peak_one_interval.get)
 
         else:
+            print("hey there is no max")
             for value_r_minimum in r_peak_potential_minimum:
                 if q_peak[index] < value_r_minimum < s_peak[index]:
                     potential_r_peak_one_interval[value_r_minimum] = original_signal[value_r_minimum]
