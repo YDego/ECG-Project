@@ -36,8 +36,7 @@ def detection_qrs(ecg_original_copy):
 
     closed_dots = sorted(closed_dots)
     open_dots = sorted(open_dots)
-    r_peaks_potential = wfdb.processing.find_local_peaks(original_signal, radius=round(0.05*fs))## todo
-    r_peaks = find_r_peak(r_peaks_potential, open_dots, closed_dots, original_signal, fs)
+    r_peaks = find_r_peak(open_dots, closed_dots, new_signal, fs)
     all_dots = sorted(np.concatenate((open_dots, r_peaks, closed_dots)))
     ecg_original_copy["our_ann"] = all_dots
     ecg_original_copy["our_ann_markers"] = np.zeros(len(all_dots), dtype=str)
@@ -47,7 +46,7 @@ def detection_qrs(ecg_original_copy):
         elif dot in closed_dots:
             ecg_original_copy["our_ann_markers"][index] = ')'
         else:
-            ecg_original_copy["our_ann_markers"][index] = 'N'
+            ecg_original_copy["our_ann_markers"][index] = 'n'
 
     return ecg_original_copy
 
@@ -246,7 +245,7 @@ def r_peaks_annotations(ecg_original, chosen_ann):
 
     r_peaks_real_annotations = np.zeros(len(real_annotations_samples), dtype=int)
     for index, marker in enumerate(real_annotations_markers):
-        if marker == 'N': ## r_peak marker is 'N'
+        if marker == 'N' or marker == 'n': ## r_peak marker is 'N'
             r_peaks_real_annotations = np.insert(r_peaks_real_annotations, 0, real_annotations_samples[index])
 
     r_peaks_real_annotations = r_peaks_real_annotations[r_peaks_real_annotations != 0]
@@ -255,7 +254,9 @@ def r_peaks_annotations(ecg_original, chosen_ann):
 
 
 ### changed at 16.6.23 - 22:45
-def comprasion_r_peaks(ecg_dict):
+
+"""
+def comparison_r_peaks(ecg_dict):
     r_peaks_real_annotations = r_peaks_annotations(ecg_dict, 'real')
     print(r_peaks_real_annotations)
     r_peaks_our_annotations = r_peaks_annotations(ecg_dict, 'our')
@@ -276,10 +277,60 @@ def comprasion_r_peaks(ecg_dict):
     for index in range(len_iter):
         distance_from_real[index] = abs(r_peaks_real_annotations[index] - r_peaks_our_annotations[index])
         number_of_dots = number_of_dots + 1
-        if distance_from_real[index] <= 5:## 6 ms
+        if distance_from_real[index] <= 15:## 6 ms
             success = success + 1
     ecg_dict["r_peak_success"] = [success, number_of_dots]
     return ecg_dict
+"""
+##changed at 25.6 01:18
+def comparison_r_peaks(ecg_dict):
+    r_peaks_real_annotations = r_peaks_annotations(ecg_dict, 'real')
+    print(r_peaks_real_annotations)
+    r_peaks_our_annotations = r_peaks_annotations(ecg_dict, 'our')
+    print(r_peaks_our_annotations)
+    len_of_real_r_peaks = len(r_peaks_real_annotations)
+    i = 0
+    min_distance = math.inf
+    distance_from_real = np.zeros(min(len(r_peaks_real_annotations), len(r_peaks_our_annotations)), dtype=int)
+    success = 0
+    number_of_dots = 0
+    for i in range(min(len(r_peaks_real_annotations), len(r_peaks_our_annotations))):
+        min_distance = math.inf
+        index_our_to_delete = -1
+        index_real_to_delete = -1
+        for index_real, value_real in enumerate(r_peaks_real_annotations):
+            if min_distance < 25:
+                break
+            if value_real == 0:
+                continue
+            for index_our, value_our in enumerate(r_peaks_our_annotations):
+                distance = abs(r_peaks_real_annotations[index_real] - r_peaks_our_annotations[index_our])
+                if min_distance < 25:
+                    break
+                if value_our == 0:
+                    continue
+                if distance < min_distance:
+                    min_distance = distance
+                    index_real_to_delete = index_real
+                    index_our_to_delete = index_our
+        distance_from_real[i] = min_distance
+        r_peaks_our_annotations[index_our_to_delete] = 0
+        r_peaks_real_annotations[index_real_to_delete] = 0
+
+    if len(r_peaks_real_annotations[r_peaks_real_annotations != 0]) != 0:
+        number_of_dots = number_of_dots + len(r_peaks_real_annotations[r_peaks_real_annotations != 0])
+
+    for index in range(len(distance_from_real)):
+        number_of_dots = number_of_dots + 1
+        if distance_from_real[index] <= 15:##
+            success = success + 1
+    ecg_dict["r_peak_success"] = [success, number_of_dots]
+    return ecg_dict
+
+
+
+
+
 
 
 def check_for_singles_dots(open_dots, closed_dots, all_dots, fs):
@@ -312,11 +363,14 @@ def check_for_singles_dots(open_dots, closed_dots, all_dots, fs):
     return list_of_single_open_dots, list_of_single_closed_dots
 
 #todo
-def find_r_peak(r_peak_potential, q_peak, s_peak, original_signal, fs):
+def find_r_peak(q_peak, s_peak, original_signal, fs):
     r_peak_potential = wfdb.processing.find_local_peaks(original_signal, radius=round(0.05 * fs))
     r_peak_potential_minimum = wfdb.processing.find_local_peaks((-1)*original_signal, radius=round(0.05 * fs))
     r_peak = np.zeros(len(q_peak), dtype=int)
+    s_peak_len = len(s_peak)
     for index, value in enumerate(q_peak):
+        if index >= s_peak_len:
+            continue
         potential_r_peak_one_interval = {}
         for value_r in r_peak_potential:
             if q_peak[index] < value_r < s_peak[index]:
@@ -327,7 +381,7 @@ def find_r_peak(r_peak_potential, q_peak, s_peak, original_signal, fs):
             r_peak[index] = max(potential_r_peak_one_interval, key=potential_r_peak_one_interval.get)
 
         else:
-            print("hey there is no max")
+            #print("hey there is no max")
             for value_r_minimum in r_peak_potential_minimum:
                 if q_peak[index] < value_r_minimum < s_peak[index]:
                     potential_r_peak_one_interval[value_r_minimum] = original_signal[value_r_minimum]

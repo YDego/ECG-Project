@@ -24,7 +24,13 @@ def select_lead(dataset, selected_lead=None, data_path=''):
             leads = dataset['leads']
 
         # Get user input for which lead to plot
-        lead = str(input(f"Choose a lead to plot ({', '.join(leads)}) [default first lead]: ") or leads[0])
+        if dataset["name"] == 'mit':
+            if 'MLII' in dataset['leads']:
+                lead = 'MLII'
+            else:
+                lead = 'V5'
+        else:
+            lead = str(input(f"Choose a lead to plot ({', '.join(leads)}) [default first lead]: ") or leads[0])
 
         if lead not in leads:
             raise ValueError("Invalid lead selection!")
@@ -120,17 +126,12 @@ def ecg_lead_ext(selected_dataset=None, selected_data_file=None, selected_lead=N
 
     # Cut signals
     signal_len = 10  # [sec]
-    ecg_signal = ecg_signal[1:signal_len * fs]
-    cut_index = np.argmin(np.abs(np.array(annotation_sample)-(signal_len * fs)))
-    annotation_sample = annotation_sample[1:cut_index]
-    ann_markers = ann_markers[1:cut_index]
+    ecg_signal = ecg_signal[0:(signal_len * fs) - 1] ## ecg_signal[1:signal_len * fs]
+    cut_index = np.argmin(np.abs(np.array(annotation_sample)-(signal_len * fs)+1))
+    annotation_sample = annotation_sample[1:cut_index] ## annotation_sample[1:cut_index]
+    ann_markers = ann_markers[1:cut_index] ## ann_markers[1:cut_index]
     if dataset['name'] == 'mit':
         ann_markers = np.full(len(ann_markers), 'N').tolist()
-    baseline_removal_signal = pf.baseline_removal_moving_median(ecg_signal, fs * 1)
-
-
-
-
     baseline_removal_signal = pf.baseline_removal_moving_median(ecg_signal, fs * 1)
     # FFT
     fft, frequency_bins = pf.compute_fft(ecg_signal, fs)

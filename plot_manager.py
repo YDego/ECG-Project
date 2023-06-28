@@ -8,6 +8,7 @@ def marker_converter(ann_markers):
         ')': '>',
         'p': 'X',
         'N': 'X',
+        'n': 'o',
         't': 'X'
     }
     markers_converted = ann_markers[:]
@@ -23,6 +24,7 @@ def color_coverter(ann_markers):
         ')': 'k',
         'p': 'b',
         'N': 'g',
+        'n': 'g',
         't': 'r'
     }
     color_converted = ann_markers[:]

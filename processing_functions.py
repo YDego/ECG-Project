@@ -113,7 +113,7 @@ def ecg_pre_processing(ecg_dict):
     ecg_filtered = qrs_detection.detection_qrs(ecg_filtered)
 
     #if input("Perform comparison between our annotations and real annotations [y/N]? ") == "y":
-    ecg_filtered = qrs_detection.comprasion_r_peaks(ecg_filtered)
+    ecg_filtered = qrs_detection.comparison_r_peaks(ecg_filtered)
 
 
     #if input("Perform baseline removal [y/N]? ") == "y":

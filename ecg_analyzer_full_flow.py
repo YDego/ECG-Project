@@ -5,7 +5,7 @@ import csv
 
 all_signals = input("Perform QRS detection for all signals in ludb/qt [l/q]? ")
 
-if all_signals == 'l' or all_signals == 'q':
+if all_signals == 'l' or all_signals == 'q' or all_signals == 'm':
     success_final = 0
     number_of_dots_final = 0
     dict_success = {}
@@ -16,7 +16,7 @@ if all_signals == 'l' or all_signals == 'q':
             success_final = success_final + ecg_processed["r_peak_success"][0]
             number_of_dots_final = number_of_dots_final + ecg_processed["r_peak_success"][1]
             dict_success[str(i)] = 100*(ecg_processed["r_peak_success"][0]/ecg_processed["r_peak_success"][1])
-    else:
+    elif all_signals == 'q':
         for i in range(1, 106, 1):
             ecg_original = le.ecg_lead_ext('qt', i, 'ii')
             ecg_processed = pf.ecg_pre_processing(ecg_original)
@@ -26,10 +26,23 @@ if all_signals == 'l' or all_signals == 'q':
                 dict_success[str(i)] = 100 * (ecg_processed["r_peak_success"][0] / ecg_processed["r_peak_success"][1])
             else:
                 dict_success[str(i)] = 0
+    else:
+        for i in range(1, 46, 1):
+            ecg_original = le.ecg_lead_ext('mit', i)
+            ecg_processed = pf.ecg_pre_processing(ecg_original)
+            #pm.plot_single_signal(ecg_processed)
+            success_final = success_final + ecg_processed["r_peak_success"][0]
+            number_of_dots_final = number_of_dots_final + ecg_processed["r_peak_success"][1]
+            if 100 * (ecg_processed["r_peak_success"][0] / ecg_processed["r_peak_success"][1]) != 100:
+                pm.plot_single_signal(ecg_processed)
+            if ecg_processed["r_peak_success"][1] != 0:
+                dict_success[str(i)] = 100 * (ecg_processed["r_peak_success"][0] / ecg_processed["r_peak_success"][1])
+            else:
+                dict_success[str(i)] = 0
 
     print(dict_success)
     print((success_final/number_of_dots_final)*100)
-    dict_bad_examples = {item: value for (item, value) in dict_success.items() if value != 100}
+    dict_bad_examples = {item: value for (item, value) in dict_success.items() if value < 90}
     print(dict_bad_examples)
     print(len(dict_bad_examples))
 
