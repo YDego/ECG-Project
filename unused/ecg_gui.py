@@ -73,7 +73,7 @@ def plot_ecg_data(ecg_dict):
     if ecg_dict['ann'] is not None:
         ann = ecg_dict['ann']
         markers = pm.convert_markers(ecg_dict['ann_markers'])
-        colors = pm.color_coverter(ecg_dict['ann_markers'])
+        colors = pm.color_converter(ecg_dict['ann_markers'])
         j = 0
 
         for i in ann:
