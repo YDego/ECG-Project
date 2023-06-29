@@ -18,7 +18,7 @@ def marker_converter(ann_markers):
     return markers_converted
 
 
-def color_coverter(ann_markers):
+def color_converter(ann_markers):
     color_converter = {
         '(': 'k',
         ')': 'k',
@@ -43,14 +43,14 @@ def plot_single_signal(ecg_dict):
 
     # Plot the signal
     plt.subplot(2, 1, 1)
-    plt.plot(time, ecg_dict['original_signal'])#######
+    plt.plot(time, ecg_dict['original_signal'])
     plt.title(f'ECG Lead {ecg_dict["lead"]} for datafile {ecg_dict["name"]}')
     plt.xlabel('Time (s)')
     plt.ylabel('Voltage (mV)')
     if ecg_dict['ann'] is not None:
         ann = ecg_dict['ann']
         markers = marker_converter(ecg_dict['ann_markers'])
-        colors = color_coverter(ecg_dict['ann_markers'])
+        colors = color_converter(ecg_dict['ann_markers'])
         j = 0
 
         for i in ann:
@@ -60,7 +60,7 @@ def plot_single_signal(ecg_dict):
     if ecg_dict['our_ann'] is not None:
         our_ann = ecg_dict['our_ann']
         markers = marker_converter(ecg_dict['our_ann_markers'].copy()) ## todo ask why with copy its not working
-        colors = color_coverter(ecg_dict['our_ann_markers'])
+        colors = color_converter(ecg_dict['our_ann_markers'])
         j = 0
 
         for i in our_ann:
