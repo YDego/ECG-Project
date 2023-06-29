@@ -26,7 +26,7 @@ while data_file != '201':
         print("Invalid data selection!")
     else:
         # Read the CSV file
-        df = pd.read_csv(r'ecg_dataset\lobachevsky-university-electrocardiography-database-1.0.1\ludb.csv')
+        df = pd.read_csv(r'../ecg_dataset/lobachevsky-university-electrocardiography-database-1.0.1/ludb.csv')
         # Get the details of the selected record
         rhythms = df.iloc[int(data_file) - 1]['Rhythms']
         sex = df.iloc[int(data_file) - 1]['Sex']
@@ -116,7 +116,7 @@ while data_file != '201':
                 plt.scatter(q_and_s_annotation, original_signal[q_and_s_annotation], c='k')#
                 #plt.scatter(annotation_sample,original_signal[annotation_sample],c='k')
                 threshold = np.mean(abs(new_signal)**3)
-                open_dots, R_peaks, closed_dots, all_dots = qrs_detection.detection_qrs(original_signal, abs(new_signal)**3, threshold)#
+                open_dots, R_peaks, closed_dots, all_dots = qrs_detection.detect_qrs(original_signal, abs(new_signal) ** 3, threshold)#
                 plt.scatter(R_peaks, original_signal[R_peaks], c='b')
                 #plt.scatter(local_peaks,original_signal[local_peaks], c='k')
                 distance_from_real = qrs_detection.distance_from_real_dot(q_and_s_annotation, all_dots)
