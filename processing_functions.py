@@ -2,7 +2,6 @@
 import numpy as np
 from scipy.fftpack import fft, fftfreq, ifft, fftshift, ifftshift
 import pywt
-import qrs_detection
 # from wfdb import processing
 # from scipy.signal import butter
 # from scipy import signal
@@ -50,7 +49,7 @@ def high_pass_filter(cutoff_freq, signal, sampling_rate):
 
 
 def band_pass_filter(cutoff_freq_down, cutoff_freq_up, signal, sampling_rate):
-    freq = fftshift(fftfreq(signal.shape[-1], 1 / sampling_rate))
+    # freq = fftshift(fftfreq(signal.shape[-1], 1 / sampling_rate))
     spectrum = fftshift(fft(signal))
     spectrum[0:(round((len(spectrum) * (sampling_rate / 2 - cutoff_freq_up)) / sampling_rate) + 1)] = 0
     spectrum[(signal.shape[-1] - round((len(spectrum) * (sampling_rate / 2 - cutoff_freq_up)) / sampling_rate)): (
@@ -108,19 +107,13 @@ def ecg_pre_processing(ecg_dict):
     fs = ecg_dict['fs']
     ecg_filtered = ecg_dict.copy()
 
+    # Remove high & low frequency noise
+    ecg_filtered['signal'] = band_pass_filter(0.5, 49, ecg_filtered['signal'], fs)
+    print('BPF done')
 
-    #if input("Perform QRS detection [y/N]? ") == "y":
-    ecg_filtered = qrs_detection.detection_qrs(ecg_filtered)
-
-    #if input("Perform comparison between our annotations and real annotations [y/N]? ") == "y":
-    ecg_filtered = qrs_detection.comparison_r_peaks(ecg_filtered)
-
-
-    #if input("Perform baseline removal [y/N]? ") == "y":
-        # Remove baseline - moving median
-        #window_size_sec = 1
-        #window_size = fs * window_size_sec
-        #ecg_filtered['signal'] = baseline_removal_moving_median(ecg_filtered['signal'], window_size)
+    # Baseline removal
+    ecg_filtered['signal'] = baseline_removal_moving_median(ecg_filtered['signal'], fs * 1)
+    print('Baseline removal done')
 
     """
     if input("Perform powerline filter [y/N]? ") == "y":
