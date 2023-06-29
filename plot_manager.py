@@ -108,7 +108,7 @@ def plot_original_vs_processed(signal1, signal2, ann=False):
     axs[0, 1].set_xlabel('Time (s)')
     axs[0, 1].set_title('Processed ECG Signal')
     if ann:
-        axs[1].scatter([time[i] for i in signal2['ann']], [signal2['signal'][i] for i in signal2['ann']], c='r')
+        axs[0, 1].scatter([time[i] for i in signal2['ann']], [signal2['signal'][i] for i in signal2['ann']], c='r')
 
     # Plot the FFT
     axs[1, 1].plot(freq_bin2, np.abs(fft2), color='red')
