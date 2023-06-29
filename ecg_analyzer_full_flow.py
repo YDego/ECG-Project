@@ -2,8 +2,9 @@ import processing_functions as pf
 import lead_extractor as le
 import plot_manager as pm
 import csv
+import qrs_detection as cpx
 
-all_signals = input("Perform QRS detection for all signals in ludb/qt [l/q]? ")
+all_signals = input("Perform QRS detection for all signals in ludb/qt/mit [l/q/m]? ")
 
 if all_signals == 'l' or all_signals == 'q' or all_signals == 'm':
     success_final = 0
@@ -59,9 +60,11 @@ else:
     ecg_original = le.ecg_lead_ext()
     pm.plot_single_signal(ecg_original)
 
-    # ECG processing
+    # ECG pre-processing
     ecg_processed = pf.ecg_pre_processing(ecg_original)
-    pm.plot_single_signal(ecg_processed)
+    pm.plot_original_vs_processed(ecg_original, ecg_processed)
 
-    # Plot original vs. processed signal
+    # QRS Detection
+    ecg_qrs = cpx.detect_qrs(ecg_processed)
+    ecg_qrs = cpx.comparison_r_peaks(ecg_qrs)
     pm.plot_original_vs_processed(ecg_original, ecg_processed)
