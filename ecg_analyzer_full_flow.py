@@ -62,9 +62,9 @@ else:
 
     # ECG pre-processing
     ecg_processed = pf.ecg_pre_processing(ecg_original)
-    pm.plot_original_vs_processed(ecg_original, ecg_processed)
+    pm.plot_original_vs_processed(ecg_original, ecg_processed, True)
 
     # QRS Detection
     ecg_qrs = cpx.detect_qrs(ecg_processed)
     ecg_qrs = cpx.comparison_r_peaks(ecg_qrs)
-    pm.plot_original_vs_processed(ecg_original, ecg_processed)
+    # pm.plot_original_vs_processed(ecg_original, ecg_processed)
