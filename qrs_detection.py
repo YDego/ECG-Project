@@ -320,7 +320,6 @@ def comparison_r_peaks(ecg_dict):
         if distance_from_real[index] <= 15:##
             success = success + 1
     ecg_dict["r_peak_success"] = [success, number_of_dots]
-    print(f'score: {ecg_dict["r_peak_success"]}')
     return ecg_dict
 
 
