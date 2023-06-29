@@ -5,7 +5,7 @@ from wfdb import processing
 import numpy as np
 
 
-def detection_qrs(ecg_original_copy):
+def detect_qrs(ecg_original_copy):
     original_signal = ecg_original_copy["signal"]
     fs = ecg_original_copy["fs"]
     re_check_samples = round(0.2*fs)
@@ -186,13 +186,6 @@ def detection_qrs_aux_new(signal, threshold, margin_error, start_from, one_point
     return open_dots, closed_dots, all_dots
 
 
-
-
-
-
-
-
-
 def check_radius_open_dot(signal, index, threshold, distance, margin_error):
     flag_forward = True
     false_dot_forward = 0
@@ -282,6 +275,8 @@ def comparison_r_peaks(ecg_dict):
     ecg_dict["r_peak_success"] = [success, number_of_dots]
     return ecg_dict
 """
+
+
 ##changed at 25.6 01:18
 def comparison_r_peaks(ecg_dict):
     r_peaks_real_annotations = r_peaks_annotations(ecg_dict, 'real')
@@ -325,12 +320,8 @@ def comparison_r_peaks(ecg_dict):
         if distance_from_real[index] <= 15:##
             success = success + 1
     ecg_dict["r_peak_success"] = [success, number_of_dots]
+    print(f'score: {ecg_dict["r_peak_success"]}')
     return ecg_dict
-
-
-
-
-
 
 
 def check_for_singles_dots(open_dots, closed_dots, all_dots, fs):
@@ -361,6 +352,7 @@ def check_for_singles_dots(open_dots, closed_dots, all_dots, fs):
             index_open = index_open + 1
 
     return list_of_single_open_dots, list_of_single_closed_dots
+
 
 #todo
 def find_r_peak(q_peak, s_peak, original_signal, fs):
