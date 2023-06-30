@@ -137,7 +137,7 @@ def ecg_lead_ext(selected_dataset=None, selected_data_file=None, selected_lead=N
     ecg_dict = {
         "dataset": dataset['name'],
         "record": ecg_record,
-        "original_signal" : ecg_signal, ## changed 23.6 01:24
+        "original_signal": ecg_signal, ## changed 23.6 01:24
         "signal": ecg_signal,
         "name": record_name,
         "ann": annotation_sample,

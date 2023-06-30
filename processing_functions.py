@@ -105,15 +105,15 @@ def wavelet_filter(signal):
 
 def ecg_pre_processing(ecg_dict):
     fs = ecg_dict['fs']
-    ecg_filtered = ecg_dict.copy()
+    ecg_processed = ecg_dict.copy()
+    processed_signal = ecg_processed['signal']
+    # Baseline removal
+    processed_signal = baseline_removal_moving_median(processed_signal, fs)
+    print('Baseline removal done')
 
     # Remove high & low frequency noise
-    ecg_filtered['signal'] = band_pass_filter(0.5, 49, ecg_filtered['signal'], fs)
+    processed_signal = band_pass_filter(0, 49, processed_signal, fs)
     print('BPF done')
-
-    # Baseline removal
-    ecg_filtered['signal'] = baseline_removal_moving_median(ecg_filtered['signal'], fs * 1)
-    print('Baseline removal done')
 
     """
     if input("Perform powerline filter [y/N]? ") == "y":
@@ -130,6 +130,7 @@ def ecg_pre_processing(ecg_dict):
         # Remove high frequency noise
         ecg_filtered['signal'] = wavelet_filter(ecg_filtered['signal'])
     """
-    # ecg_filtered["fft"], ecg_filtered["frequency_bins"] = compute_fft(ecg_filtered["signal"], ecg_filtered["fs"])
+    ecg_processed['signal'] = processed_signal
+    ecg_processed['fft'], ecg_processed['frequency_bins'] = compute_fft(ecg_processed["signal"], fs)
 
-    return ecg_filtered
+    return ecg_processed
