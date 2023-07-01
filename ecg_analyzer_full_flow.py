@@ -14,6 +14,8 @@ if all_signals == 'l' or all_signals == 'q' or all_signals == 'm':
         for i in range(1, 201, 1):
             ecg_original = le.ecg_lead_ext('ludb', i, 'ii')
             ecg_processed = pf.ecg_pre_processing(ecg_original)
+            ecg_processed = cpx.detect_qrs(ecg_processed)
+            ecg_processed = cpx.comparison_r_peaks(ecg_processed)
             success_final = success_final + ecg_processed["r_peak_success"][0]
             number_of_dots_final = number_of_dots_final + ecg_processed["r_peak_success"][1]
             dict_success[str(i)] = 100*(ecg_processed["r_peak_success"][0]/ecg_processed["r_peak_success"][1])
@@ -21,6 +23,8 @@ if all_signals == 'l' or all_signals == 'q' or all_signals == 'm':
         for i in range(1, 106, 1):
             ecg_original = le.ecg_lead_ext('qt', i, 'ii')
             ecg_processed = pf.ecg_pre_processing(ecg_original)
+            ecg_processed = cpx.detect_qrs(ecg_processed)
+            ecg_processed = cpx.comparison_r_peaks(ecg_processed)
             success_final = success_final + ecg_processed["r_peak_success"][0]
             number_of_dots_final = number_of_dots_final + ecg_processed["r_peak_success"][1]
             if ecg_processed["r_peak_success"][1] != 0:
@@ -31,6 +35,8 @@ if all_signals == 'l' or all_signals == 'q' or all_signals == 'm':
         for i in range(1, 46, 1):
             ecg_original = le.ecg_lead_ext('mit', i)
             ecg_processed = pf.ecg_pre_processing(ecg_original)
+            ecg_processed = cpx.detect_qrs(ecg_processed)
+            ecg_processed = cpx.comparison_r_peaks(ecg_processed)
             #pm.plot_single_signal(ecg_processed)
             success_final = success_final + ecg_processed["r_peak_success"][0]
             number_of_dots_final = number_of_dots_final + ecg_processed["r_peak_success"][1]
@@ -57,7 +63,6 @@ if all_signals == 'l' or all_signals == 'q' or all_signals == 'm':
 
 else:
     # Call the function with leads and file_count as inputs
-
     ecg_original = le.ecg_lead_ext()
     pm.plot_single_signal(ecg_original)
 

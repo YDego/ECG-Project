@@ -130,22 +130,27 @@ def qrs_detection(ecg_signal, fs):
     plt.show()
 
 
-def notch_filter(frequencies, bandwidth, signal, sampling_rate):
-    freq = fftshift(fftfreq(signal.shape[-1], 1 / sampling_rate))
-    spectrum = fftshift(fft(signal))
+def notch_filter(signal, freq_list, bandwidth, sample_rate):
+    # Perform FFT on the signal
+    fft_signal = fft(signal)
 
-    for center_freq in frequencies:
-        index_p = np.where(
-            (freq >= center_freq - bandwidth / 2) &
-            (freq <= center_freq + bandwidth / 2))[0]
-        index_n = np.where(
-            (freq >= -center_freq - bandwidth / 2) &
-            (freq <= -center_freq + bandwidth / 2))[0]
-        spectrum[index_p] = 0
-        spectrum[index_n] = 0
+    # Calculate the frequency bins
+    n = len(signal)
+    frequency_bins = np.fft.fftfreq(n, d=1 / sample_rate)
 
-    filter_signal = ifft(ifftshift(spectrum))
-    return filter_signal
+    # Find the indices of the frequencies within the specified range
+    indices = []
+    for freq in freq_list:
+        indices.extend(np.where((frequency_bins >= freq - bandwidth / 2) & (frequency_bins <= freq + bandwidth / 2))[0])
+
+    # Set the corresponding frequency components to zero
+    fft_signal[indices] = 0
+
+    # Perform inverse FFT to obtain the filtered signal
+    filtered_signal = ifft(fft_signal)
+
+    # Return the real part of the filtered signal
+    return np.real(filtered_signal)
 
 
 def plot_original_vs_processed(signal1, signal2, ann=False):
