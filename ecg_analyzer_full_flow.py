@@ -34,8 +34,9 @@ if all_signals == 'l' or all_signals == 'q' or all_signals == 'm':
             #pm.plot_single_signal(ecg_processed)
             success_final = success_final + ecg_processed["r_peak_success"][0]
             number_of_dots_final = number_of_dots_final + ecg_processed["r_peak_success"][1]
-            if 100 * (ecg_processed["r_peak_success"][0] / ecg_processed["r_peak_success"][1]) != 100:
-                pm.plot_single_signal(ecg_processed)
+            #if 100 * (ecg_processed["r_peak_success"][0] / ecg_processed["r_peak_success"][1]) != 100:
+                #pm.plot_single_signal(ecg_processed)
+                #print(i)
             if ecg_processed["r_peak_success"][1] != 0:
                 dict_success[str(i)] = 100 * (ecg_processed["r_peak_success"][0] / ecg_processed["r_peak_success"][1])
             else:

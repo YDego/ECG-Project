@@ -26,6 +26,8 @@ def select_lead(dataset, selected_lead=None, data_path=''):
         if dataset["name"] == 'mit':
             if 'MLII' in dataset['leads']:
                 lead = 'MLII'
+            elif 'MLI' in dataset['leads']:
+                lead = 'MLI'
             else:
                 lead = 'V5'
         else:
