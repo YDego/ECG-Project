@@ -1,5 +1,7 @@
 import math
 import wfdb
+
+import plot_manager
 import processing_functions
 from wfdb import processing
 import numpy as np
@@ -10,13 +12,17 @@ def detection_qrs(ecg_original_copy):
     fs = ecg_original_copy["fs"]
     re_check_samples = round(0.2*fs)
     new_signal = processing_functions.band_pass_filter(8, 49, original_signal, fs)
+    #new_signal = processing_functions.wavelet_filter(original_signal)
     signal = abs(new_signal)**3
+    threshold = np.mean(signal[round(0.1*fs): signal.shape[-1] - round(0.1*fs)])
+    signal[0:round(0.1*fs) - 1] = threshold
+    signal[signal.shape[-1] - round(0.1*fs): signal.shape[-1] - 1] = threshold
     ecg_original_copy["signal"] = signal
     ecg_original_copy["fft"], ecg_original_copy["frequency_bins"] = processing_functions.compute_fft(new_signal, fs)
     threshold = np.mean(signal)
 
     open_dots, closed_dots, all_dots = detection_qrs_aux_new(signal, threshold, 0.4, 0, False, fs)
-    single_open_dots, single_closed_dots = check_for_singles_dots(open_dots, closed_dots, all_dots, fs)
+    single_open_dots, single_closed_dots, open_dots, closed_dots = check_for_singles_dots(open_dots, closed_dots, all_dots, fs)
 
     for dot in single_open_dots:
         if dot > len(signal) - re_check_samples:
@@ -32,7 +38,8 @@ def detection_qrs(ecg_original_copy):
             all_dots = np.delete(all_dots, np.where(all_dots == dot))
             continue
         extra_open_dot, _, _ = detection_qrs_aux_new(signal[dot - re_check_samples:dot], threshold/2, 0.6, 0, True, fs)
-        open_dots = np.concatenate((dot - extra_open_dot, open_dots))
+        open_dots = np.concatenate((dot - re_check_samples + extra_open_dot, open_dots))
+
 
     closed_dots = sorted(closed_dots)
     open_dots = sorted(open_dots)
@@ -285,9 +292,9 @@ def comparison_r_peaks(ecg_dict):
 ##changed at 25.6 01:18
 def comparison_r_peaks(ecg_dict):
     r_peaks_real_annotations = r_peaks_annotations(ecg_dict, 'real')
-    print(r_peaks_real_annotations)
+    #print(r_peaks_real_annotations)
     r_peaks_our_annotations = r_peaks_annotations(ecg_dict, 'our')
-    print(r_peaks_our_annotations)
+    #print(r_peaks_our_annotations)
     len_of_real_r_peaks = len(r_peaks_real_annotations)
     i = 0
     min_distance = math.inf
@@ -322,7 +329,7 @@ def comparison_r_peaks(ecg_dict):
 
     for index in range(len(distance_from_real)):
         number_of_dots = number_of_dots + 1
-        if distance_from_real[index] <= 15:##
+        if distance_from_real[index] <= round(0.025*ecg_dict["fs"]):##
             success = success + 1
     ecg_dict["r_peak_success"] = [success, number_of_dots]
     return ecg_dict
@@ -335,8 +342,10 @@ def comparison_r_peaks(ecg_dict):
 
 def check_for_singles_dots(open_dots, closed_dots, all_dots, fs):
     ## check that closed dot comes after open and there is not 2 open dot in a row
-
-    impossible_margin = round(0.3*fs)
+    open_dots_for_delete = open_dots.copy()
+    closed_dots_for_delete = closed_dots.copy()
+    impossible_margin_max = round(0.3*fs)
+    impossible_margin_min = round(0.03*fs)
     list_of_single_open_dots = []
     list_of_single_closed_dots = []
     index_open, index_close = 0, 0
@@ -344,10 +353,14 @@ def check_for_singles_dots(open_dots, closed_dots, all_dots, fs):
         if closed_dots[index_close] - open_dots[index_open] < 0:
             list_of_single_closed_dots.append(closed_dots[index_close])
             closed_dots = np.delete(closed_dots, index_close)
-        elif closed_dots[index_close] - open_dots[index_open] > impossible_margin:
+        elif closed_dots[index_close] - open_dots[index_open] > impossible_margin_max:
             list_of_single_open_dots.append(open_dots[index_open])
             open_dots = np.delete(open_dots, index_open)
-
+        elif closed_dots[index_close] - open_dots[index_open] < impossible_margin_min:
+            closed_dots_for_delete = np.delete(closed_dots_for_delete, np.where(closed_dots_for_delete == closed_dots[index_close]))
+            open_dots_for_delete = np.delete(open_dots_for_delete, np.where(open_dots_for_delete == open_dots[index_open]))
+            index_close = index_close + 1
+            index_open = index_open + 1
         else:
             index_close = index_close + 1
             index_open = index_open + 1
@@ -360,7 +373,7 @@ def check_for_singles_dots(open_dots, closed_dots, all_dots, fs):
             list_of_single_open_dots.append(open_dots[index_open])
             index_open = index_open + 1
 
-    return list_of_single_open_dots, list_of_single_closed_dots
+    return list_of_single_open_dots, list_of_single_closed_dots , open_dots_for_delete, closed_dots_for_delete
 
 #todo
 def find_r_peak(q_peak, s_peak, original_signal, fs):
@@ -379,7 +392,6 @@ def find_r_peak(q_peak, s_peak, original_signal, fs):
                 continue
         if len(potential_r_peak_one_interval) != 0:
             r_peak[index] = max(potential_r_peak_one_interval, key=potential_r_peak_one_interval.get)
-
         else:
             #print("hey there is no max")
             for value_r_minimum in r_peak_potential_minimum:

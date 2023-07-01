@@ -96,7 +96,7 @@ def compute_fft(signal, sample_rate):
 
 
 def wavelet_filter(signal):
-    wavelet = pywt.Wavelet('sym4')
+    wavelet = pywt.Wavelet('db2')
     # levdec = min(pywt.dwt_max_level(signal.shape[-1], wavelet.dec_len), 6)
     Ca4, Cd4, Cd3, Cd2, Cd1 = pywt.wavedec(signal, wavelet=wavelet, level=4)
     Ca4, Cd2, Cd1 = np.zeros(Ca4.shape[-1]), np.zeros(Cd2.shape[-1]), np.zeros(Cd1.shape[-1])
