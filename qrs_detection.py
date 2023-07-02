@@ -38,7 +38,6 @@ def detect_qrs(ecg_original_copy):
         extra_open_dot, _, _ = detection_qrs_aux_new(signal[dot - re_check_samples:dot], threshold/2, 0.6, 0, True, fs)
         open_dots = np.concatenate((dot - re_check_samples + extra_open_dot, open_dots))
 
-
     closed_dots = sorted(closed_dots)
     open_dots = sorted(open_dots)
     r_peaks = find_r_peak(open_dots, closed_dots, new_signal, fs)

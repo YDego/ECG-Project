@@ -3,7 +3,7 @@ import numpy as np
 
 
 def marker_converter(ann_markers):
-    converter = {
+    marker_dict = {
         '(': '<',
         ')': '>',
         'p': 'X',
@@ -13,13 +13,13 @@ def marker_converter(ann_markers):
     }
     markers_converted = ann_markers[:]
     for i in range(len(ann_markers)):
-        markers_converted[i] = converter[ann_markers[i]]
+        markers_converted[i] = marker_dict[ann_markers[i]]
 
     return markers_converted
 
 
 def color_converter(ann_markers):
-    color_converter = {
+    color_dict = {
         '(': 'k',
         ')': 'k',
         'p': 'b',
@@ -27,15 +27,15 @@ def color_converter(ann_markers):
         'n': 'g',
         't': 'r'
     }
-    color_converted = ann_markers[:]
+    colors = ann_markers[:]
     for i in range(len(ann_markers)):
-        color_converted[i] = color_converter[ann_markers[i]]
+        colors[i] = color_dict[ann_markers[i]]
 
-    return color_converted
+    return colors
 
 
 def plot_ann(ann, ann_markers, signal, time, plotter):
-    markers = marker_converter(ann_markers)
+    markers = marker_converter(ann_markers.copy())
     colors = color_converter(ann_markers)
     j = 0
 
@@ -44,12 +44,12 @@ def plot_ann(ann, ann_markers, signal, time, plotter):
         j += 1
 
 
-def plot_single_signal(ecg_dict):
+def plot_single_signal(ecg_dict, ann=False, our_ann=False):
     fft = ecg_dict["fft"]
     frequency_bins = ecg_dict["frequency_bins"]
     signal = ecg_dict['original_signal']
     # Calculate time array
-    time = [i / ecg_dict['fs'] for i in range(len(ecg_dict['original_signal']))] ####### 16.6 change to ecg_dict['original_signal'] from ecg_dict['signal']
+    time = [i / ecg_dict['fs'] for i in range(len(ecg_dict['original_signal']))]  # 16.6 change to ecg_dict['original_signal'] from ecg_dict['signal']
 
     # Plot the signal
     plt.subplot(2, 1, 1)
@@ -57,10 +57,10 @@ def plot_single_signal(ecg_dict):
     plt.title(f'Database: {ecg_dict["dataset"]}, datafile: {ecg_dict["name"]}, Lead {ecg_dict["lead"]}')
     plt.xlabel('Time (s)')
     plt.ylabel('Voltage (mV)')
-    if ecg_dict['ann'] is not None:
+    if ann:
         plot_ann(ecg_dict['ann'], ecg_dict['ann_markers'], signal, time, plt)
 
-    if ecg_dict['our_ann'] is not None:
+    if our_ann:
         plot_ann(ecg_dict['our_ann'], ecg_dict['our_ann_markers'], signal, time, plt)
 
     # Plot the FFT
@@ -75,7 +75,7 @@ def plot_single_signal(ecg_dict):
     plt.show()
 
 
-def plot_original_vs_processed(ecg_dict_1, ecg_dict_2, ann=False, cpx_detected=False):
+def plot_original_vs_processed(ecg_dict_1, ecg_dict_2, ann=False, our_ann=False):
     signal1 = ecg_dict_1["signal"]
     signal2 = ecg_dict_2["signal"]
     fft1 = ecg_dict_1["fft"]
@@ -106,10 +106,9 @@ def plot_original_vs_processed(ecg_dict_1, ecg_dict_2, ann=False, cpx_detected=F
     axs[0, 1].set_xlabel('Time (s)')
     axs[0, 1].set_title('Processed ECG Signal')
     if ann:
-        if cpx_detected:
-            plot_ann(ecg_dict_2['our_ann'], ecg_dict_2['our_ann_markers'], signal2, time, axs[0, 1])
-        else:
-            plot_ann(ecg_dict_2['ann'], ecg_dict_2['ann_markers'], signal2, time, axs[0, 1])
+        plot_ann(ecg_dict_2['ann'], ecg_dict_2['ann_markers'], signal2, time, axs[0, 1])
+    if our_ann:
+        plot_ann(ecg_dict_2['our_ann'], ecg_dict_2['our_ann_markers'], signal2, time, axs[0, 1])
 
     # Plot the FFT
     axs[1, 1].plot(freq_bin2, np.abs(fft2), color='red')
