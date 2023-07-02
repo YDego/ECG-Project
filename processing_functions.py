@@ -7,7 +7,7 @@ import pywt
 # from scipy import signal
 
 
-def baseline_removal_moving_median(signal, window_size=201):
+def baseline_removal_moving_median(signal, fs):
     """
     Perform baseline removal using a moving median.
 
@@ -23,6 +23,7 @@ def baseline_removal_moving_median(signal, window_size=201):
     filtered_signal : numpy array
         The baseline-corrected signal.
     """
+    window_size = 2 * fs
     filtered_signal = signal - np.convolve(signal, np.ones(window_size) / window_size, mode='same')
     filtered_signal = filtered_signal - np.convolve(filtered_signal, np.ones(window_size) / window_size, mode='same')
     return filtered_signal
