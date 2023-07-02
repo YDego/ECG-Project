@@ -54,7 +54,7 @@ def plot_single_signal(ecg_dict):
     # Plot the signal
     plt.subplot(2, 1, 1)
     plt.plot(time, signal)
-    plt.title(f'ECG Lead {ecg_dict["lead"]} for datafile {ecg_dict["name"]}')
+    plt.title(f'Database: {ecg_dict["dataset"]}, datafile: {ecg_dict["name"]}, Lead {ecg_dict["lead"]}')
     plt.xlabel('Time (s)')
     plt.ylabel('Voltage (mV)')
     if ecg_dict['ann'] is not None:
