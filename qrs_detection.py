@@ -1,7 +1,5 @@
 import math
 import wfdb
-
-import plot_manager
 import processing_functions
 from wfdb import processing
 import numpy as np
