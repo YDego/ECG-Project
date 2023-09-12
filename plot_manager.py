@@ -1,16 +1,40 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib.lines as mlines
+
+marker_dict = {
+    '(': '<',
+    ')': '>',
+    'p': 'X',
+    'N': 'X',
+    'n': 'o',
+    't': 'X'
+}
+
+color_dict = {
+    '(': 'k',
+    ')': 'k',
+    'p': 'b',
+    'N': 'g',
+    'n': 'g',
+    't': 'r'
+}
+
+marker_title_dict = {
+    '(': 'Opening point',
+    ')': 'Closing point',
+    'p': 'P peak',
+    'N': 'R peak',
+    'n': 'R peak',
+    't': 't peak'
+}
+
+legends = []
+for marker in marker_dict:
+    legends.append(mlines.Line2D([], [], color=color_dict[marker], marker=marker_dict[marker], markersize=5, label=marker_title_dict[marker]))
 
 
 def marker_converter(ann_markers):
-    marker_dict = {
-        '(': '<',
-        ')': '>',
-        'p': 'X',
-        'N': 'X',
-        'n': 'o',
-        't': 'X'
-    }
     markers_converted = ann_markers[:]
     for i in range(len(ann_markers)):
         markers_converted[i] = marker_dict[ann_markers[i]]
@@ -19,14 +43,6 @@ def marker_converter(ann_markers):
 
 
 def color_converter(ann_markers):
-    color_dict = {
-        '(': 'k',
-        ')': 'k',
-        'p': 'b',
-        'N': 'g',
-        'n': 'g',
-        't': 'r'
-    }
     colors = ann_markers[:]
     for i in range(len(ann_markers)):
         colors[i] = color_dict[ann_markers[i]]
@@ -93,6 +109,7 @@ def plot_original_vs_processed(ecg_dict_1, ecg_dict_2, ann=False, our_ann=False)
     axs[0, 0].set_title('Original ECG Signal')
     if ann:
         plot_ann(ecg_dict_1['ann'], ecg_dict_1['ann_markers'], signal1, time, axs[0, 0])
+        axs[0, 0].legend(handles=legends, fontsize="7",  loc="upper left")
 
     # Plot the FFT
     axs[1, 0].plot(freq_bin1, np.abs(fft1))
@@ -105,10 +122,12 @@ def plot_original_vs_processed(ecg_dict_1, ecg_dict_2, ann=False, our_ann=False)
     axs[0, 1].set_ylabel('Amplitude (mV)')
     axs[0, 1].set_xlabel('Time (s)')
     axs[0, 1].set_title('Processed ECG Signal')
-    if ann:
-        plot_ann(ecg_dict_2['ann'], ecg_dict_2['ann_markers'], signal2, time, axs[0, 1])
-    if our_ann:
-        plot_ann(ecg_dict_2['our_ann'], ecg_dict_2['our_ann_markers'], signal2, time, axs[0, 1])
+    if ann or our_ann:
+        axs[0, 1].legend(handles=legends, fontsize="7",  loc="upper left")
+        if ann:
+            plot_ann(ecg_dict_2['ann'], ecg_dict_2['ann_markers'], signal2, time, axs[0, 1])
+        if our_ann:
+            plot_ann(ecg_dict_2['our_ann'], ecg_dict_2['our_ann_markers'], signal2, time, axs[0, 1])
 
     # Plot the FFT
     axs[1, 1].plot(freq_bin2, np.abs(fft2), color='red')
