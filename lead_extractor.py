@@ -122,6 +122,8 @@ def ecg_lead_ext(signal_len=10, selected_dataset=None, selected_data_file=None, 
     ecg_signal = ecg_record.__dict__['p_signal'][:, dataset["leads"].index(lead)]
     annotation = wfdb.rdann(data_path, dataset["annotations"])
     ann_markers = annotation.symbol
+    if dataset['name'] == 'mit':
+        ann_markers = np.full(len(ann_markers), 'N').tolist()
     annotation_sample = np.ndarray.tolist(annotation.sample)
     fs = ecg_record.fs
 
@@ -146,21 +148,20 @@ def ecg_lead_ext(signal_len=10, selected_dataset=None, selected_data_file=None, 
             is_not_full = False
 
         ecg_signal_cut = ecg_signal[start_cut:end_cut] ## ecg_signal[1:signal_len * fs]
-        ann_cut_start = np.argmin(np.abs(np.array(annotation_sample)-(num_of_segments * signal_len * fs)+1))
-        ann_cut_end = np.argmin(np.abs(np.array(annotation_sample)-((num_of_segments + 1) * signal_len * fs)+1))
 
-        annotation_sample = annotation_sample[ann_cut_start:ann_cut_end] ## annotation_sample[1:cut_index]
-        ann_markers = ann_markers[ann_cut_start:ann_cut_end] ## ann_markers[1:cut_index]
-        if dataset['name'] == 'mit':
-            ann_markers = np.full(len(ann_markers), 'N').tolist()
+        ann_cut_start = np.argmin(np.abs(np.array(annotation_sample)-(num_of_segments * signal_len * fs)))
+        ann_cut_end = np.argmin(np.abs(np.array(annotation_sample)-((num_of_segments + 1) * signal_len * fs)))
+        annotation_sample_cut = annotation_sample[ann_cut_start:ann_cut_end] ## annotation_sample[1:cut_index]
+        ann_markers_cut = ann_markers[ann_cut_start:ann_cut_end] ## ann_markers[1:cut_index]
+
         # FFT
         fft, frequency_bins = pf.compute_fft(ecg_signal, fs)
 
         ecg_signal_segmented.append(ecg_signal_cut)
         fft_segmented.append(fft)
         frequency_bins_segmented.append(frequency_bins)
-        annotation_sample_segmented.append(annotation_sample)
-        ann_markers_segmetned.append(ann_markers)
+        annotation_sample_segmented.append(annotation_sample_cut)
+        ann_markers_segmetned.append(ann_markers_cut)
 
         num_of_segments += 1
 
@@ -181,7 +182,7 @@ def ecg_lead_ext(signal_len=10, selected_dataset=None, selected_data_file=None, 
         "frequency_bins": frequency_bins_segmented,
         "num_of_segments": num_of_segments
     }
-
+    print("Number of segments: " + str(num_of_segments))
     return ecg_dict
 
 
