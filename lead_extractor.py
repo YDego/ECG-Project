@@ -98,7 +98,7 @@ def get_datafile(num_records):
     return data_file
 
 
-def ecg_lead_ext(selected_dataset=None, selected_data_file=None, selected_lead=None):
+def ecg_lead_ext(signal_len=10, selected_dataset=None, selected_data_file=None, selected_lead=None):
 
     dataset = get_dataset(selected_dataset)
 
@@ -125,32 +125,61 @@ def ecg_lead_ext(selected_dataset=None, selected_data_file=None, selected_lead=N
     annotation_sample = np.ndarray.tolist(annotation.sample)
     fs = ecg_record.fs
 
-    # Cut signals
-    signal_len = 10  # [sec]
-    ecg_signal = ecg_signal[0:(signal_len * fs) - 1] ## ecg_signal[1:signal_len * fs]
-    cut_index = np.argmin(np.abs(np.array(annotation_sample)-(signal_len * fs)+1))
-    annotation_sample = annotation_sample[1:cut_index] ## annotation_sample[1:cut_index]
-    ann_markers = ann_markers[1:cut_index] ## ann_markers[1:cut_index]
-    if dataset['name'] == 'mit':
-        ann_markers = np.full(len(ann_markers), 'N').tolist()
-    # FFT
-    fft, frequency_bins = pf.compute_fft(ecg_signal, fs)
+    ecg_signal_segmented = []
+    fft_segmented = []
+    frequency_bins_segmented = []
+    annotation_sample_segmented = []
+    ann_markers_segmetned = []
+    is_not_full = True
+    num_of_segments = 0
+
+    while is_not_full:
+        # Cut signals
+        start_cut = num_of_segments * signal_len * fs
+        end_cut = (num_of_segments + 1) * signal_len * fs - 1
+
+        # Check if any data left
+        if start_cut >= len(ecg_signal):
+            break
+        elif end_cut > len(ecg_signal):
+            end_cut = len(ecg_signal)
+            is_not_full = False
+
+        ecg_signal_cut = ecg_signal[start_cut:end_cut] ## ecg_signal[1:signal_len * fs]
+        ann_cut_start = np.argmin(np.abs(np.array(annotation_sample)-(num_of_segments * signal_len * fs)+1))
+        ann_cut_end = np.argmin(np.abs(np.array(annotation_sample)-((num_of_segments + 1) * signal_len * fs)+1))
+
+        annotation_sample = annotation_sample[ann_cut_start:ann_cut_end] ## annotation_sample[1:cut_index]
+        ann_markers = ann_markers[ann_cut_start:ann_cut_end] ## ann_markers[1:cut_index]
+        if dataset['name'] == 'mit':
+            ann_markers = np.full(len(ann_markers), 'N').tolist()
+        # FFT
+        fft, frequency_bins = pf.compute_fft(ecg_signal, fs)
+
+        ecg_signal_segmented.append(ecg_signal_cut)
+        fft_segmented.append(fft)
+        frequency_bins_segmented.append(frequency_bins)
+        annotation_sample_segmented.append(annotation_sample)
+        ann_markers_segmetned.append(ann_markers)
+
+        num_of_segments += 1
 
     ecg_dict = {
         "dataset": dataset['name'],
         "record": ecg_record,
-        "original_signal": ecg_signal, ## changed 23.6 01:24
-        "signal": ecg_signal,
+        "original_signal": ecg_signal_segmented, ## changed 23.6 01:24
+        "signal": ecg_signal_segmented,
         "name": record_name,
-        "ann": annotation_sample,
-        "ann_markers": ann_markers,
+        "ann": annotation_sample_segmented,
+        "ann_markers": ann_markers_segmetned,
         "our_ann": [], ## samples
         "our_ann_markers": [], ## strings
         "r_peak_success": [0, 0],
         "lead": lead,
         "fs": fs,
-        "fft": fft,
-        "frequency_bins": frequency_bins
+        "fft": fft_segmented,
+        "frequency_bins": frequency_bins_segmented,
+        "num_of_segments": num_of_segments
     }
 
     return ecg_dict

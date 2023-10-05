@@ -66,14 +66,14 @@ else:
     ecg_original = le.ecg_lead_ext()
     pm.plot_single_signal(ecg_original)
 
-    # ECG pre-processing
-    ecg_processed = pf.ecg_pre_processing(ecg_original)
-    pm.plot_original_vs_processed(ecg_original, ecg_processed)
-
-    # QRS Detection
-    ecg_qrs = qrs.detect_qrs(ecg_processed)
-    ecg_qrs = qrs.comparison_r_peaks(ecg_qrs)
-
-    ecg_processed["ann"] = qrs.r_peaks_annotations(ecg_processed, 'real')
-    ecg_processed["signal"] = ecg_original["signal"]
-    pm.plot_original_vs_processed(ecg_original, ecg_processed, True, True)
+    # # ECG pre-processing
+    # ecg_processed = pf.ecg_pre_processing(ecg_original)
+    # pm.plot_original_vs_processed(ecg_original, ecg_processed)
+    #
+    # # QRS Detection
+    # ecg_qrs = qrs.detect_qrs(ecg_processed)
+    # ecg_qrs = qrs.comparison_r_peaks(ecg_qrs)
+    #
+    # ecg_processed["ann"] = qrs.r_peaks_annotations(ecg_processed, 'real')
+    # ecg_processed["signal"] = ecg_original["signal"]
+    # pm.plot_original_vs_processed(ecg_original, ecg_processed, True, True)
