@@ -131,7 +131,7 @@ def ecg_lead_ext(signal_len=10, selected_dataset=None, selected_data_file=None, 
     fft_segmented = []
     frequency_bins_segmented = []
     annotation_sample_segmented = []
-    ann_markers_segmetned = []
+    ann_markers_segmented = []
     is_not_full = True
     num_of_segments = 0
 
@@ -161,7 +161,7 @@ def ecg_lead_ext(signal_len=10, selected_dataset=None, selected_data_file=None, 
         fft_segmented.append(fft)
         frequency_bins_segmented.append(frequency_bins)
         annotation_sample_segmented.append(annotation_sample_cut)
-        ann_markers_segmetned.append(ann_markers_cut)
+        ann_markers_segmented.append(ann_markers_cut)
 
         num_of_segments += 1
 
@@ -172,7 +172,7 @@ def ecg_lead_ext(signal_len=10, selected_dataset=None, selected_data_file=None, 
         "signal": ecg_signal_segmented,
         "name": record_name,
         "ann": annotation_sample_segmented,
-        "ann_markers": ann_markers_segmetned,
+        "ann_markers": ann_markers_segmented,
         "our_ann": [], ## samples
         "our_ann_markers": [], ## strings
         "r_peak_success": [0, 0],
