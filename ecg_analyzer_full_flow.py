@@ -64,7 +64,7 @@ if all_signals == 'l' or all_signals == 'q' or all_signals == 'm':
 else:
     # Call the function with leads and file_count as inputs
     ecg_original = le.ecg_lead_ext()
-    pm.plot_single_signal(ecg_original, True)
+    pm.plot_single_signal(ecg_original, False)
 
     # # ECG pre-processing
     # ecg_processed = pf.ecg_pre_processing(ecg_original)

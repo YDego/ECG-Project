@@ -61,36 +61,45 @@ def plot_ann(ann, ann_markers, signal, time, plotter, seg=0):
         j += 1
 
 
-def plot_single_signal(ecg_dict, ann=False, our_ann=False):
-    for seg in range(ecg_dict['num_of_segments']):
-        fft = ecg_dict["fft"][seg]
-        frequency_bins = ecg_dict["frequency_bins"][seg]
-        signal = ecg_dict['original_signal'][seg]
-        # Calculate time array
-        time = [i / ecg_dict['fs'] + seg * ecg_dict['signal_len'] for i in range(len(ecg_dict['original_signal'][seg]))]  # 16.6 change to ecg_dict['original_signal'] from ecg_dict['signal']
+def plot_single_signal(ecg_dict, show_all_segment=False):
+    if show_all_segment:
+        for seg in range(ecg_dict['num_of_segments']):
+            plot_single_segment(ecg_dict, seg)
+    else:
+        seg = int(input('Choose a segment to plot from 0 to {}: '.format(ecg_dict['num_of_segments']-1)) or 0)
+        plot_single_segment(ecg_dict, seg)
 
-        # Plot the signal
-        plt.subplot(2, 1, 1)
-        plt.plot(time, signal)
-        plt.title(f'Database: {ecg_dict["dataset"]}, datafile: {ecg_dict["name"]}, Lead {ecg_dict["lead"]}')
-        plt.xlabel('Time (s)')
-        plt.ylabel('Voltage (mV)')
-        if ann:
-            plot_ann(ecg_dict['ann'][seg], ecg_dict['ann_markers'][seg], signal, time, plt, seg)
 
-        if our_ann:
-            plot_ann(ecg_dict['our_ann'][seg], ecg_dict['our_ann_markers'][seg], signal, time, plt, seg)
+def plot_single_segment(ecg_dict, seg, ann=True, our_ann=False):
+    fft = ecg_dict["fft"][seg]
+    frequency_bins = ecg_dict["frequency_bins"][seg]
+    signal = ecg_dict['original_signal'][seg]
+    # Calculate time array
+    time = [i / ecg_dict['fs'] + seg * ecg_dict['signal_len'] for i in range(
+        len(ecg_dict['original_signal'][seg]))]  # 16.6 change to ecg_dict['original_signal'] from ecg_dict['signal']
 
-        # Plot the FFT
-        plt.subplot(2, 1, 2)
-        plt.plot(frequency_bins, np.abs(fft), color='red')
-        plt.xlabel('Frequency')
-        plt.ylabel('Magnitude')
-        plt.title('FFT')
+    # Plot the signal
+    plt.subplot(2, 1, 1)
+    plt.plot(time, signal)
+    plt.title(f'Database: {ecg_dict["dataset"]}, datafile: {ecg_dict["name"]}, Lead {ecg_dict["lead"]}, Segment {seg}')
+    plt.xlabel('Time (s)')
+    plt.ylabel('Voltage (mV)')
+    if ann:
+        plot_ann(ecg_dict['ann'][seg], ecg_dict['ann_markers'][seg], signal, time, plt, seg)
 
-        # Display the plot
-        plt.tight_layout()
-        plt.show()
+    if our_ann:
+        plot_ann(ecg_dict['our_ann'][seg], ecg_dict['our_ann_markers'][seg], signal, time, plt, seg)
+
+    # Plot the FFT
+    plt.subplot(2, 1, 2)
+    plt.plot(frequency_bins, np.abs(fft), color='red')
+    plt.xlabel('Frequency [Hz]')
+    plt.ylabel('Magnitude')
+    plt.title('FFT')
+
+    # Display the plot
+    plt.tight_layout()
+    plt.show()
 
 
 def plot_original_vs_processed(ecg_dict_1, ecg_dict_2, ann=False, our_ann=False):
