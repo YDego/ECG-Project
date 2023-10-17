@@ -180,7 +180,8 @@ def ecg_lead_ext(signal_len=10, selected_dataset=None, selected_data_file=None, 
         "fs": fs,
         "fft": fft_segmented,
         "frequency_bins": frequency_bins_segmented,
-        "num_of_segments": num_of_segments
+        "num_of_segments": num_of_segments,
+        "signal_len": signal_len
     }
     print("Number of segments: " + str(num_of_segments))
     return ecg_dict

@@ -66,7 +66,7 @@ def plot_single_signal(ecg_dict, ann=False, our_ann=False):
         frequency_bins = ecg_dict["frequency_bins"][seg]
         signal = ecg_dict['original_signal'][seg]
         # Calculate time array
-        time = [i / ecg_dict['fs'] for i in range(len(ecg_dict['original_signal'][seg]))]  # 16.6 change to ecg_dict['original_signal'] from ecg_dict['signal']
+        time = [i / ecg_dict['fs'] + seg * ecg_dict['signal_len'] for i in range(len(ecg_dict['original_signal'][seg]))]  # 16.6 change to ecg_dict['original_signal'] from ecg_dict['signal']
 
         # Plot the signal
         plt.subplot(2, 1, 1)
@@ -74,8 +74,8 @@ def plot_single_signal(ecg_dict, ann=False, our_ann=False):
         plt.title(f'Database: {ecg_dict["dataset"]}, datafile: {ecg_dict["name"]}, Lead {ecg_dict["lead"]}')
         plt.xlabel('Time (s)')
         plt.ylabel('Voltage (mV)')
-        if ann:
-            plot_ann(ecg_dict['ann'][seg], ecg_dict['ann_markers'][seg], signal, time, plt)
+        # if ann:
+        #     plot_ann(ecg_dict['ann'][seg], ecg_dict['ann_markers'][seg], signal, time, plt)
 
         if our_ann:
             plot_ann(ecg_dict['our_ann'][seg], ecg_dict['our_ann_markers'][seg], signal, time, plt)
