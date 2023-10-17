@@ -50,13 +50,14 @@ def color_converter(ann_markers):
     return colors
 
 
-def plot_ann(ann, ann_markers, signal, time, plotter):
+def plot_ann(ann, ann_markers, signal, time, plotter, seg):
     markers = marker_converter(ann_markers.copy())
     colors = color_converter(ann_markers)
     j = 0
 
     for i in ann:
-        plotter.scatter(time[i], signal[i], c=colors[j], marker=markers[j])
+        ann_index = i - seg * len(time)
+        plotter.scatter(time[ann_index], signal[ann_index], c=colors[j], marker=markers[j])
         j += 1
 
 
@@ -74,11 +75,11 @@ def plot_single_signal(ecg_dict, ann=False, our_ann=False):
         plt.title(f'Database: {ecg_dict["dataset"]}, datafile: {ecg_dict["name"]}, Lead {ecg_dict["lead"]}')
         plt.xlabel('Time (s)')
         plt.ylabel('Voltage (mV)')
-        # if ann:
-        #     plot_ann(ecg_dict['ann'][seg], ecg_dict['ann_markers'][seg], signal, time, plt)
+        if ann:
+            plot_ann(ecg_dict['ann'][seg], ecg_dict['ann_markers'][seg], signal, time, plt, seg)
 
         if our_ann:
-            plot_ann(ecg_dict['our_ann'][seg], ecg_dict['our_ann_markers'][seg], signal, time, plt)
+            plot_ann(ecg_dict['our_ann'][seg], ecg_dict['our_ann_markers'][seg], signal, time, plt, seg)
 
         # Plot the FFT
         plt.subplot(2, 1, 2)
