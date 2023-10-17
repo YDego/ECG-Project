@@ -50,7 +50,7 @@ def color_converter(ann_markers):
     return colors
 
 
-def plot_ann(ann, ann_markers, signal, time, plotter, seg):
+def plot_ann(ann, ann_markers, signal, time, plotter, seg=0):
     markers = marker_converter(ann_markers.copy())
     colors = color_converter(ann_markers)
     j = 0
