@@ -127,7 +127,7 @@ def ecg_lead_ext(selected_dataset=None, selected_data_file=None, selected_lead=N
 
     # Cut signals
     signal_len = 10  # [sec]
-    ecg_signal = ecg_signal[0:(signal_len * fs) - 1] ## ecg_signal[1:signal_len * fs]
+    ecg_signal = ecg_signal[0:(signal_len * fs)] ## was 4999 sampels :: shahar changed it to 5000 in 18.10.2023 03:38
     cut_index = np.argmin(np.abs(np.array(annotation_sample)-(signal_len * fs)+1))
     annotation_sample = annotation_sample[1:cut_index] ## annotation_sample[1:cut_index]
     ann_markers = ann_markers[1:cut_index] ## ann_markers[1:cut_index]

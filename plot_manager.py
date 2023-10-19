@@ -141,3 +141,37 @@ def plot_original_vs_processed(ecg_dict_1, ecg_dict_2, ann=False, our_ann=False)
     axs[1, 0].sharey(axs[1, 1])
 
     plt.show()
+
+def plot_signal_with_dots(signal1 , signal2, fs , label1 , label2, record_number):
+    time = [i / fs for i in range(len(signal1))]
+    fig, ax = plt.subplots()
+    ax.plot(time, signal1, color='red', label=label1)
+    t_peak_time = signal2 * (1/fs)
+    ax.plot(t_peak_time, signal1[signal2], linestyle='None', marker='o', label=label2)
+    # Enable legend
+    ax.legend()
+    ax.set_title(f'record number {record_number}')
+    plt.show()
+
+
+def plot_2_signals(signal1 , signal2,  fs , label1, label2):
+    time = [i / fs for i in range(len(signal1))]
+
+    fig, ax = plt.subplots()
+    ax.plot(time, signal1, color='red', label=label1)
+    ax.plot(time, signal2, color='blue', label=label2)
+    # Enable legend
+    ax.legend()
+    ax.set_title("title")
+    plt.show()
+def plot_3_signals(signal1 , signal2, signal3,  fs , label1, label2 ,label3):
+    time = [i / fs for i in range(len(signal1))]
+
+    fig, ax = plt.subplots()
+    ax.plot(time, signal1, color='red', label=label1)
+    ax.plot(time, signal2, color='blue', label=label2)
+    ax.plot(time, signal3, color='green', label=label3)
+    # Enable legend
+    ax.legend()
+    ax.set_title("title")
+    plt.show()
