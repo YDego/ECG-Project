@@ -93,7 +93,7 @@ def plot_single_segment(ecg_dict, seg, ann=True, our_ann=False):
     # Plot the FFT
     plt.subplot(2, 1, 2)
     plt.plot(frequency_bins, np.abs(fft), color='red')
-    plt.xlabel('Frequency [Hz]')
+    plt.xlabel('Frequency (Hz)')
     plt.ylabel('Magnitude')
     plt.title('FFT')
 
@@ -102,13 +102,22 @@ def plot_single_segment(ecg_dict, seg, ann=True, our_ann=False):
     plt.show()
 
 
-def plot_original_vs_processed(ecg_dict_1, ecg_dict_2, ann=False, our_ann=False):
-    signal1 = ecg_dict_1["signal"]
-    signal2 = ecg_dict_2["signal"]
-    fft1 = ecg_dict_1["fft"]
-    fft2 = ecg_dict_2["fft"]
-    freq_bin1 = ecg_dict_1["frequency_bins"]
-    freq_bin2 = ecg_dict_2["frequency_bins"]
+def plot_original_vs_processed(ecg_dict_1, ecg_dict_2, show_all_segment=False, ann=False, our_ann=False):
+    if show_all_segment:
+        for seg in range(ecg_dict_1['num_of_segments']):
+            plot_original_vs_processed_single_segment(ecg_dict_1, ecg_dict_2, ann, our_ann, seg)
+    else:
+        seg = int(input('Choose a segment to plot from 0 to {}: '.format(ecg_dict_1['num_of_segments']-1)) or 0)
+        plot_original_vs_processed_single_segment(ecg_dict_1, ecg_dict_2, ann, our_ann, seg)
+
+
+def plot_original_vs_processed_single_segment(ecg_dict_1, ecg_dict_2, ann=False, our_ann=False, seg=0):
+    signal1 = ecg_dict_1["signal"][seg]
+    signal2 = ecg_dict_2["signal"][seg]
+    fft1 = ecg_dict_1["fft"][seg]
+    fft2 = ecg_dict_2["fft"][seg]
+    freq_bin1 = ecg_dict_1["frequency_bins"][seg]
+    freq_bin2 = ecg_dict_2["frequency_bins"][seg]
 
     fig, axs = plt.subplots(2, 2)
     fs = ecg_dict_1['fs']
@@ -119,12 +128,12 @@ def plot_original_vs_processed(ecg_dict_1, ecg_dict_2, ann=False, our_ann=False)
     axs[0, 0].set_ylabel('Amplitude (mV)')
     axs[0, 0].set_title('Original ECG Signal')
     if ann:
-        plot_ann(ecg_dict_1['ann'], ecg_dict_1['ann_markers'], signal1, time, axs[0, 0])
+        plot_ann(ecg_dict_1['ann'][seg], ecg_dict_1['ann_markers'][seg], signal1, time, axs[0, 0])
         axs[0, 0].legend(handles=legends, fontsize="7",  loc="upper left")
 
     # Plot the FFT
     axs[1, 0].plot(freq_bin1, np.abs(fft1))
-    axs[1, 0].set_xlabel('Frequency')
+    axs[1, 0].set_xlabel('Frequency (Hz)')
     axs[1, 0].set_ylabel('Magnitude')
     axs[1, 0].set_title('FFT')
 
@@ -136,13 +145,13 @@ def plot_original_vs_processed(ecg_dict_1, ecg_dict_2, ann=False, our_ann=False)
     if ann or our_ann:
         axs[0, 1].legend(handles=legends, fontsize="7",  loc="upper left")
         if ann:
-            plot_ann(ecg_dict_2['ann'], ecg_dict_2['ann_markers'], signal2, time, axs[0, 1])
+            plot_ann(ecg_dict_2['ann'][seg], ecg_dict_2['ann_markers'][seg], signal2, time, axs[0, 1])
         if our_ann:
-            plot_ann(ecg_dict_2['our_ann'], ecg_dict_2['our_ann_markers'], signal2, time, axs[0, 1])
+            plot_ann(ecg_dict_2['our_ann'][seg], ecg_dict_2['our_ann_markers'][seg], signal2, time, axs[0, 1])
 
     # Plot the FFT
     axs[1, 1].plot(freq_bin2, np.abs(fft2), color='red')
-    axs[1, 1].set_xlabel('Frequency')
+    axs[1, 1].set_xlabel('Frequency (Hz)')
     axs[1, 1].set_ylabel('Magnitude')
     axs[1, 1].set_title('FFT')
 
