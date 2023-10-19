@@ -66,10 +66,10 @@ else:
     ecg_original = le.ecg_lead_ext()
     pm.plot_single_signal(ecg_original, False)
 
-    # # ECG pre-processing
-    # ecg_processed = pf.ecg_pre_processing(ecg_original)
-    # pm.plot_original_vs_processed(ecg_original, ecg_processed)
-    #
+    # ECG pre-processing
+    ecg_processed = pf.ecg_pre_processing(ecg_original)
+    pm.plot_original_vs_processed(ecg_original, ecg_processed, False, True)
+
     # # QRS Detection
     # ecg_qrs = qrs.detect_qrs(ecg_processed)
     # ecg_qrs = qrs.comparison_r_peaks(ecg_qrs)
