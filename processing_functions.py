@@ -84,27 +84,29 @@ def wavelet_filter(signal):
 def ecg_pre_processing(ecg_dict):
     fs = ecg_dict['fs']
     ecg_processed = ecg_dict.copy()
-    processed_signal = ecg_processed['signal']
+    for i in range(ecg_dict['num_of_segments']):
 
-    # Baseline removal
-    processed_signal = baseline_removal_moving_median(processed_signal, fs)
+        processed_signal = ecg_processed['signal'][i]
 
-    """
-    if input("Perform powerline filter [y/N]? ") == "y":
-        # Remove powerline interference
-        powerline = [50, 60]
-        bandwidth = 1
-        ecg_filtered['signal'] = notch_filter(ecg_filtered['signal'], powerline, bandwidth, fs)
+        # Baseline removal
+        processed_signal = baseline_removal_moving_median(processed_signal, fs)
 
-    if input("Perform BP filter [y/N]? ") == "y":
-        # Remove high frequency noise
-        ecg_filtered['signal'] = band_pass_filter(0.5, 50, ecg_filtered['signal'], fs)
-
-    if input("Perform Wavelet filter [y/N]? ") == "y":
-        # Remove high frequency noise
-        ecg_filtered['signal'] = wavelet_filter(ecg_filtered['signal'])
-    """
-    ecg_processed['signal'] = processed_signal
-    ecg_processed['fft'], ecg_processed['frequency_bins'] = compute_fft(ecg_processed["signal"], fs)
+        """
+        if input("Perform powerline filter [y/N]? ") == "y":
+            # Remove powerline interference
+            powerline = [50, 60]
+            bandwidth = 1
+            ecg_filtered['signal'] = notch_filter(ecg_filtered['signal'], powerline, bandwidth, fs)
+    
+        if input("Perform BP filter [y/N]? ") == "y":
+            # Remove high frequency noise
+            ecg_filtered['signal'] = band_pass_filter(0.5, 50, ecg_filtered['signal'], fs)
+    
+        if input("Perform Wavelet filter [y/N]? ") == "y":
+            # Remove high frequency noise
+            ecg_filtered['signal'] = wavelet_filter(ecg_filtered['signal'])
+        """
+        ecg_processed['signal'][i] = processed_signal
+        ecg_processed['fft'][i], ecg_processed['frequency_bins'][i] = compute_fft(ecg_processed["signal"][i], fs)
 
     return ecg_processed
