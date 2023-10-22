@@ -4,14 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d8d475bc-520b-42e2-87af-b9dcea367782" name="Changes" comment="other compare">
-      <change beforePath="$PROJECT_DIR$/.idea/ECG-Project.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ECG-Project.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="d8d475bc-520b-42e2-87af-b9dcea367782" name="Changes" comment="t peak detection">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lead_extractor.py" beforeDir="false" afterPath="$PROJECT_DIR$/lead_extractor.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/plot_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/plot_manager.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/processing_functions.py" beforeDir="false" afterPath="$PROJECT_DIR$/processing_functions.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/qrs_detection.py" beforeDir="false" afterPath="$PROJECT_DIR$/qrs_detection.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/t_wave_detection.py" beforeDir="false" afterPath="$PROJECT_DIR$/t_wave_detection.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -42,19 +37,20 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;Yehonatan-Master&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/hoday/PycharmProjects/ECG-Project&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "git-widget-placeholder": "Yehonatan-Master",
+    "last_opened_file_path": "C:/Users/hoday/PycharmProjects/ECG-Project"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;ChangesTree.GroupingKeys&quot;: [
+  "keyToStringList": {
+    "ChangesTree.GroupingKeys": [
     ]
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\hoday\PycharmProjects\ECG-Project" />
@@ -251,7 +247,14 @@
       <option name="project" value="LOCAL" />
       <updated>1687183634742</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL‎-00010" summary="t peak detection">
+      <created>1697713172257</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL‎-00010" />
+      <option name="project" value="LOCAL‎" />
+      <updated>1697713172257</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -295,20 +298,16 @@
     <MESSAGE value="qt data cut (first 10 seconds)" />
     <MESSAGE value="fft also works" />
     <MESSAGE value="fft also works again" />
-    <option name="LAST_COMMIT_MESSAGE" value="fft also works again" />
+    <MESSAGE value="t peak detection" />
+    <option name="LAST_COMMIT_MESSAGE" value="t peak detection" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/t_wave_detection.py</url>
-          <line>66</line>
-          <option name="timeStamp" value="20" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/t_wave_detection.py</url>
-          <line>40</line>
-          <option name="timeStamp" value="23" />
+          <line>139</line>
+          <option name="timeStamp" value="4" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

@@ -142,7 +142,7 @@ def plot_original_vs_processed(ecg_dict_1, ecg_dict_2, ann=False, our_ann=False)
 
     plt.show()
 
-def plot_signal_with_dots(signal1 , signal2, fs , label1 , label2, record_number):
+def plot_signal_with_dots(signal1 , signal2, fs , label1='None' , label2='None', record_number=0):
     time = [i / fs for i in range(len(signal1))]
     fig, ax = plt.subplots()
     ax.plot(time, signal1, color='red', label=label1)
@@ -154,7 +154,19 @@ def plot_signal_with_dots(signal1 , signal2, fs , label1 , label2, record_number
     plt.show()
 
 
-def plot_2_signals(signal1 , signal2,  fs , label1, label2):
+def plot_signal_with_dots2(signal1 , signal2, signal3, fs , label1 , label2, label3, record_number):
+    time = [i / fs for i in range(len(signal1))]
+    fig, ax = plt.subplots()
+    ax.plot(time, signal1, color='red', label=label1)
+    on_time2 = signal2 * (1/fs)
+    on_time3 = signal3 * (1/fs)
+    ax.plot(on_time2, signal1[signal2], linestyle='None', marker='o', label=label2)
+    ax.plot(on_time3, signal1[signal3], linestyle='None', marker='x', label=label3)
+    # Enable legend
+    ax.legend()
+    ax.set_title(f'record number {record_number}')
+    plt.show()
+def plot_2_signals(signal1 , signal2,  fs , label1='None', label2='None'):
     time = [i / fs for i in range(len(signal1))]
 
     fig, ax = plt.subplots()
@@ -164,12 +176,14 @@ def plot_2_signals(signal1 , signal2,  fs , label1, label2):
     ax.legend()
     ax.set_title("title")
     plt.show()
-def plot_3_signals(signal1 , signal2, signal3,  fs , label1, label2 ,label3):
+
+
+def plot_3_signals(signal1, signal2, signal3,  fs, label1='None', label2='None', label3='None'):
     time = [i / fs for i in range(len(signal1))]
 
     fig, ax = plt.subplots()
-    ax.plot(time, signal1, color='red', label=label1)
-    ax.plot(time, signal2, color='blue', label=label2)
+    ax.plot(time, signal1, color='r', label=label1)
+    ax.plot(time, signal2, '--', color='blue', label=label2)
     ax.plot(time, signal3, color='green', label=label3)
     # Enable legend
     ax.legend()
