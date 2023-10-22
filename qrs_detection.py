@@ -8,8 +8,6 @@ import copy
 
 def detect_qrs(ecg_dict):
     ecg_dict_qrs_detected = copy.deepcopy(ecg_dict)
-    ecg_dict_qrs_detected["our_ann"] = []
-    ecg_dict_qrs_detected["our_ann_markers"] = []
     for seg in range(ecg_dict['num_of_segments']):
         ecg_dict_qrs_detected = detect_qrs_single_segment(ecg_dict, seg)
     return ecg_dict_qrs_detected
@@ -410,3 +408,36 @@ def find_r_peak(q_peak, s_peak, original_signal, fs):
                 r_peak[index] = min(potential_r_peak_one_interval, key=potential_r_peak_one_interval.get)
 
     return r_peak
+
+
+def find_q_s_ann(ecg_original_copy, seg, findQann , findSann, realLabels = True):
+    if realLabels:
+        ann = ecg_original_copy["ann"][seg]
+        ann_markers = ecg_original_copy["ann_markers"][seg]
+    else:
+        ann = ecg_original_copy["our_ann"][seg]
+        ann_markers = ecg_original_copy["our_ann_markers"][seg]
+
+    if findQann:
+        q_ann = np.zeros(len(ann), dtype=int)
+        q_ann_size = 0
+        for index in range(0 ,len(ann_markers) - 1):
+            if ann_markers[index] == '(' and ann_markers[index + 1] == 'N':
+                q_ann[q_ann_size] = ann[index]
+                q_ann_size = q_ann_size + 1
+        q_ann = q_ann[q_ann != 0]
+    else:
+        q_ann = -1
+
+    if findSann:
+        s_ann = np.zeros(len(ann), dtype=int)
+        s_ann_size = 0
+        for index in range(1, len(ann_markers)):
+            if ann_markers[index] == ')' and ann_markers[index - 1] == 'N':
+                s_ann[s_ann_size] = ann[index]
+                s_ann_size = s_ann_size + 1
+        s_ann = s_ann[s_ann != 0]
+    else:
+        s_ann = -1
+
+    return q_ann, s_ann

@@ -39,9 +39,9 @@ def moving_average(arr, w_size):
     return moving_averages
 
 
-def qrs_removal(ecg_original_copy, q_ann, s_ann):
+def qrs_removal(ecg_original_copy, seg, q_ann, s_ann):
     # return signal without QRS complex (return only the signal without all the dict)
-    signal = ecg_original_copy["original_signal"]
+    signal = ecg_original_copy["original_signal"][seg]
     new_signal = np.zeros(signal.size, dtype=float)
 
     # q_ann, s_ann = qrs_detection.find_q_s_ann(ecg_original_copy, True, True, realLabels=realLabels)
@@ -63,9 +63,7 @@ def qrs_removal(ecg_original_copy, q_ann, s_ann):
     return new_signal
 
 
-def thresholding(ecg_copy, boi, r_peaks, w1_size=0.070, k=1):
-    fs = ecg_copy['fs']
-    signal = ecg_copy["original_signal"]
+def thresholding(fs, boi, r_peaks, w1_size=0.070, k=1):
     d_max = 0.800  # 800 ms
     d_min = 0.170  # 170 ms
     # pm.plot_2_signals(signal, boi, fs)
@@ -91,7 +89,7 @@ def thresholding(ecg_copy, boi, r_peaks, w1_size=0.070, k=1):
     return new_boi
 
 
-def find_real_blocks(ecg_copy, signal_filtered, r_peaks, boi):
+def find_real_blocks(original_signal, fs, signal_filtered, r_peaks, boi):
     t_potential_start_potential_end = np.diff(boi)  # 4999 size
     t_potential_start = np.zeros(len(t_potential_start_potential_end), dtype=int)
     t_potential_end = np.zeros(len(t_potential_start_potential_end), dtype=int)
@@ -119,7 +117,7 @@ def find_real_blocks(ecg_copy, signal_filtered, r_peaks, boi):
             t_potential_end_one_interval = t_potential_end[r_peaks[index] < t_potential_end]
             t_potential_end_one_interval = t_potential_end_one_interval[
                 t_potential_end_one_interval < r_peaks[index + 1]]
-            t_start[index], t_peak[index], t_end[index] = detected_real_block_of_interest(ecg_copy, signal_filtered,
+            t_start[index], t_peak[index], t_end[index] = detected_real_block_of_interest(original_signal, fs, signal_filtered,
                                                                                           t_potential_start_one_interval,
                                                                                           t_potential_end_one_interval)
 
@@ -129,15 +127,15 @@ def find_real_blocks(ecg_copy, signal_filtered, r_peaks, boi):
 
 
 #                                             inner function
-def detected_real_block_of_interest(ecg_copy, signal_filtered, t_potential_start, t_potential_end):
+def detected_real_block_of_interest(original_signal, fs, signal_filtered, t_potential_start, t_potential_end):
     if t_potential_start.size == 0:
         return 0, 0, 0
     else:
-        signal = ecg_copy['original_signal'][t_potential_start[0]:t_potential_end[0]]
+        signal = original_signal[t_potential_start[0]:t_potential_end[0]]
         signal_max_original = signal_filtered[t_potential_start[0]:t_potential_end[0]]
         peak_index = np.argmax(signal) + t_potential_start[0]
         peak_index_max_original = np.argmax(signal_max_original) + t_potential_start[0]
-        if np.abs(peak_index_max_original - peak_index) > int(0.05*ecg_copy['fs']):
+        if np.abs(peak_index_max_original - peak_index) > int(0.05 * fs):
             peak_index_max_original = peak_index
         return t_potential_start[0], peak_index_max_original, t_potential_end[0]
 
@@ -150,13 +148,13 @@ def compute_k_factor(r_peaks, fs):
     return k
 
 
-def t_peaks_annotations(ecg_original, chosen_ann):
+def t_peaks_annotations(ecg_original, chosen_ann, seg):
     if chosen_ann == "real":
-        annotations_samples = ecg_original["ann"]
-        annotations_markers = ecg_original["ann_markers"]
+        annotations_samples = ecg_original["ann"][seg]
+        annotations_markers = ecg_original["ann_markers"][seg]
     else:
-        annotations_samples = ecg_original["our_ann"]
-        annotations_markers = ecg_original["our_ann_markers"]
+        annotations_samples = ecg_original["our_ann"][seg]
+        annotations_markers = ecg_original["our_ann_markers"][seg]
 
     t_annotations = np.zeros(len(annotations_samples), dtype=int)
     for index, marker in enumerate(annotations_markers):
