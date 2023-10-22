@@ -3,10 +3,20 @@ import wfdb
 import processing_functions
 from wfdb import processing
 import numpy as np
+import copy
 
 
-def detect_qrs(ecg_original_copy):
-    original_signal = ecg_original_copy["original_signal"]
+def detect_qrs(ecg_dict):
+    ecg_dict_qrs_detected = copy.deepcopy(ecg_dict)
+    ecg_dict_qrs_detected["our_ann"] = []
+    ecg_dict_qrs_detected["our_ann_markers"] = []
+    for seg in range(ecg_dict['num_of_segments']):
+        ecg_dict_qrs_detected = detect_qrs_single_segment(ecg_dict, seg)
+    return ecg_dict_qrs_detected
+
+
+def detect_qrs_single_segment(ecg_original_copy, seg):
+    original_signal = ecg_original_copy["signal"][seg]
     fs = ecg_original_copy["fs"]
     re_check_samples = round(0.2*fs)
     new_signal = processing_functions.band_pass_filter(8, 49, original_signal, fs)
@@ -15,8 +25,8 @@ def detect_qrs(ecg_original_copy):
     threshold = np.mean(signal[round(0.1*fs): signal.shape[-1] - round(0.1*fs)])
     signal[0:round(0.1*fs) - 1] = threshold
     signal[signal.shape[-1] - round(0.1*fs): signal.shape[-1] - 1] = threshold
-    ecg_original_copy["signal"] = signal
-    ecg_original_copy["fft"], ecg_original_copy["frequency_bins"] = processing_functions.compute_fft(new_signal, fs)
+    ecg_original_copy["signal"][seg] = signal
+    ecg_original_copy["fft"][seg], ecg_original_copy["frequency_bins"][seg] = processing_functions.compute_fft(new_signal, fs)
     threshold = np.mean(signal)
 
     open_dots, closed_dots, all_dots = detection_qrs_aux_new(signal, threshold, 0.4, 0, False, fs)
@@ -42,17 +52,18 @@ def detect_qrs(ecg_original_copy):
     open_dots = sorted(open_dots)
     r_peaks = find_r_peak(open_dots, closed_dots, new_signal, fs)
     all_dots = sorted(np.concatenate((open_dots, r_peaks, closed_dots)))
-    ecg_original_copy["our_ann"] = all_dots
-    ecg_original_copy["our_ann_markers"] = np.zeros(len(all_dots), dtype=str)
+    ecg_original_copy["our_ann"].append(all_dots)
+    ecg_original_copy["our_ann_markers"].append(np.zeros(len(all_dots), dtype=str))
     for index, dot in enumerate(all_dots):
         if dot in open_dots:
-            ecg_original_copy["our_ann_markers"][index] = '('
+            ecg_original_copy["our_ann_markers"][-1][index] = '('
         elif dot in closed_dots:
-            ecg_original_copy["our_ann_markers"][index] = ')'
+            ecg_original_copy["our_ann_markers"][-1][index] = ')'
         else:
-            ecg_original_copy["our_ann_markers"][index] = 'n'
+            ecg_original_copy["our_ann_markers"][-1][index] = 'n'
 
     return ecg_original_copy
+
 
 """
 def detection_qrs_aux(signal, threshold, margin_error, start_location, one_point, fs):
@@ -232,22 +243,22 @@ def check_radius_closed_dot(signal, index, threshold, distance, margin_error):
 
 
 ### changed at 16.6.23 - 22:45
-def r_peaks_annotations(ecg_original, chosen_ann):
+def r_peaks_annotations(ecg_original, chosen_ann, seg):
     if chosen_ann == "real":
-        annotations_samples = ecg_original["ann"]
-        annotations_markers = ecg_original["ann_markers"]
+        real_annotations_samples = ecg_original["ann"][seg]
+        real_annotations_markers = ecg_original["ann_markers"][seg]
     else:
-        annotations_samples = ecg_original["our_ann"]
-        annotations_markers = ecg_original["our_ann_markers"]
+        real_annotations_samples = ecg_original["our_ann"][seg]
+        real_annotations_markers = ecg_original["our_ann_markers"][seg]
 
-    r_annotations = np.zeros(len(annotations_samples), dtype=int)
-    for index, marker in enumerate(annotations_markers):
+    r_peaks_real_annotations = np.zeros(len(real_annotations_samples), dtype=int)
+    for index, marker in enumerate(real_annotations_markers):
         if marker == 'N' or marker == 'n': ## r_peak marker is 'N'
-            r_annotations = np.insert(r_annotations, 0, annotations_samples[index])
+            r_peaks_real_annotations = np.insert(r_peaks_real_annotations, 0, real_annotations_samples[index])
 
-    r_annotations = r_annotations[r_annotations != 0]
-    r_annotations = np.sort(r_annotations)
-    return r_annotations
+    r_peaks_real_annotations = r_peaks_real_annotations[r_peaks_real_annotations != 0]
+    r_peaks_real_annotations = np.sort(r_peaks_real_annotations)
+    return r_peaks_real_annotations
 
 
 ### changed at 16.6.23 - 22:45
@@ -283,10 +294,18 @@ def comparison_r_peaks(ecg_dict):
 
 ##changed at 25.6 01:18
 def comparison_r_peaks(ecg_dict):
-    r_peaks_real_annotations = r_peaks_annotations(ecg_dict, 'real')
-    #print(r_peaks_real_annotations)
-    r_peaks_our_annotations = r_peaks_annotations(ecg_dict, 'our')
-    #print(r_peaks_our_annotations)
+    ecg_dict_r_compared = copy.deepcopy(ecg_dict)
+    ecg_dict_r_compared["r_peak_success"] = []
+    for seg in range(ecg_dict['num_of_segments']):
+        ecg_dict_r_compared = comparison_r_peaks_single_segment(ecg_dict_r_compared, seg)
+    return ecg_dict_r_compared
+
+
+def comparison_r_peaks_single_segment(ecg_dict, seg):
+    r_peaks_real_annotations = r_peaks_annotations(ecg_dict, 'real', seg)
+    # print(r_peaks_real_annotations)
+    r_peaks_our_annotations = r_peaks_annotations(ecg_dict, 'our', seg)
+    # print(r_peaks_our_annotations)
     len_of_real_r_peaks = len(r_peaks_real_annotations)
     i = 0
     min_distance = math.inf
@@ -321,9 +340,9 @@ def comparison_r_peaks(ecg_dict):
 
     for index in range(len(distance_from_real)):
         number_of_dots = number_of_dots + 1
-        if distance_from_real[index] <= round(0.025*ecg_dict["fs"]):##
+        if distance_from_real[index] <= round(0.025 * ecg_dict["fs"]):  ##
             success = success + 1
-    ecg_dict["r_peak_success"] = [success, number_of_dots]
+    ecg_dict["r_peak_success"].append([success, number_of_dots])
     return ecg_dict
 
 
@@ -391,40 +410,3 @@ def find_r_peak(q_peak, s_peak, original_signal, fs):
                 r_peak[index] = min(potential_r_peak_one_interval, key=potential_r_peak_one_interval.get)
 
     return r_peak
-
-
-def find_q_s_ann(ecg_original_copy, findQann , findSann, realLabels = True):
-    if realLabels:
-        ann = ecg_original_copy["ann"]
-        ann_markers = ecg_original_copy["ann_markers"]
-    else:
-        ann = ecg_original_copy["our_ann"]
-        ann_markers = ecg_original_copy["our_ann_markers"]
-
-    if findQann:
-        q_ann = np.zeros(len(ann), dtype=int)
-        q_ann_size = 0
-        for index in range(0 ,len(ann_markers) - 1):
-            if ann_markers[index] == '(' and ann_markers[index + 1] == 'N':
-                q_ann[q_ann_size] = ann[index]
-                q_ann_size = q_ann_size + 1
-        q_ann = q_ann[q_ann != 0]
-    else:
-        q_ann = -1
-
-    if findSann:
-        s_ann = np.zeros(len(ann), dtype=int)
-        s_ann_size = 0
-        for index in range(1, len(ann_markers)):
-            if ann_markers[index] == ')' and ann_markers[index - 1] == 'N':
-                s_ann[s_ann_size] = ann[index]
-                s_ann_size = s_ann_size + 1
-        s_ann = s_ann[s_ann != 0]
-    else:
-        s_ann = -1
-
-    return q_ann, s_ann
-
-
-
-
