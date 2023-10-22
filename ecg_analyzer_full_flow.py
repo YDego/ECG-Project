@@ -62,18 +62,29 @@ if all_signals == 'l' or all_signals == 'q' or all_signals == 'm':
         writer.writerow(dict_bad_examples.items())
 
 else:
+
+    # Parameters
+    show_all_segments = False
+    plot_ann = False
+    plot_our_ann = False
+
     # Call the function with leads and file_count as inputs
     ecg_original = le.ecg_lead_ext()
-    pm.plot_single_signal(ecg_original, False)
+    if not show_all_segments:
+        seg = int(input('Choose a segment to plot from 0 to {} (default 0): '.format(ecg_original['num_of_segments'] - 1)) or 0)
+    else:
+        seg = 0
+    pm.plot_single_signal(ecg_original, seg, show_all_segments)
 
     # ECG pre-processing
     ecg_processed = pf.ecg_pre_processing(ecg_original)
-    pm.plot_original_vs_processed(ecg_original, ecg_processed, False, True)
+    pm.plot_original_vs_processed(ecg_original, ecg_processed, seg, show_all_segments, plot_ann, plot_our_ann)
 
-    # # QRS Detection
-    # ecg_qrs = qrs.detect_qrs(ecg_processed)
-    # ecg_qrs = qrs.comparison_r_peaks(ecg_qrs)
-    #
-    # ecg_processed["ann"] = qrs.r_peaks_annotations(ecg_processed, 'real')
-    # ecg_processed["signal"] = ecg_original["signal"]
-    # pm.plot_original_vs_processed(ecg_original, ecg_processed, True, True)
+    # QRS Detection
+    ecg_qrs = qrs.detect_qrs(ecg_processed)
+    ecg_qrs = qrs.comparison_r_peaks(ecg_qrs)
+
+    # for seg in range(ecg_original['num_of_segments']):
+    #     ecg_processed = qrs.r_peaks_annotations(ecg_processed, 'real', seg)
+    ecg_processed["signal"] = ecg_original["signal"]
+    pm.plot_original_vs_processed(ecg_original, ecg_processed, seg, show_all_segments, plot_ann, plot_our_ann)

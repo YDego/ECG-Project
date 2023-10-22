@@ -183,7 +183,6 @@ def ecg_lead_ext(signal_len=10, selected_dataset=None, selected_data_file=None, 
         "num_of_segments": num_of_segments,
         "signal_len": signal_len
     }
-    print("Number of segments: " + str(num_of_segments))
     return ecg_dict
 
 

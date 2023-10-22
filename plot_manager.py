@@ -61,12 +61,11 @@ def plot_ann(ann, ann_markers, signal, time, plotter, seg=0):
         j += 1
 
 
-def plot_single_signal(ecg_dict, show_all_segment=False):
+def plot_single_signal(ecg_dict, seg=0, show_all_segment=False):
     if show_all_segment:
-        for seg in range(ecg_dict['num_of_segments']):
-            plot_single_segment(ecg_dict, seg)
+        for i in range(ecg_dict['num_of_segments']):
+            plot_single_segment(ecg_dict, i)
     else:
-        seg = int(input('Choose a segment to plot from 0 to {}: '.format(ecg_dict['num_of_segments']-1)) or 0)
         plot_single_segment(ecg_dict, seg)
 
 
@@ -102,12 +101,11 @@ def plot_single_segment(ecg_dict, seg, ann=True, our_ann=False):
     plt.show()
 
 
-def plot_original_vs_processed(ecg_dict_1, ecg_dict_2, show_all_segment=False, ann=False, our_ann=False):
+def plot_original_vs_processed(ecg_dict_1, ecg_dict_2, seg=0, show_all_segment=False, ann=False, our_ann=False):
     if show_all_segment:
-        for seg in range(ecg_dict_1['num_of_segments']):
-            plot_original_vs_processed_single_segment(ecg_dict_1, ecg_dict_2, ann, our_ann, seg)
+        for i in range(ecg_dict_1['num_of_segments']):
+            plot_original_vs_processed_single_segment(ecg_dict_1, ecg_dict_2, ann, our_ann, i)
     else:
-        seg = int(input('Choose a segment to plot from 0 to {}: '.format(ecg_dict_1['num_of_segments']-1)) or 0)
         plot_original_vs_processed_single_segment(ecg_dict_1, ecg_dict_2, ann, our_ann, seg)
 
 
