@@ -1,7 +1,8 @@
 import numpy as np
 import qrs_detection
-# import plot_manager as pm
+import plot_manager as pm
 import math
+
 
 # page 9-10
 
@@ -38,15 +39,13 @@ def moving_average(arr, w_size):
     return moving_averages
 
 
-def qrs_removal(ecg_original_copy, realLabels=True):
+def qrs_removal(ecg_original_copy, q_ann, s_ann):
     # return signal without QRS complex (return only the signal without all the dict)
     signal = ecg_original_copy["original_signal"]
     new_signal = np.zeros(signal.size, dtype=float)
 
-    q_ann, s_ann = qrs_detection.find_q_s_ann(ecg_original_copy, True, True, realLabels=realLabels)
-    if q_ann.size == 0 or s_ann.size == 0:
-        return -1
-    elif q_ann[0] < s_ann[0]:
+    # q_ann, s_ann = qrs_detection.find_q_s_ann(ecg_original_copy, True, True, realLabels=realLabels)
+    if q_ann[0] < s_ann[0]:
         q_ann = np.delete(q_ann, 0)
 
     counter = 0
@@ -66,19 +65,19 @@ def qrs_removal(ecg_original_copy, realLabels=True):
 
 def thresholding(ecg_copy, boi, r_peaks, w1_size=0.070, k=1):
     fs = ecg_copy['fs']
-    # signal = ecg_copy["original_signal"]
+    signal = ecg_copy["original_signal"]
     d_max = 0.800  # 800 ms
     d_min = 0.170  # 170 ms
     # pm.plot_2_signals(signal, boi, fs)
     for i in range(0, r_peaks.size - 1):
         rr_interval = r_peaks[i + 1] - r_peaks[i]
-        rt_min = d_min * rr_interval
-        rt_max = d_max * rr_interval
+        rt_min = int(np.ceil(d_min * rr_interval))
+        rt_max = int(np.ceil(d_max * rr_interval))
         boi[r_peaks[i]: r_peaks[i] + int(rt_min)] = 0
         boi[r_peaks[i] + int(rt_max): r_peaks[i + 1]] = 0
 
     new_boi = np.zeros(len(boi), dtype=int)
-    thr = np.floor(w1_size * fs * k)  # TODO maybe take k factor in compute
+    thr = np.floor(w1_size * fs * k)
     count = 0
     for i, x in enumerate(boi):
         if x == 1:
@@ -92,7 +91,7 @@ def thresholding(ecg_copy, boi, r_peaks, w1_size=0.070, k=1):
     return new_boi
 
 
-def find_real_blocks(ecg_copy, ecg_original, boi):
+def find_real_blocks(ecg_copy, signal_filtered, r_peaks, boi):
     t_potential_start_potential_end = np.diff(boi)  # 4999 size
     t_potential_start = np.zeros(len(t_potential_start_potential_end), dtype=int)
     t_potential_end = np.zeros(len(t_potential_start_potential_end), dtype=int)
@@ -109,7 +108,7 @@ def find_real_blocks(ecg_copy, ecg_original, boi):
         print("error in function find_potential_t_peaks ::: t_potential_start.size != t_potential_end.size ")
         exit(1)
     else:
-        r_peaks = qrs_detection.r_peaks_annotations(ecg_copy, 'real')
+        # r_peaks = qrs_detection.r_peaks_annotations(ecg_copy, 'real')  # added as out function parameter
         t_start = np.zeros(r_peaks.size - 1, dtype=int)
         t_end = np.zeros(r_peaks.size - 1, dtype=int)
         t_peak = np.zeros(r_peaks.size - 1, dtype=int)
@@ -120,7 +119,7 @@ def find_real_blocks(ecg_copy, ecg_original, boi):
             t_potential_end_one_interval = t_potential_end[r_peaks[index] < t_potential_end]
             t_potential_end_one_interval = t_potential_end_one_interval[
                 t_potential_end_one_interval < r_peaks[index + 1]]
-            t_start[index], t_peak[index], t_end[index] = detected_real_block_of_interest(ecg_copy, ecg_original,
+            t_start[index], t_peak[index], t_end[index] = detected_real_block_of_interest(ecg_copy, signal_filtered,
                                                                                           t_potential_start_one_interval,
                                                                                           t_potential_end_one_interval)
 
@@ -130,15 +129,15 @@ def find_real_blocks(ecg_copy, ecg_original, boi):
 
 
 #                                             inner function
-def detected_real_block_of_interest(ecg_copy, ecg_original, t_potential_start, t_potential_end):
+def detected_real_block_of_interest(ecg_copy, signal_filtered, t_potential_start, t_potential_end):
     if t_potential_start.size == 0:
         return 0, 0, 0
     else:
         signal = ecg_copy['original_signal'][t_potential_start[0]:t_potential_end[0]]
-        signal_max_original = ecg_original['original_signal'][t_potential_start[0]:t_potential_end[0]]
+        signal_max_original = signal_filtered[t_potential_start[0]:t_potential_end[0]]
         peak_index = np.argmax(signal) + t_potential_start[0]
         peak_index_max_original = np.argmax(signal_max_original) + t_potential_start[0]
-        if np.abs(peak_index_max_original - peak_index) > 20:
+        if np.abs(peak_index_max_original - peak_index) > int(0.05*ecg_copy['fs']):
             peak_index_max_original = peak_index
         return t_potential_start[0], peak_index_max_original, t_potential_end[0]
 
@@ -202,7 +201,13 @@ def comparison_t_peaks(t_peaks_real_annotations, t_peaks_our_annotations, fs):
 
     for index in range(len(distance_from_real)):
         number_of_dots = number_of_dots + 1
-        if distance_from_real[index] <= round(0.1*fs):##
+        if distance_from_real[index] <= round(0.05*fs):##
             success = success + 1
 
     return success, number_of_dots
+
+
+
+
+
+
