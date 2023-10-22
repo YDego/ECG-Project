@@ -154,8 +154,6 @@ def plot_original_vs_processed_single_segment(ecg_dict_1, ecg_dict_2, ann=False,
     axs[1, 1].set_title('FFT')
 
     axs[0, 0].sharex(axs[0, 1])
-    axs[0, 0].sharey(axs[0, 1])
     axs[1, 0].sharex(axs[1, 1])
-    axs[1, 0].sharey(axs[1, 1])
 
     plt.show()

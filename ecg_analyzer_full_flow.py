@@ -84,7 +84,5 @@ else:
     ecg_qrs = qrs.detect_qrs(ecg_processed)
     ecg_qrs = qrs.comparison_r_peaks(ecg_qrs)
 
-    # for seg in range(ecg_original['num_of_segments']):
-    #     ecg_processed = qrs.r_peaks_annotations(ecg_processed, 'real', seg)
     ecg_processed["signal"] = ecg_original["signal"]
     pm.plot_original_vs_processed(ecg_original, ecg_processed, seg, show_all_segments, plot_ann, plot_our_ann)

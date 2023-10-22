@@ -5,10 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d8d475bc-520b-42e2-87af-b9dcea367782" name="Changes" comment="plot fixed">
+      <change beforePath="$PROJECT_DIR$/.idea/ECG-Project.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ECG-Project.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ecg_analyzer_full_flow.py" beforeDir="false" afterPath="$PROJECT_DIR$/ecg_analyzer_full_flow.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lead_extractor.py" beforeDir="false" afterPath="$PROJECT_DIR$/lead_extractor.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/plot_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/plot_manager.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/processing_functions.py" beforeDir="false" afterPath="$PROJECT_DIR$/processing_functions.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/qrs_detection.py" beforeDir="false" afterPath="$PROJECT_DIR$/qrs_detection.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -26,7 +27,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="main" />
+        <entry key="$PROJECT_DIR$" value="Yehonatan-Master" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />

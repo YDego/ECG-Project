@@ -3,10 +3,11 @@ import wfdb
 import processing_functions
 from wfdb import processing
 import numpy as np
+import copy
 
 
 def detect_qrs(ecg_dict):
-    ecg_dict_qrs_detected = ecg_dict.copy()
+    ecg_dict_qrs_detected = copy.deepcopy(ecg_dict)
     ecg_dict_qrs_detected["our_ann"] = []
     ecg_dict_qrs_detected["our_ann_markers"] = []
     for seg in range(ecg_dict['num_of_segments']):
@@ -293,7 +294,7 @@ def comparison_r_peaks(ecg_dict):
 
 ##changed at 25.6 01:18
 def comparison_r_peaks(ecg_dict):
-    ecg_dict_r_compared = ecg_dict.copy()
+    ecg_dict_r_compared = copy.deepcopy(ecg_dict)
     ecg_dict_r_compared["r_peak_success"] = []
     for seg in range(ecg_dict['num_of_segments']):
         ecg_dict_r_compared = comparison_r_peaks_single_segment(ecg_dict_r_compared, seg)
