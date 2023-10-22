@@ -4,7 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d8d475bc-520b-42e2-87af-b9dcea367782" name="Changes" comment="t peak detection" />
+    <list default="true" id="d8d475bc-520b-42e2-87af-b9dcea367782" name="Changes" comment="plot fixed">
+      <change beforePath="$PROJECT_DIR$/.idea/ECG-Project.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ECG-Project.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ecg_analyzer_full_flow.py" beforeDir="false" afterPath="$PROJECT_DIR$/ecg_analyzer_full_flow.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/plot_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/plot_manager.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/processing_functions.py" beforeDir="false" afterPath="$PROJECT_DIR$/processing_functions.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/qrs_detection.py" beforeDir="false" afterPath="$PROJECT_DIR$/qrs_detection.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -20,7 +27,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="Shahar-1" />
+        <entry key="$PROJECT_DIR$" value="Yehonatan-Master" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -29,17 +36,17 @@
     <option name="stateVersion" value="1" />
   </component>
   <component name="ProjectId" id="2Ps7BaF32fPmZRJCf4qjNM1ITLm" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
-    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;Yehonatan-Master&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;YehonatanTry1&quot;,
     &quot;last_opened_file_path&quot;: &quot;C:/Users/hoday/PycharmProjects/ECG-Project&quot;
   },
   &quot;keyToStringList&quot;: {
@@ -119,6 +126,27 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="lead_extractor" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="ECG-Project" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/lead_extractor.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="lead_extractor_gui" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="ECG-Project" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -140,31 +168,10 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="t_wave_detection" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="ECG-Project" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/t_wave_detection.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <recent_temporary>
       <list>
         <item itemvalue="Python.ecg_analyzer_full_flow" />
-        <item itemvalue="Python.t_wave_detection" />
+        <item itemvalue="Python.lead_extractor" />
         <item itemvalue="Python.lead_extractor_gui" />
         <item itemvalue="Python.ecg_lead_extractor" />
         <item itemvalue="Python.ecg_gui" />
@@ -243,38 +250,19 @@
       <option name="project" value="LOCAL" />
       <updated>1687183634742</updated>
     </task>
-    <task id="LOCAL‎-00010" summary="t peak detection">
-      <created>1697713172257</created>
+    <task id="LOCAL-00010" summary=".">
+      <created>1696522861281</created>
       <option name="number" value="00010" />
-      <option name="presentableId" value="LOCAL‎-00010" />
-      <option name="project" value="LOCAL‎" />
-      <updated>1697713172257</updated>
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1696522861281</updated>
     </task>
-    <task id="LOCAL‎-00011" summary="t peak detection">
-      <created>1697978229402</created>
-      <option name="number" value="00011" />
-      <option name="presentableId" value="LOCAL‎-00011" />
-      <option name="project" value="LOCAL‎" />
-      <updated>1697978229402</updated>
-    </task>
-    <task id="LOCAL‎-00012" summary="t peak detection">
-      <created>1697978692642</created>
-      <option name="number" value="00012" />
-      <option name="presentableId" value="LOCAL‎-00012" />
-      <option name="project" value="LOCAL‎" />
-      <updated>1697978692642</updated>
-    </task>
-    <option name="localTasksCounter" value="13" />
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
       <map>
-        <entry key="7ccd1605-0071-4973-b9d9-0547ed4da49f">
-          <value>
-            <State />
-          </value>
-        </entry>
         <entry key="MAIN">
           <value>
             <State>
@@ -288,7 +276,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="Yehonatan-Master" />
+                        <option value="origin/main" />
                       </list>
                     </value>
                   </entry>
@@ -308,23 +296,7 @@
     <MESSAGE value="qt data cut (first 10 seconds)" />
     <MESSAGE value="fft also works" />
     <MESSAGE value="fft also works again" />
-    <MESSAGE value="t peak detection" />
-    <option name="LAST_COMMIT_MESSAGE" value="t peak detection" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/t_wave_detection.py</url>
-          <line>139</line>
-          <option name="timeStamp" value="4" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
-    <watches-manager>
-      <configuration name="PythonConfigurationType">
-        <watch expression="ecg_original['our_ann']" />
-      </configuration>
-    </watches-manager>
+    <MESSAGE value="." />
+    <option name="LAST_COMMIT_MESSAGE" value="." />
   </component>
 </project>
