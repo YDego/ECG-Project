@@ -242,6 +242,8 @@ def check_radius_closed_dot(signal, index, threshold, distance, margin_error):
 
 ### changed at 16.6.23 - 22:45
 def r_peaks_annotations(ecg_original, chosen_ann, seg):
+    fs = ecg_original['fs']
+    signal_len_in_time = ecg_original['signal_len']
     if chosen_ann == "real":
         real_annotations_samples = ecg_original["ann"][seg]
         real_annotations_markers = ecg_original["ann_markers"][seg]
@@ -256,6 +258,7 @@ def r_peaks_annotations(ecg_original, chosen_ann, seg):
 
     r_peaks_real_annotations = r_peaks_real_annotations[r_peaks_real_annotations != 0]
     r_peaks_real_annotations = np.sort(r_peaks_real_annotations)
+    r_peaks_real_annotations = r_peaks_real_annotations - seg * signal_len_in_time * fs
     return r_peaks_real_annotations
 
 
@@ -411,6 +414,8 @@ def find_r_peak(q_peak, s_peak, original_signal, fs):
 
 
 def find_q_s_ann(ecg_original_copy, seg, findQann , findSann, realLabels = True):
+    fs = ecg_original_copy['fs']
+    signal_len_in_time = ecg_original_copy['signal_len']
     if realLabels:
         ann = ecg_original_copy["ann"][seg]
         ann_markers = ecg_original_copy["ann_markers"][seg]
@@ -440,4 +445,6 @@ def find_q_s_ann(ecg_original_copy, seg, findQann , findSann, realLabels = True)
     else:
         s_ann = -1
 
+    q_ann = q_ann - seg * signal_len_in_time * fs
+    s_ann = s_ann - seg * signal_len_in_time * fs
     return q_ann, s_ann
