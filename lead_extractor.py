@@ -135,6 +135,7 @@ def ecg_lead_ext(signal_len=10, selected_dataset=None, selected_data_file=None, 
     is_not_full = True
     num_of_segments = 0
 
+    ecg_signal = pf.baseline_removal_moving_median(ecg_signal, fs)
     while is_not_full:
         # Cut signals
         start_cut = num_of_segments * signal_len * fs
