@@ -4,13 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d8d475bc-520b-42e2-87af-b9dcea367782" name="Changes" comment="plot fixed">
+    <list default="true" id="d8d475bc-520b-42e2-87af-b9dcea367782" name="Changes" comment="t peak detection">
       <change beforePath="$PROJECT_DIR$/.idea/ECG-Project.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ECG-Project.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ecg_analyzer_full_flow.py" beforeDir="false" afterPath="$PROJECT_DIR$/ecg_analyzer_full_flow.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/plot_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/plot_manager.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/processing_functions.py" beforeDir="false" afterPath="$PROJECT_DIR$/processing_functions.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/qrs_detection.py" beforeDir="false" afterPath="$PROJECT_DIR$/qrs_detection.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/score2.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/t_wave_detection.py" beforeDir="false" afterPath="$PROJECT_DIR$/t_wave_detection.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_block_of_interest.py" beforeDir="false" afterPath="$PROJECT_DIR$/test_block_of_interest.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -27,7 +27,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="Yehonatan-Master" />
+        <entry key="$PROJECT_DIR$" value="main" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -46,7 +46,7 @@
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;YehonatanTry1&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;shahar&quot;,
     &quot;last_opened_file_path&quot;: &quot;C:/Users/hoday/PycharmProjects/ECG-Project&quot;
   },
   &quot;keyToStringList&quot;: {
@@ -62,7 +62,7 @@
       <recent name="C:\Users\hoday\PycharmProjects\ECG-Project\ecg_dataset\qt-database-1.0.0\data" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.ecg_analyzer_full_flow">
+  <component name="RunManager">
     <configuration name="ecg_analyzer_full_flow" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="ECG-Project" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -170,11 +170,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.ecg_analyzer_full_flow" />
-        <item itemvalue="Python.lead_extractor" />
         <item itemvalue="Python.lead_extractor_gui" />
+        <item itemvalue="Python.lead_extractor" />
         <item itemvalue="Python.ecg_lead_extractor" />
         <item itemvalue="Python.ecg_gui" />
+        <item itemvalue="Python.ecg_analyzer_full_flow" />
       </list>
     </recent_temporary>
   </component>
@@ -257,7 +257,14 @@
       <option name="project" value="LOCAL" />
       <updated>1696522861281</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL‎-00011" summary="t peak detection">
+      <created>1698236272649</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL‎-00011" />
+      <option name="project" value="LOCAL‎" />
+      <updated>1698236272649</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -297,6 +304,23 @@
     <MESSAGE value="fft also works" />
     <MESSAGE value="fft also works again" />
     <MESSAGE value="." />
-    <option name="LAST_COMMIT_MESSAGE" value="." />
+    <MESSAGE value="t peak detection" />
+    <option name="LAST_COMMIT_MESSAGE" value="t peak detection" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/qrs_detection.py</url>
+          <line>249</line>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/ecg_analyzer_full_flow.py</url>
+          <line>42</line>
+          <option name="timeStamp" value="5" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

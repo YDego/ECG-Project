@@ -5,18 +5,21 @@ import math
 
 
 # page 9-10
-def t_peak_detection(signal_without_qrs, fs, w1_size, k_factor, r_peaks, ecg_signal_filtered_by25, signal, d_max=0.800, d_min=0.170):
+def t_peak_detection(signal_without_qrs, fs, w1_size, k_factor, r_peaks, ecg_signal_filtered_by25, d_max=0.800, d_min=0.170):
     first_boi, ma_peak, ma_t_wave = block_of_interest(signal_without_qrs, fs, w1_size, w1_size * 2, k_factor)
-    #pm.plot_3_signals(ma_peak, ma_t_wave, first_boi, fs, 'ma peak', 'ma t wave', 'initial block of interests')
     #pm.plot_2_signals(signal_without_qrs, first_boi, fs, 'signal without qrs', 'initial block of interests')
     new_boi = thresholding(fs, first_boi, r_peaks, w1_size, k_factor, d_max, d_min)
+    #pm.plot_2_signals(signal_without_qrs, first_boi, fs, 'signal without qrs', 'middle block of interests')
     t_start, t_peak, t_end = find_real_blocks(signal_without_qrs, fs, ecg_signal_filtered_by25, r_peaks, new_boi)
-    while t_peak.size != r_peaks.size - 1:  # think about localize on one interval RR
-        k_factor = 0.9 * k_factor
-        if k_factor < 0.5:
-            return t_start, t_peak, t_end
-        new_boi = thresholding(fs, first_boi, r_peaks, w1_size, k_factor, d_max, d_min)
-        t_start, t_peak, t_end = find_real_blocks(signal, fs, ecg_signal_filtered_by25, r_peaks, new_boi)
+
+    k_start = k_factor
+    for index in range(t_peak.size):    # think about localize on one interval RR
+        k_factor = k_start
+        while t_peak[index] == -1 and k_factor > 0.5:
+            k_factor -= 0.1
+            new_boi[r_peaks[index]:r_peaks[index+1]] = thresholding(fs, first_boi, r_peaks[index:index+2], w1_size, k_factor, d_max, d_min)[r_peaks[index]:r_peaks[index+1]]
+            t_start[index], t_peak[index], t_end[index] = find_real_blocks(signal_without_qrs, fs, ecg_signal_filtered_by25, r_peaks[index:index+2], new_boi)
+
     #pm.plot_2_signals(signal_without_qrs, new_boi, fs, 'signal without qrs', 'final block of interests')
     return t_start, t_peak, t_end
 
@@ -46,9 +49,8 @@ def moving_average(arr, w_size):
     # Initialize an empty list to store moving averages
     n = len(arr)
     moving_averages = np.zeros(n, dtype=float)
-    if w_size % 2 != 1:
-        print("moving average wrong, window size is not odd")
-        exit(1)
+    if w_size % 2 != 1: #TODO   if not  integer
+        w_size = np.round(w_size)
     half_window = int((w_size - 1) / 2)
     for i in range(half_window, n - half_window):
         low_index = i - half_window
@@ -82,8 +84,7 @@ def qrs_removal(signal, seg, q_ann, s_ann):
     return new_signal
 
 
-def thresholding(fs, boi, r_peaks, w1_size=0.070, k=1, d_max=0.800, d_min=0.170):   # 800 ms
-    # pm.plot_2_signals(signal, boi, fs)
+def thresholding(fs, boi, r_peaks, w1_size=0.070, k=1, d_max=0.800, d_min=0.170):
     for i in range(0, r_peaks.size - 1):
         rr_interval = r_peaks[i + 1] - r_peaks[i]
         rt_min = int(np.ceil(d_min * rr_interval))
@@ -102,7 +103,6 @@ def thresholding(fs, boi, r_peaks, w1_size=0.070, k=1, d_max=0.800, d_min=0.170)
             count = 0
         else:
             count = 0
-    # pm.plot_2_signals(signal, new_boi, fs)
     return new_boi
 
 
@@ -146,7 +146,7 @@ def find_real_blocks(original_signal, fs, signal_filtered, r_peaks, boi):
 #                                             inner function
 def detected_real_block_of_interest(original_signal, fs, signal_filtered, t_potential_start, t_potential_end):
     if t_potential_start.size == 0:
-        return 0, 0, 0
+        return -1, -1, -1
     else:
         signal = original_signal[t_potential_start[0]:t_potential_end[0]]
         signal_max_original = signal_filtered[t_potential_start[0]:t_potential_end[0]]
