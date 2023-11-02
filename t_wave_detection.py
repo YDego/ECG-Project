@@ -5,11 +5,13 @@ import math
 
 
 # page 9-10
-def t_peak_detection(signal_without_qrs, fs, w1_size, k_factor, r_peaks, ecg_signal_filtered_by25, d_max=0.800, d_min=0.170):
-    first_boi, ma_peak, ma_t_wave = block_of_interest(signal_without_qrs, fs, w1_size, w1_size * 2, k_factor)
+def t_peak_detection(signal_without_qrs, fs, w1_size, k_factor, r_peaks, ecg_signal_filtered_by25, d_max=0.800, d_min=0.150):
+    first_boi, ma_peak, ma_t_wave = block_of_interest(signal_without_qrs, fs, w1_size, w1_size * 2, 1) # TODO k factor changed
     #pm.plot_2_signals(signal_without_qrs, first_boi, fs, 'signal without qrs', 'initial block of interests')
+    #print('hey')
     new_boi = thresholding(fs, first_boi, r_peaks, w1_size, k_factor, d_max, d_min)
-    #pm.plot_2_signals(signal_without_qrs, first_boi, fs, 'signal without qrs', 'middle block of interests')
+    #pm.plot_3_signals(new_boi, ma_peak, ma_t_wave, fs, 'new boi', 'ma_peak', 'ma t wave')
+    #pm.plot_2_signals(signal_without_qrs, new_boi, fs, 'signal without qrs', 'middle block of interests')
     t_start, t_peak, t_end = find_real_blocks(signal_without_qrs, fs, ecg_signal_filtered_by25, r_peaks, new_boi)
 
     k_start = k_factor
@@ -84,13 +86,13 @@ def qrs_removal(signal, seg, q_ann, s_ann):
     return new_signal
 
 
-def thresholding(fs, boi, r_peaks, w1_size=0.070, k=1, d_max=0.800, d_min=0.170):
+def thresholding(fs, boi, r_peaks, w1_size=0.070, k=0.9, d_max=0.800, d_min=0.170):
     for i in range(0, r_peaks.size - 1):
         rr_interval = r_peaks[i + 1] - r_peaks[i]
         rt_min = int(np.ceil(d_min * rr_interval))
         rt_max = int(np.ceil(d_max * rr_interval))
-        boi[r_peaks[i]: r_peaks[i] + int(rt_min)] = 0
-        boi[r_peaks[i] + int(rt_max): r_peaks[i + 1]] = 0
+        boi[r_peaks[i]: r_peaks[i] + rt_min] = 0
+        boi[r_peaks[i] + rt_max: r_peaks[i + 1]] = 0
 
     new_boi = np.zeros(len(boi), dtype=int)
     thr = np.floor(w1_size * fs * k)
@@ -98,10 +100,13 @@ def thresholding(fs, boi, r_peaks, w1_size=0.070, k=1, d_max=0.800, d_min=0.170)
     for i, x in enumerate(boi):
         if x == 1:
             count += 1
-        elif count > int(thr):
+        elif count >= int(thr):
+            print(i, count)
             new_boi[i - count:i] = 1
             count = 0
         else:
+            if count > 20:
+                print(i, count)
             count = 0
     return new_boi
 
@@ -219,7 +224,7 @@ def comparison_t_peaks(t_peaks_real_annotations, t_peaks_our_annotations, fs):
 
     for index in range(len(distance_from_real)):
         number_of_dots = number_of_dots + 1
-        if distance_from_real[index] <= round(0.04*fs):##
+        if distance_from_real[index] <= round(0.050*fs):##
             success = success + 1
 
     return success, number_of_dots
