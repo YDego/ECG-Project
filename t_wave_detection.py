@@ -225,7 +225,10 @@ def comparison_t_peaks(t_peaks_real_annotations, t_peaks_our_annotations, fs):
     return success, number_of_dots
 
 
-
+def find_closest_index(signal, moving_average, index, search_window=100):
+    left_index = max(0, int(index-search_window/2))
+    right_index = min(len(signal)-1, int(index-search_window/2))
+    
 
 
 
