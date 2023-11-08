@@ -107,6 +107,6 @@ for i in range(1, 201, 1):
         if np.round(100 * success_record / t_peak.size) < 100:
             count += 1
             print(i, f'{success_record}/{t_peak.size}')
-            #pm.plot_signal_with_dots2(signal_without_dc, t_real_peaks, t_peak, fs, 'original signal', 't_real_peaks', 'our t peaks', i, seg, signal_len_in_time)
+        pm.plot_signal_with_dots3(signal_without_dc, t_real_peaks, t_peak_normal, t_peak_low, fs, 'original signal', 't_real_peaks', 'our t peaks high', 'our t peaks low', i, seg, signal_len_in_time)
 print(round(success * 100 / number_of_t_dots, 5), f'{success}/{number_of_t_dots}', count)
 
