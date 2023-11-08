@@ -50,7 +50,7 @@ for i in range(1, 201, 1):
                                                                                0.6, 0.17)
 
         ratio_factor = 1.5
-        t_peak = np.zeros(t_peak_normal.size, dtype=int)
+        our_t_peak = np.zeros(t_peak_normal.size, dtype=int)
         if t_peak_low.size == t_peak_normal.size:
             #pm.plot_signal_with_dots2(signal_without_qrs, t_peak_low, t_peak_normal, fs, 'original signal', 'low t peaks',
                                       #'our t peaks', i, seg, signal_len_in_time)
@@ -60,18 +60,18 @@ for i in range(1, 201, 1):
             signal_moving_average = t_wave_detection.moving_average(signal_without_dc, fs * 0.14 + 1)
             #pm.plot_2_signals(signal_without_dc, signal_moving_average, fs, label1='signal_without_dc',
             #                 label2='signal_moving_average')
-            for index in range(t_peak.size):
+            for index in range(our_t_peak.size):
                 mean = 0
                 if t_peak_low[index] == -1:
-                    t_peak[index] = t_peak_normal[index]
+                    our_t_peak[index] = t_peak_normal[index]
                     normal_peak += 1
                     continue
                 elif t_peak_normal[index] == -1:
-                    t_peak[index] = t_peak_low[index]
+                    our_t_peak[index] = t_peak_low[index]
                     inverted_peak += 1
                     continue
                 elif t_peak_normal[index] == -1 and t_peak_low[index] == -1:
-                    t_peak[index] = 0
+                    our_t_peak[index] = 0
                     continue
                 rr_interval = r_peaks[index + 1] - r_peaks[index]
                 #rt_min = int(np.ceil(0.17 * rr_interval))
@@ -82,10 +82,10 @@ for i in range(1, 201, 1):
                 x = ratio_factor * np.abs(signal_without_dc[t_peak_normal[index]] - signal_moving_average[t_peak_normal[index]])
                 y = np.abs(signal_without_dc[t_peak_low[index]] - signal_moving_average[t_peak_low[index]])
                 if ratio_factor * np.abs(signal_without_dc[t_peak_normal[index]] - signal_moving_average[t_peak_normal[index]]) < np.abs(signal_without_dc[t_peak_low[index]] - signal_moving_average[t_peak_low[index]]):
-                    t_peak[index] = t_peak_low[index]
+                    our_t_peak[index] = t_peak_low[index]
                     inverted_peak += 1
                 elif np.abs(signal_without_dc[t_peak_normal[index]] - signal_moving_average[t_peak_normal[index]]) > np.abs(signal_without_dc[t_peak_low[index]] - signal_moving_average[t_peak_low[index]]) * ratio_factor:
-                    t_peak[index] = t_peak_normal[index]
+                    our_t_peak[index] = t_peak_normal[index]
                     normal_peak += 1
                 else: ## check it TODO
                     waiting_queue.append(index)
@@ -93,20 +93,20 @@ for i in range(1, 201, 1):
 
             for index in waiting_queue:
                 if normal_peak >= inverted_peak and normal_peak != 0:
-                    t_peak[index] = t_peak_normal[index]
+                    our_t_peak[index] = t_peak_normal[index]
                 elif inverted_peak > normal_peak or signal_without_dc[t_peak_low[index]] < 0:
-                    t_peak[index] = t_peak_low[index]
+                    our_t_peak[index] = t_peak_low[index]
                 else:
-                    t_peak[index] = t_peak_normal[index]
+                    our_t_peak[index] = t_peak_normal[index]
 
         t_real_peaks = t_wave_detection.t_peaks_annotations(ecg_dict_original, 'real', seg)
-        success_record, number_of_t_dots_record = t_wave_detection.comparison_t_peaks(t_real_peaks.copy(), t_peak.copy(), fs)
+        success_record, number_of_t_dots_record = t_wave_detection.comparison_t_peaks(t_real_peaks.copy(), our_t_peak.copy(), fs)
         success += success_record
-        number_of_t_dots += t_peak.size
+        number_of_t_dots += our_t_peak.size
         # print(i, f'{success_record}/{number_of_t_dots_record}')
-        if np.round(100 * success_record / t_peak.size) < 100:
+        if np.round(100 * success_record / our_t_peak.size) < 100:
             count += 1
-            print(i, f'{success_record}/{t_peak.size}')
+            print(i, f'{success_record}/{our_t_peak.size}')
         pm.plot_signal_with_dots3(signal_without_dc, t_real_peaks, t_peak_normal, t_peak_low, fs, 'original signal', 't_real_peaks', 'our t peaks high', 'our t peaks low', i, seg, signal_len_in_time)
 print(round(success * 100 / number_of_t_dots, 5), f'{success}/{number_of_t_dots}', count)
 
