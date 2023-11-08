@@ -207,3 +207,8 @@ def plot_3_signals(signal1, signal2, signal3,  fs, label1='None', label2='None',
     ax.legend()
     ax.set_title("title")
     plt.show()
+
+
+def plot_hist(x):
+    plt.hist(x, bins=100)
+    plt.show()

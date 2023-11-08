@@ -16,6 +16,7 @@ success = 0
 number_of_t_dots = 0
 count = 0
 w1_size = 0.070
+t_peak_location = []
 for i in range(1, 201, 1):
     signal_len_in_time = 10
     ecg_dict_original = le.ecg_lead_ext(signal_len_in_time, 'ludb', i, 'ii')
@@ -78,6 +79,10 @@ for i in range(1, 201, 1):
 
                 rt_max = int(np.ceil(0.5 * rr_interval))
                 #mean = np.mean(signal_without_dc[s_ann[index]:r_peaks[index] + rt_max])
+                t_real_peaks_loc = t_wave_detection.t_peaks_annotations(ecg_dict_original, 'real', seg)
+                for t_index in range(t_real_peaks_loc.size):
+                    if r_peaks[index] < t_real_peaks_loc[t_index] < r_peaks[index + 1]:
+                        t_peak_location.append(100 * (t_real_peaks_loc[t_index] - r_peaks[index]) / rr_interval)
 
                 x = ratio_factor * np.abs(signal_without_dc[t_peak_normal[index]] - signal_moving_average[t_peak_normal[index]])
                 y = np.abs(signal_without_dc[t_peak_low[index]] - signal_moving_average[t_peak_low[index]])
@@ -109,4 +114,5 @@ for i in range(1, 201, 1):
             print(i, f'{success_record}/{t_peak.size}')
             #pm.plot_signal_with_dots2(signal_without_dc, t_real_peaks, t_peak, fs, 'original signal', 't_real_peaks', 'our t peaks', i, seg, signal_len_in_time)
 print(round(success * 100 / number_of_t_dots, 5), f'{success}/{number_of_t_dots}', count)
+pm.plot_hist(t_peak_location)
 
