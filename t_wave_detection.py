@@ -163,7 +163,6 @@ def detected_real_block_of_interest(original_signal, fs, signal_filtered, t_pote
 
 
 
-
 def t_peaks_annotations(ecg_original, chosen_ann, seg):
     fs = ecg_original['fs']
     signal_len_in_time = ecg_original['signal_len']
@@ -225,10 +224,42 @@ def comparison_t_peaks(t_peaks_real_annotations, t_peaks_our_annotations, fs):
     return success, number_of_dots
 
 
-def find_closest_index(signal, moving_average, index, search_window=100):
-    left_index = max(0, int(index-search_window/2))
-    right_index = min(len(signal)-1, int(index-search_window/2))
-    
+def score_value(signal_without_dc, signal_moving_average, t_peak, norm_index, ratio_factor=1.5):
+    g = generate_location_func()
+    loc_factor = g[round(norm_index * 100)]
+    score = ratio_factor * loc_factor * np.abs(signal_without_dc[t_peak] - signal_moving_average[t_peak])
+    return score
 
 
+def gaussian(x, mu, sig, height=1):
+    g = 1.0 / (np.sqrt(2.0 * np.pi) * sig) * np.exp(-np.power((x - mu) / sig, 2.0) / 2)
 
+    return height * g/np.max(g)
+
+
+def unit_func(x_values, c=2):
+    return 1 / (1 + np.exp(- 2 * c * x_values))
+
+
+def generate_location_func(height=1, plot=False):
+    x_values = np.linspace(0, 1, 100)
+    c = 5.5
+    a = 0.05
+    sig = 0.3
+    mu = 0.25
+
+    g = gaussian(x_values, mu, sig)
+    ramp = unit_func(x_values-a, c) * unit_func(-(x_values-(0.8-a)), c)
+    g = g * ramp
+    g = height * g / np.max(g)
+
+    if plot:
+        from matplotlib import pyplot as mp
+        mp.plot(x_values, g)
+        mp.show()
+
+    return g
+
+
+if __name__ == "__main__":
+    generate_location_func(plot=True)

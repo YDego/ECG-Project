@@ -170,7 +170,7 @@ def plot_signal_with_dots(signal1 , signal2, fs , label1='None' , label2='None',
     plt.show()
 
 
-def plot_signal_with_dots2(signal1 , signal2, signal3, fs , label1 , label2, label3, record_number, seg=0, record_len=10):
+def plot_signal_with_dots2(signal1, signal2, signal3, fs , label1 , label2, label3, record_number, seg=0, record_len=10):
     signal1_len = len(signal1)
 
     time = [(i / fs) + seg * record_len for i in range(len(signal1))]
@@ -234,4 +234,20 @@ def plot_3_signals(signal1, signal2, signal3,  fs, label1='None', label2='None',
 
 def plot_hist(x):
     plt.hist(x, bins=100)
+    plt.show()
+
+
+def plot_score(values, inverted=False):
+    fig = plt.figure(figsize=(10, 5))
+
+    if inverted:
+        color_bar = ['grey', 'green']
+    else:
+        color_bar = ['green', 'grey']
+    # creating the bar plot
+    plt.bar(['Normal peak score', 'Inverted peak score'], values, color=color_bar,
+            width=0.4)
+
+    plt.ylabel("Score")
+    plt.title("Score View")
     plt.show()
