@@ -44,7 +44,7 @@ def select_lead(dataset, selected_lead=None, data_path=''):
     return lead
 
 
-def get_dataset(selected_dataset_name=None):
+def get_dataset(selected_dataset_name=None, ann=None):
 
     database = ['ludb', 'qt', 'mit']
 
@@ -54,12 +54,15 @@ def get_dataset(selected_dataset_name=None):
         "leads": ['i', 'ii', 'iii', 'avr', 'avl', 'avf', 'v1', 'v2', 'v3', 'v4', 'v5', 'v6'],
         "annotations": "",
     }
+    ann_qt = "pu1"
+    if ann != None:
+        ann_qt = ann
 
     qt_dataset = {
         "name": "qt",
         "path": "ecg_dataset\qt-database-1.0.0",
         "leads": ['i', 'ii'],
-        "annotations": "pu0"
+        "annotations": ann_qt
     }
 
     mit_dataset = {
@@ -98,9 +101,9 @@ def get_datafile(num_records):
     return data_file
 
 
-def ecg_lead_ext(signal_len=10, selected_dataset=None, selected_data_file=None, selected_lead=None):
+def ecg_lead_ext(signal_len=10, selected_dataset=None, selected_data_file=None, selected_lead=None, ann=None):
 
-    dataset = get_dataset(selected_dataset)
+    dataset = get_dataset(selected_dataset, ann)
 
     # Load the RECORDS file and get the number of records
     records, num_records = get_records(dataset)
