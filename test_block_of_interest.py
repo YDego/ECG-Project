@@ -16,7 +16,7 @@ number_of_t_dots = 0
 count = 0
 w1_size = 0.070
 t_peak_location = []
-for i in range(4, 201, 1):
+for i in range(1, 201, 1):
     signal_len_in_time = 10
     ecg_dict_original = le.ecg_lead_ext(signal_len_in_time, 'ludb', i, 'ii')
     fs = ecg_dict_original['fs']

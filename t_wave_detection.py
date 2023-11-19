@@ -226,15 +226,16 @@ def comparison_t_peaks(t_peaks_real_annotations, t_peaks_our_annotations, fs):
 
 def score_value(signal_without_dc, signal_moving_average, t_peak, norm_index, ratio_factor=1.5):
     g = generate_location_func()
-    loc_factor = g[round(norm_index * 100)]
-    score = ratio_factor * loc_factor * np.abs(signal_without_dc[t_peak] - signal_moving_average[t_peak])
+    loc_factor = g[round(norm_index * 100)]  # between 1 and zero
+    peak_height = np.abs(signal_without_dc[t_peak] - signal_moving_average[t_peak])  # no exact range
+    score = ratio_factor * loc_factor * peak_height
     return score
 
 
-def gaussian(x, mu, sig, height=1):
+def gaussian(x, mu, sig):
     g = 1.0 / (np.sqrt(2.0 * np.pi) * sig) * np.exp(-np.power((x - mu) / sig, 2.0) / 2)
 
-    return height * g/np.max(g)
+    return g/np.max(g)
 
 
 def unit_func(x_values, c=2):
