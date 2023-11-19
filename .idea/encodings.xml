@@ -2,5 +2,6 @@
 <project version="4">
   <component name="Encoding">
     <file url="file://$PROJECT_DIR$/ecg_dataset/lobachevsky-university-electrocardiography-database-1.0.1/data/1.dat" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/ecg_dataset/qt-database-1.0.0/data/sel30.pu0" charset="UTF-8" />
   </component>
 </project>
