@@ -13,13 +13,13 @@ success = 0
 number_of_t_dots = 0
 count = 0
 w1_size = 0.070
-dataset = 'qt'
+dataset = 'ludb'
 data = []
 time_per_record = []
 signal_len_in_time = 900
 
 
-for i in range(1, 106, 1):
+for i in range(1, 200, 1):
 
     #if i in [38, 71, 88, 95, 101, 109, 111] and dataset == 'ludb': #
     #   continue
@@ -146,7 +146,7 @@ for i in range(1, 106, 1):
         time_per_record.append(end - start)
             # pm.plot_signal_with_dots2(signal_without_dc, t_peak_normal, t_peak_low, fs, 'original signal', 't noraml peaks',
             #                            't low peaks', i, seg, signal_len_in_time)
-        pm.plot_signal_with_dots2(signal_without_dc, t_real_peaks, t_united, fs, 'original signal', 't_real_peaks', 'our t peaks', i, seg, signal_len_in_time)
+        # pm.plot_signal_with_dots2(signal_without_dc, t_real_peaks, t_united, fs, 'original signal', 't_real_peaks', 'our t peaks', i, seg, signal_len_in_time)
 if number_of_t_dots != 0:
     print(round(success * 100 / number_of_t_dots, 5), f'{success}/{number_of_t_dots}', count)
 
