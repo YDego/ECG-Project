@@ -65,47 +65,47 @@ for i in range(1, 200, 1):
         #signal_without_dc = scipy.signal.filtfilt(b, a, ecg_dict_original['original_signal'][seg])
         signal_without_dc = ecg_dict_original['original_signal'][seg]
         #signal_without_dc = pf.baseline_removal_moving_median(ecg_dict_original['original_signal'][seg].copy(), fs)
-        t_start, t_peak_normal, t_end, quality_factors = t_wave_detection.t_peak_detection(signal_without_qrs, fs, w1_size, k_factor,
+        t_start_maxima, t_peak_maxima, t_end_maxima, quality_factors_maxima = t_wave_detection.t_peak_detection(signal_without_qrs, fs, w1_size, k_factor,
                                                                           r_peaks, ecg_signal_filtered, 0.7, 0.15)
-        t_start_low, t_peak_low, t_end_low, quality_factors_low = t_wave_detection.t_peak_detection(-signal_without_qrs, fs, w1_size,
+        t_start_minima, t_peak_minima, t_end_minima, quality_factors_minima = t_wave_detection.t_peak_detection(-signal_without_qrs, fs, w1_size,
                                                                                k_factor, r_peaks, -ecg_signal_filtered,
                                                                                0.7, 0.15)
-        print(np.average(quality_factors))
-        print(np.average(quality_factors_low))
+        print(np.average(quality_factors_maxima))
+        print(np.average(quality_factors_minima))
 
         # ratio_factor = 1.5
-        # t_peak = np.zeros(t_peak_normal.size, dtype=int)
-        # if t_peak_low.size == t_peak_normal.size:
-        #     #pm.plot_signal_with_dots2(signal_without_qrs, t_peak_low, t_peak_normal, fs, 'original signal', 'low t peaks', 'our t peaks', i, seg, signal_len_in_time)
+        # t_peak = np.zeros(t_peak_maxima.size, dtype=int)
+        # if t_peak_minima.size == t_peak_maxima.size:
+        #     #pm.plot_signal_with_dots2(signal_without_qrs, t_peak_minima, t_peak_maxima, fs, 'original signal', 'low t peaks', 'our t peaks', i, seg, signal_len_in_time)
         #     waiting_queue = []
         #     normal_peak = 0
         #     inverted_peak = 0
         #     signal_moving_average = t_wave_detection.moving_average(signal_without_dc, 0.2 * fs + 1)
         #     #pm.plot_2_signals(signal_without_dc, signal_moving_average, fs, label1='signal_without_dc', label2='signal_moving_average')
         #     for index in range(t_peak.size):
-        #         if t_peak_low[index] == -1:
-        #             t_peak[index] = t_peak_normal[index]
+        #         if t_peak_minima[index] == -1:
+        #             t_peak[index] = t_peak_maxima[index]
         #             normal_peak += 1
         #             continue
-        #         elif t_peak_normal[index] == -1:
-        #             t_peak[index] = t_peak_low[index]
+        #         elif t_peak_maxima[index] == -1:
+        #             t_peak[index] = t_peak_minima[index]
         #             inverted_peak += 1
         #             continue
-        #         elif t_peak_normal[index] == -1 and t_peak_low[index] == -1:
+        #         elif t_peak_maxima[index] == -1 and t_peak_minima[index] == -1:
         #             t_peak[index] = 0
         #             continue
         #         rr_interval = r_peaks[index + 1] - r_peaks[index]
         #         #rt_min = int(np.ceil(0.17 * rr_interval))
         #         rt_max = int(np.ceil(0.5 * rr_interval))
-        #         #x = np.abs(signal_without_dc[t_peak_normal[index]] - signal_moving_average[t_peak_normal[index]])
-        #         #y = np.abs(signal_without_dc[t_peak_low[index]] - signal_moving_average[t_peak_low[index]])
-        #         #x_norm_sum = np.sum(np.abs(signal_without_dc[t_start[index]:t_end[index]] - signal_moving_average[t_start[index]:t_end[index]])) / (t_end[index] - t_start[index])
-        #         #y_norm_sum = np.sum(np.abs(signal_without_dc[t_start_low[index]:t_end_low[index]] - signal_moving_average[t_start_low[index]:t_end_low[index]]) / (t_end_low[index] - t_start_low[index]))
-        #         if ratio_factor * np.abs(signal_without_dc[t_peak_normal[index]] - signal_moving_average[t_peak_normal[index]]) < np.abs(signal_without_dc[t_peak_low[index]] - signal_moving_average[t_peak_low[index]]):
-        #             t_peak[index] = t_peak_low[index]
+        #         #x = np.abs(signal_without_dc[t_peak_maxima[index]] - signal_moving_average[t_peak_maxima[index]])
+        #         #y = np.abs(signal_without_dc[t_peak_minima[index]] - signal_moving_average[t_peak_minima[index]])
+        #         #x_norm_sum = np.sum(np.abs(signal_without_dc[t_start_maxima[index]:t_end_maxima[index]] - signal_moving_average[t_start_maxima[index]:t_end_maxima[index]])) / (t_end_maxima[index] - t_start_maxima[index])
+        #         #y_norm_sum = np.sum(np.abs(signal_without_dc[t_start_minima[index]:t_end_minima[index]] - signal_moving_average[t_start_minima[index]:t_end_minima[index]]) / (t_end_minima[index] - t_start_minima[index]))
+        #         if ratio_factor * np.abs(signal_without_dc[t_peak_maxima[index]] - signal_moving_average[t_peak_maxima[index]]) < np.abs(signal_without_dc[t_peak_minima[index]] - signal_moving_average[t_peak_minima[index]]):
+        #             t_peak[index] = t_peak_minima[index]
         #             inverted_peak += 1
-        #         elif np.abs(signal_without_dc[t_peak_normal[index]] - signal_moving_average[t_peak_normal[index]]) > np.abs(signal_without_dc[t_peak_low[index]] - signal_moving_average[t_peak_low[index]]) * ratio_factor:
-        #             t_peak[index] = t_peak_normal[index]
+        #         elif np.abs(signal_without_dc[t_peak_maxima[index]] - signal_moving_average[t_peak_maxima[index]]) > np.abs(signal_without_dc[t_peak_minima[index]] - signal_moving_average[t_peak_minima[index]]) * ratio_factor:
+        #             t_peak[index] = t_peak_maxima[index]
         #             normal_peak += 1
         #         else:  # check it TODO
         #             waiting_queue.append(index)
@@ -113,11 +113,11 @@ for i in range(1, 200, 1):
         #
         #     for index in waiting_queue:
         #         if normal_peak >= inverted_peak and normal_peak != 0:
-        #             t_peak[index] = t_peak_normal[index]
-        #         elif inverted_peak > normal_peak or signal_without_dc[t_peak_low[index]] < 0:
-        #             t_peak[index] = t_peak_low[index]
+        #             t_peak[index] = t_peak_maxima[index]
+        #         elif inverted_peak > normal_peak or signal_without_dc[t_peak_minima[index]] < 0:
+        #             t_peak[index] = t_peak_minima[index]
         #         else:
-        #             t_peak[index] = t_peak_normal[index]
+        #             t_peak[index] = t_peak_maxima[index]
 
         t_real_peaks = t_wave_detection.t_peaks_annotations(ecg_dict_original, 'real', seg)
 
@@ -127,7 +127,7 @@ for i in range(1, 200, 1):
         if erase_last_real_dot:
             t_real_peaks = np.delete(t_real_peaks, t_real_peaks.size - 1)
 
-        t_united = np.sort(np.concatenate((t_peak_normal, t_peak_low)))
+        t_united = np.sort(np.concatenate((t_peak_maxima, t_peak_minima)))
         success_record, number_of_t_dots_record = t_wave_detection.comparison_t_peaks(t_real_peaks.copy(), t_united.copy(), fs, r_peaks.size - 1, 0.050)
         success += success_record
         # number_of_t_dots_record = r_peaks.size - 1
@@ -144,7 +144,7 @@ for i in range(1, 200, 1):
         print(i, f'{success_record}/{number_of_t_dots_record}')
         end = time.time()
         time_per_record.append(end - start)
-            # pm.plot_signal_with_dots2(signal_without_dc, t_peak_normal, t_peak_low, fs, 'original signal', 't noraml peaks',
+            # pm.plot_signal_with_dots2(signal_without_dc, t_peak_maxima, t_peak_minima, fs, 'original signal', 't noraml peaks',
             #                            't low peaks', i, seg, signal_len_in_time)
         # pm.plot_signal_with_dots2(signal_without_dc, t_real_peaks, t_united, fs, 'original signal', 't_real_peaks', 'our t peaks', i, seg, signal_len_in_time)
 if number_of_t_dots != 0:
@@ -161,8 +161,8 @@ if number_of_t_dots != 0:
 #     # write multiple rows
 #     writer.writerows(data)
 
-total_time = sum(time_per_record)
-print(f'{total_time} sec')
-#print(f'average time {total_time / i}')
-print(time_per_record)
+# total_time = sum(time_per_record)
+# print(f'{total_time} sec')
+# #print(f'average time {total_time / i}')
+# print(time_per_record)
 
