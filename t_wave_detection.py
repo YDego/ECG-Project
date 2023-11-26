@@ -244,7 +244,6 @@ def union_block_of_interest(boi_diff, min_size_of_window_to_union, max_distance_
     return boi_diff
 
 
-
 def t_peaks_annotations(ecg_original, chosen_ann, seg):
     fs = ecg_original['fs']
     signal_len_in_time = ecg_original['signal_len']
@@ -265,13 +264,14 @@ def t_peaks_annotations(ecg_original, chosen_ann, seg):
     t_annotations = t_annotations - seg * signal_len_in_time * fs
     return t_annotations
 
+
 def comparison_t_peaks(t_peaks_real_annotations, t_peaks_our_annotations, fs, r_intervals_size, margin_mistake_in_sec=0.030):
     distance_from_real = np.zeros(t_peaks_real_annotations.size, dtype=int)
     success = 0
     margin_mistake = round(margin_mistake_in_sec*fs)
 
     for i in range(distance_from_real.size):
-        for j in range(t_peaks_our_annotations.size):
+        for j in range(len(t_peaks_our_annotations)):
             if t_peaks_our_annotations[j] != -1:
                 distance = abs(t_peaks_real_annotations[i] - t_peaks_our_annotations[j])
             else:
@@ -285,11 +285,12 @@ def comparison_t_peaks(t_peaks_real_annotations, t_peaks_our_annotations, fs, r_
             print(t_peaks_real_annotations[i] / fs)
     return success, distance_from_real.size
 
-def score_value(signal_without_dc, signal_moving_average, t_peak, norm_index, ratio_factor=1.5):
+
+def score_value(signal_without_dc, signal_moving_average, t_peak, norm_index, qf, ratio_factor=1.5):
     g = generate_location_func()
     loc_factor = g[round(norm_index * 100)]  # between 1 and zero
     peak_height = np.abs(signal_without_dc[t_peak] - signal_moving_average[t_peak])  # no exact range
-    score = ratio_factor * loc_factor * peak_height
+    score = ratio_factor * loc_factor * peak_height * qf
     return score
 
 
@@ -321,6 +322,14 @@ def generate_location_func(height=1, plot=False):
         mp.show()
 
     return g
+
+
+def find_t_between_r(this_r, next_r, t_list):
+    for t in t_list:
+        if not this_r < t < next_r:
+            continue
+        else:
+            return t
 
 
 if __name__ == "__main__":
