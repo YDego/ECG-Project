@@ -85,7 +85,15 @@ for i in range(1, 200, 1):
 
         # decision_factor = 0.3
 
-        t_peak_location = []
+        total_classifier = []
+        qf_classifier = []
+        location_classifier = []
+        peak_height_classifier = []
+
+        total_score = 0
+        qf_score = 0
+        loc_score = 0
+        ph_score = 0
 
         for r_idx, r_peak in enumerate(r_peaks):
             if r_idx + 1 == len(r_peaks):
@@ -103,12 +111,22 @@ for i in range(1, 200, 1):
             score_minima = t_wave_detection.score_value(signal_without_dc, signal_moving_average, t_min,
                                                         norm_idx_minima, qf_min_avg, 1)
 
+            ph_max = t_wave_detection.get_peak_height(signal_without_dc, signal_moving_average, t_max) * 1.5  # ratio factor
+            ph_min = t_wave_detection.get_peak_height(signal_without_dc, signal_moving_average, t_min)
+
+            loc_max = t_wave_detection.get_location_factor(norm_idx_maxima)
+            loc_min = t_wave_detection.get_location_factor(norm_idx_minima)
+
             inverted = np.abs(t_min-t_real) < np.abs(t_max-t_real)
-            pm.plot_score([score_maxima, score_minima], inverted)
-            if score_minima > score_maxima:
-                t_peak_location.append(t_min)
-            else:
-                t_peak_location.append(t_max)
+            # pm.plot_score([score_maxima, score_minima], inverted)
+
+            total_classifier.append(t_wave_detection.choose_t_peak(score_maxima, score_minima, t_max, t_min))
+
+            qf_classifier.append(t_wave_detection.choose_t_peak(qf_max_avg, qf_min_avg, t_max, t_min))
+
+            peak_height_classifier.append(t_wave_detection.choose_t_peak(ph_max, ph_min, t_max, t_min))
+
+            location_classifier.append(t_wave_detection.choose_t_peak(loc_max, loc_min, t_max, t_min))
 
 
 
@@ -158,32 +176,30 @@ for i in range(1, 200, 1):
         #         else:
         #             t_peak[index] = t_peak_maxima[index]
 
-
-
-        t_united = np.sort(np.concatenate((t_peak_maxima, t_peak_minima)))
-        success_record, number_of_t_dots_record = t_wave_detection.comparison_t_peaks(t_real_peaks.copy(),
-                                                                                      t_united.copy(), fs,
-                                                                                      r_peaks.size - 1, 0.050)
-        success += success_record
-        # number_of_t_dots_record = r_peaks.size - 1
-        number_of_t_dots += number_of_t_dots_record
-        if number_of_t_dots_record == 0:
-            continue
-        score = np.round(100 * success_record / number_of_t_dots_record, 5)
-
-        sub_data = [ecg_dict_copy['name'], f'{i}', f'{number_of_t_dots_record}', f'{success_record}', f'{score}']
-        data.append(sub_data)
+        # t_united = np.sort(np.concatenate((t_peak_maxima, t_peak_minima)))
+        # success_record, number_of_t_dots_record = t_wave_detection.comparison_t_peaks(t_real_peaks.copy(),
+        #                                                                               t_united.copy(), fs,
+        #                                                                               r_peaks.size - 1, 0.050)
+        # success += success_record
+        # # number_of_t_dots_record = r_peaks.size - 1
+        # number_of_t_dots += number_of_t_dots_record
+        # if number_of_t_dots_record == 0:
+        #     continue
+        # score = np.round(100 * success_record / number_of_t_dots_record, 5)
+        #
+        # sub_data = [ecg_dict_copy['name'], f'{i}', f'{number_of_t_dots_record}', f'{success_record}', f'{score}']
+        # data.append(sub_data)
+        # # print(i, f'{success_record}/{number_of_t_dots_record}')
+        # if score < 95:
+        #     count += 1
         # print(i, f'{success_record}/{number_of_t_dots_record}')
-        if score < 95:
-            count += 1
-        print(i, f'{success_record}/{number_of_t_dots_record}')
-        end = time.time()
-        time_per_record.append(end - start)
+        # end = time.time()
+        # time_per_record.append(end - start)
         # pm.plot_signal_with_dots2(signal_without_dc, t_peak_maxima, t_peak_minima, fs, 'original signal', 't maxima peaks',
         #                            't minima peaks', i, seg, signal_len_in_time)
-        t_peak_location = np.array(t_peak_location)
+        total_classifier = np.array(total_classifier)
 
-        pm.plot_signal_with_dots2(signal_without_dc, t_real_peaks, t_peak_location, fs, 'original signal', 't_real_peaks', 'our t peaks', i, seg, signal_len_in_time)
+        # pm.plot_signal_with_dots2(signal_without_dc, t_real_peaks, t_peak_location, fs, 'original signal', 't_real_peaks', 'our t peaks', i, seg, signal_len_in_time)
 if number_of_t_dots != 0:
     print(round(success * 100 / number_of_t_dots, 5), f'{success}/{number_of_t_dots}', count)
 

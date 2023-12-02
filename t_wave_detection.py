@@ -287,9 +287,8 @@ def comparison_t_peaks(t_peaks_real_annotations, t_peaks_our_annotations, fs, r_
 
 
 def score_value(signal_without_dc, signal_moving_average, t_peak, norm_index, qf, ratio_factor=1.5):
-    g = generate_location_func()
-    loc_factor = g[round(norm_index * 100)]  # between 1 and zero
-    peak_height = np.abs(signal_without_dc[t_peak] - signal_moving_average[t_peak])  # no exact range
+    loc_factor = get_location_factor(norm_index)
+    peak_height = get_peak_height(signal_without_dc, signal_moving_average, t_peak)
     score = ratio_factor * loc_factor * peak_height * qf
     return score
 
@@ -302,6 +301,15 @@ def gaussian(x, mu, sig):
 
 def unit_func(x_values, c=2):
     return 1 / (1 + np.exp(- 2 * c * x_values))
+
+
+def get_location_factor(norm_index):
+    g = generate_location_func()
+    return g[round(norm_index * 100)]  # between 1 and zero
+
+
+def get_peak_height(signal_without_dc, signal_moving_average, t_peak):
+    return np.abs(signal_without_dc[t_peak] - signal_moving_average[t_peak])  # no exact range
 
 
 def generate_location_func(height=1, plot=False):
@@ -331,6 +339,12 @@ def find_t_between_r(this_r, next_r, t_list):
         else:
             return t
 
+
+def choose_t_peak(max_score, min_score, t_max, t_min):
+    if min_score < max_score:
+        return t_min
+    else:
+        return t_max
 
 if __name__ == "__main__":
     generate_location_func(plot=True)
