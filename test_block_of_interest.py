@@ -18,7 +18,7 @@ data = []
 time_per_record = []
 signal_len_in_time = 900
 
-for i in range(3, 200, 1):
+for i in range(14, 200, 1):
 
     # if i in [38, 71, 88, 95, 101, 109, 111] and dataset == 'ludb': #
     #   continue
@@ -31,6 +31,7 @@ for i in range(3, 200, 1):
     # ecg_dict_manually_ann = le.ecg_lead_ext(signal_len_in_time, dataset, i, 'ii', 'q1c')
     fs = ecg_dict_original['fs']
     ecg_dict_copy = copy.deepcopy(ecg_dict_original)
+    all_peaks_correct = True
     for seg in range(ecg_dict_copy['num_of_segments']):
         # t_peaks_manually = t_wave_detection.t_peaks_annotations(ecg_dict_manually_ann, 'real', seg)
         # if t_peaks_manually.size == 0:
@@ -86,6 +87,7 @@ for i in range(3, 200, 1):
         t_peak_location = []
 
         for r_idx, r_peak in enumerate(r_peaks):
+
             if r_idx + 1 == len(r_peaks):
                 break
 
@@ -94,12 +96,21 @@ for i in range(3, 200, 1):
             t_min = t_wave_detection.find_t_between_r(r_peak, next_r, t_peak_minima)
             t_real = t_wave_detection.find_t_between_r(r_peak, next_r, t_real_peaks)
 
+            if (t_min is None and t_max is None) or t_real is None:
+                t_peak_location.append(-1)
+                continue
+            elif t_min is None:
+                t_peak_location.append(t_max)
+                continue
+            elif t_max is None:
+                t_peak_location.append(t_min)
+                continue
+
             norm_idx_maxima = (t_max - r_peak) / (next_r - r_peak)
             norm_idx_minima = (t_min - r_peak) / (next_r - r_peak)
-
             inverted = np.abs(t_min-t_real) < np.abs(t_max-t_real)
-            selected_peak, is_correct = t_wave_detection.calculate_total_score(signal_without_dc, signal_moving_average, t_min, t_max, qf_min_avg, qf_max_avg, norm_idx_minima, norm_idx_maxima, inverted)
-
+            selected_peak, peak_is_correct = t_wave_detection.calculate_total_score(signal_without_dc, signal_moving_average, t_min, t_max, qf_min_avg, qf_max_avg, norm_idx_minima, norm_idx_maxima, inverted)
+            all_peaks_correct = all_peaks_correct and peak_is_correct
             t_peak_location.append(selected_peak)
 
         # ratio_factor = 1.5
@@ -171,7 +182,8 @@ for i in range(3, 200, 1):
         #                            't minima peaks', i, seg, signal_len_in_time)
         t_peak_location = np.array(t_peak_location)
 
-        pm.plot_signal_with_dots2(signal_without_dc, t_real_peaks, t_peak_location, fs, 'original signal', 't_real_peaks', 'our t peaks', i, seg, signal_len_in_time)
+        if not all_peaks_correct:
+            pm.plot_signal_with_dots2(signal_without_dc, t_real_peaks, t_peak_location, fs, 'original signal', 't_real_peaks', 'our t peaks', i, seg, signal_len_in_time)
 if number_of_t_dots != 0:
     print(round(success * 100 / number_of_t_dots, 5), f'{success}/{number_of_t_dots}', count)
 
