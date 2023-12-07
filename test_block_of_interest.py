@@ -124,6 +124,6 @@ for i in range(1, 200, 1):
         success_per_seg += int(all_peaks_correct)
         number_of_segments += 1
 
-print("success per peak = " + str(success_per_peak/number_of_t_dots))
-print("success per segment = " + str(success_per_seg/number_of_segments))
+print("success per peak = " + str(round(100 * success_per_peak/number_of_t_dots, 3)))
+print("success per segment = " + str(round(100 * success_per_seg/number_of_segments, 3)))
 
