@@ -341,10 +341,44 @@ def find_t_between_r(this_r, next_r, t_list):
 
 
 def choose_t_peak(max_score, min_score, t_max, t_min):
-    if min_score < max_score:
+    if min_score > max_score:
         return t_min
     else:
         return t_max
+
+
+def calculate_total_score(signal_without_dc, signal_moving_average, t_min, t_max, qf_min_avg, qf_max_avg, norm_idx_minima, norm_idx_maxima, inverted, to_plot=False):
+
+    ph_max = get_peak_height(signal_without_dc, signal_moving_average, t_max) * 1.5  # ratio factor
+    ph_min = get_peak_height(signal_without_dc, signal_moving_average, t_min)
+    ph_max, ph_min = norm_values(ph_max, ph_min)
+
+    loc_max = get_location_factor(norm_idx_maxima)
+    loc_min = get_location_factor(norm_idx_minima)
+
+    qf_max_avg, qf_min_avg = norm_values(qf_max_avg, qf_min_avg)
+
+    total_score_max = total_score_function(ph_max, loc_max, qf_max_avg)
+    total_score_min = total_score_function(ph_min, loc_min, qf_min_avg)
+
+    is_correct = (total_score_min > total_score_max) == inverted
+
+    if to_plot:
+        pairs = [[ph_max, ph_min], [loc_max, loc_min], [qf_max_avg, qf_min_avg], [total_score_max, total_score_min]]
+        pair_titles = ['Peak height', 'location factor', 'quality factor', 'Total score']
+        pm.plot_scores_pairs(pairs, inverted, pair_titles)
+
+    return choose_t_peak(total_score_max, total_score_min, t_max, t_min), is_correct
+
+
+def total_score_function(ph, loc, qf):
+    total_score = ph + loc + qf
+    return total_score
+
+
+def norm_values(max_val, min_val):
+    return max_val/max(max_val, min_val), min_val/max(max_val, min_val)
+
 
 if __name__ == "__main__":
     generate_location_func(plot=True)

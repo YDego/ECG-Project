@@ -18,7 +18,7 @@ data = []
 time_per_record = []
 signal_len_in_time = 900
 
-for i in range(1, 200, 1):
+for i in range(3, 200, 1):
 
     # if i in [38, 71, 88, 95, 101, 109, 111] and dataset == 'ludb': #
     #   continue
@@ -83,17 +83,7 @@ for i in range(1, 200, 1):
         qf_max_avg = np.average(quality_factors_maxima)
         qf_min_avg = np.average(quality_factors_minima)
 
-        # decision_factor = 0.3
-
-        total_classifier = []
-        qf_classifier = []
-        location_classifier = []
-        peak_height_classifier = []
-
-        total_score = 0
-        qf_score = 0
-        loc_score = 0
-        ph_score = 0
+        t_peak_location = []
 
         for r_idx, r_peak in enumerate(r_peaks):
             if r_idx + 1 == len(r_peaks):
@@ -104,31 +94,13 @@ for i in range(1, 200, 1):
             t_min = t_wave_detection.find_t_between_r(r_peak, next_r, t_peak_minima)
             t_real = t_wave_detection.find_t_between_r(r_peak, next_r, t_real_peaks)
 
-            norm_idx_maxima = (t_max - r_peak) / (r_peaks[r_idx+1]-r_peak)
-            score_maxima = t_wave_detection.score_value(signal_without_dc, signal_moving_average, t_max,
-                                                        norm_idx_maxima, qf_max_avg, 1.5)
-            norm_idx_minima = (t_min - r_peak) / (r_peaks[r_idx + 1] - r_peak)
-            score_minima = t_wave_detection.score_value(signal_without_dc, signal_moving_average, t_min,
-                                                        norm_idx_minima, qf_min_avg, 1)
-
-            ph_max = t_wave_detection.get_peak_height(signal_without_dc, signal_moving_average, t_max) * 1.5  # ratio factor
-            ph_min = t_wave_detection.get_peak_height(signal_without_dc, signal_moving_average, t_min)
-
-            loc_max = t_wave_detection.get_location_factor(norm_idx_maxima)
-            loc_min = t_wave_detection.get_location_factor(norm_idx_minima)
+            norm_idx_maxima = (t_max - r_peak) / (next_r - r_peak)
+            norm_idx_minima = (t_min - r_peak) / (next_r - r_peak)
 
             inverted = np.abs(t_min-t_real) < np.abs(t_max-t_real)
-            # pm.plot_score([score_maxima, score_minima], inverted)
+            selected_peak, is_correct = t_wave_detection.calculate_total_score(signal_without_dc, signal_moving_average, t_min, t_max, qf_min_avg, qf_max_avg, norm_idx_minima, norm_idx_maxima, inverted)
 
-            total_classifier.append(t_wave_detection.choose_t_peak(score_maxima, score_minima, t_max, t_min))
-
-            qf_classifier.append(t_wave_detection.choose_t_peak(qf_max_avg, qf_min_avg, t_max, t_min))
-
-            peak_height_classifier.append(t_wave_detection.choose_t_peak(ph_max, ph_min, t_max, t_min))
-
-            location_classifier.append(t_wave_detection.choose_t_peak(loc_max, loc_min, t_max, t_min))
-
-
+            t_peak_location.append(selected_peak)
 
         # ratio_factor = 1.5
         # t_peak = np.zeros(t_peak_maxima.size, dtype=int)
@@ -197,9 +169,9 @@ for i in range(1, 200, 1):
         # time_per_record.append(end - start)
         # pm.plot_signal_with_dots2(signal_without_dc, t_peak_maxima, t_peak_minima, fs, 'original signal', 't maxima peaks',
         #                            't minima peaks', i, seg, signal_len_in_time)
-        total_classifier = np.array(total_classifier)
+        t_peak_location = np.array(t_peak_location)
 
-        # pm.plot_signal_with_dots2(signal_without_dc, t_real_peaks, t_peak_location, fs, 'original signal', 't_real_peaks', 'our t peaks', i, seg, signal_len_in_time)
+        pm.plot_signal_with_dots2(signal_without_dc, t_real_peaks, t_peak_location, fs, 'original signal', 't_real_peaks', 'our t peaks', i, seg, signal_len_in_time)
 if number_of_t_dots != 0:
     print(round(success * 100 / number_of_t_dots, 5), f'{success}/{number_of_t_dots}', count)
 

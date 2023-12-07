@@ -237,17 +237,35 @@ def plot_hist(x):
     plt.show()
 
 
-def plot_score(values, inverted=False):
+def plot_scores_pairs(values_pairs, inverted=False, titles=None):
     fig = plt.figure(figsize=(10, 5))
 
     if inverted:
         color_bar = ['grey', 'green']
     else:
         color_bar = ['green', 'grey']
-    # creating the bar plot
-    plt.bar(['Normal peak score', 'Inverted peak score'], values, color=color_bar,
-            width=0.4)
+
+    # Extracting the pairs of values
+    maxima_score = [pair[0] for pair in values_pairs]
+    minima_score = [pair[1] for pair in values_pairs]
+
+    # Creating the bar plot
+    bar_width = 0.4
+    bar_positions = np.arange(len(maxima_score))
+
+    plt.bar(bar_positions, maxima_score, color=color_bar[0], width=bar_width, label='Maxima peak score')
+    plt.bar(bar_positions + bar_width, minima_score, color=color_bar[1], width=bar_width,
+            label='Minima (inverted) peak score')
 
     plt.ylabel("Score")
     plt.title("Score View")
+
+    if titles:
+        plt.xticks(bar_positions + bar_width / 2, titles)
+
+    plt.legend()
     plt.show()
+
+
+
+
