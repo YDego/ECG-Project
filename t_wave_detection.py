@@ -340,16 +340,20 @@ def find_t_between_r(this_r, next_r, t_list):
             return t
 
 
-def choose_t_peak(max_score, min_score, t_max, t_min):
-    if min_score > max_score:
-        return t_min
+def choose_t_peak(max_score, min_score, t_max, t_min, inverted, threshold=0):
+    if threshold != 0 and abs(max_score - min_score) <= threshold:
+        return [t_max], True
     else:
-        return t_max
+        is_correct = (max_score < min_score) == inverted
+        if min_score > max_score:
+            return [t_min], is_correct
+        else:
+            return [t_max], is_correct
 
 
 def calculate_total_score(signal_without_dc, signal_moving_average, t_min, t_max, qf_min_avg, qf_max_avg, norm_idx_minima, norm_idx_maxima, inverted, to_plot=False):
-
-    ph_max = get_peak_height(signal_without_dc, signal_moving_average, t_max) * 1.5  # ratio factor
+    ratio_factor = 1.5
+    ph_max = get_peak_height(signal_without_dc, signal_moving_average, t_max) * ratio_factor
     ph_min = get_peak_height(signal_without_dc, signal_moving_average, t_min)
     ph_max, ph_min = norm_values(ph_max, ph_min)
 
@@ -360,19 +364,19 @@ def calculate_total_score(signal_without_dc, signal_moving_average, t_min, t_max
 
     total_score_max = total_score_function(ph_max, loc_max, qf_max_avg)
     total_score_min = total_score_function(ph_min, loc_min, qf_min_avg)
+    total_score_max, total_score_min = norm_values(total_score_max, total_score_min)
 
-    is_correct = (total_score_min > total_score_max) == inverted
-
+    selected_t_peak, is_correct = choose_t_peak(total_score_max, total_score_min, t_max, t_min, inverted)
     if to_plot:
         pairs = [[ph_max, ph_min], [loc_max, loc_min], [qf_max_avg, qf_min_avg], [total_score_max, total_score_min]]
         pair_titles = ['Peak height', 'location factor', 'quality factor', 'Total score']
         pm.plot_scores_pairs(pairs, inverted, pair_titles)
 
-    return choose_t_peak(total_score_max, total_score_min, t_max, t_min), is_correct
+    return selected_t_peak, is_correct
 
 
 def total_score_function(ph, loc, qf):
-    total_score = ph + loc + qf
+    total_score = qf + 0.5 * (ph + loc)
     return total_score
 
 
