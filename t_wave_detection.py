@@ -1,15 +1,54 @@
-import numpy as np
-import qrs_detection
+
+import qrs_detection as qrs
 import plot_manager as pm
 import math
+import numpy as np
+import lead_extractor as le
+import copy
+import processing_functions as pf
+import scipy
 
+## function to run without any tests
+def main_t_peak_detection(ecg_dict_original, w1_size, signal_len_in_time, which_r_ann):
+    fs = ecg_dict_original['fs']
+    ecg_dict_copy = copy.deepcopy(ecg_dict_original)
+    t_peak_normal_all_seg_list = []
+    t_peak_low_all_seg_list = []
+    for seg in range(ecg_dict_copy['num_of_segments']):
+        signal = ecg_dict_copy['original_signal'][seg]
+        b, a = scipy.signal.butter(2, [0.5, 10], btype='bandpass', output='ba', fs=fs)
+        signal = scipy.signal.filtfilt(b, a, signal)
+        q_ann, s_ann = qrs.find_q_s_ann(ecg_dict_original, seg, True, True, realLabels=False) ## todo !!!!!
+        if q_ann.size <= 1 or s_ann.size <= 1:
+            continue
+        signal_without_qrs = qrs_removal(signal, seg, q_ann, s_ann)
+        # pm.plot_signal_with_dots2(signal, s_ann, q_ann, fs, 'signal', 's ann', 'q ann', i)
+        r_peaks = qrs.r_peaks_annotations(ecg_dict_original, which_r_ann, seg)
+        if r_peaks.size <= 1:
+            print(f'there is only {r_peaks.size} peaks')
+            continue
+        k_factor = 1
+        b, a = scipy.signal.butter(2, [0.5, 25], btype='bandpass', output='ba', fs=fs)
+        ecg_signal_filtered = scipy.signal.filtfilt(b, a, ecg_dict_original['original_signal'][seg])
+        t_start, t_peak_normal, t_end, quality_factors = t_peak_detection_aux(signal_without_qrs, fs,
+                                                                                               w1_size, k_factor,
+                                                                                               r_peaks,
+                                                                                               ecg_signal_filtered, 0.7,
+                                                                                               0.15)
 
-
-
-
+        t_start_low, t_peak_low, t_end_low, quality_factors_low = t_peak_detection_aux(
+            -signal_without_qrs, fs, w1_size,
+            k_factor, r_peaks, -ecg_signal_filtered,
+            0.7, 0.15)
+        print(quality_factors, quality_factors_low)
+        t_peak_normal_all_seg_list.extend(t_peak_normal + seg * signal_len_in_time * fs)
+        t_peak_low_all_seg_list.extend(t_peak_low + seg * signal_len_in_time * fs)
+    t_peak_normal_all_seg_np = np.array(t_peak_normal_all_seg_list)
+    t_peak_low_all_seg_np = np.array(t_peak_low_all_seg_list)
+    return t_peak_normal_all_seg_np
 
 # page 9-10
-def t_peak_detection(signal_without_qrs, fs, w1_size, k_factor, r_peaks, ecg_signal_filtered_by25, d_max=0.800, d_min=0.150):
+def t_peak_detection_aux(signal_without_qrs, fs, w1_size, k_factor, r_peaks, ecg_signal_filtered_by25, d_max=0.800, d_min=0.150):
     first_boi, ma_peak, ma_t_wave = block_of_interest(signal_without_qrs, fs, w1_size, w1_size * 2, 1) # TODO k factor changed
     #pm.plot_2_signals(signal_without_qrs, first_boi, fs, 'signal without qrs', 'initial block of interests')
     new_boi = thresholding(fs, first_boi, r_peaks, w1_size, k_factor, d_max, d_min)

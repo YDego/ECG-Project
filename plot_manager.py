@@ -207,3 +207,15 @@ def plot_3_signals(signal1, signal2, signal3,  fs, label1='None', label2='None',
     ax.legend()
     ax.set_title("title")
     plt.show()
+
+
+
+def plot_signal(signal1,  fs, label1='None'):
+    time = [i / fs for i in range(len(signal1))]
+
+    fig, ax = plt.subplots()
+    ax.plot(time, signal1, color='r', label=label1)
+    # Enable legend
+    ax.legend()
+    ax.set_title("title")
+    plt.show()

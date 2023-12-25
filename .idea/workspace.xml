@@ -4,15 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d8d475bc-520b-42e2-87af-b9dcea367782" name="Changes" comment="t peak detection">
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+    <list default="true" id="d8d475bc-520b-42e2-87af-b9dcea367782" name="Changes" comment="k">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/correlation.py" beforeDir="false" afterPath="$PROJECT_DIR$/correlation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lead_extractor.py" beforeDir="false" afterPath="$PROJECT_DIR$/lead_extractor.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/success rate t peaks per record per scale .csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/success rate t peaks per record per scale factor" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/success rate t peaks per record per scale factor.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/success rate t peaks per record per window size.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ecg_analyzer_full_flow.py" beforeDir="false" afterPath="$PROJECT_DIR$/ecg_analyzer_full_flow.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/p_check.py" beforeDir="false" afterPath="$PROJECT_DIR$/p_check.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/p_wave_detection.py" beforeDir="false" afterPath="$PROJECT_DIR$/p_wave_detection.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/plot_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/plot_manager.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/qrs_detection.py" beforeDir="false" afterPath="$PROJECT_DIR$/qrs_detection.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/t_wave_detection.py" beforeDir="false" afterPath="$PROJECT_DIR$/t_wave_detection.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test_block_of_interest.py" beforeDir="false" afterPath="$PROJECT_DIR$/test_block_of_interest.py" afterDir="false" />
     </list>
@@ -329,16 +327,6 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/qrs_detection.py</url>
-          <line>249</line>
-          <option name="timeStamp" value="3" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/ecg_analyzer_full_flow.py</url>
-          <line>42</line>
-          <option name="timeStamp" value="5" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/test_block_of_interest.py</url>
           <line>99</line>
           <option name="timeStamp" value="14" />
@@ -355,13 +343,28 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/p_check.py</url>
-          <line>39</line>
+          <line>41</line>
           <option name="timeStamp" value="19" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/test_block_of_interest.py</url>
           <line>57</line>
           <option name="timeStamp" value="20" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/qrs_detection.py</url>
+          <line>251</line>
+          <option name="timeStamp" value="21" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/t_wave_detection.py</url>
+          <line>25</line>
+          <option name="timeStamp" value="24" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/t_wave_detection.py</url>
+          <line>20</line>
+          <option name="timeStamp" value="25" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

@@ -65,9 +65,9 @@ for i in range(1, 106, 1):
         #signal_without_dc = scipy.signal.filtfilt(b, a, ecg_dict_original['original_signal'][seg])
         signal_without_dc = ecg_dict_original['original_signal'][seg]
         #signal_without_dc = pf.baseline_removal_moving_median(ecg_dict_original['original_signal'][seg].copy(), fs)
-        t_start, t_peak_normal, t_end, quality_factors = t_wave_detection.t_peak_detection(signal_without_qrs, fs, w1_size, k_factor,
+        t_start, t_peak_normal, t_end, quality_factors = t_wave_detection.t_peak_detection_aux(signal_without_qrs, fs, w1_size, k_factor,
                                                                           r_peaks, ecg_signal_filtered, 0.7, 0.15)
-        t_start_low, t_peak_low, t_end_low, quality_factors_low = t_wave_detection.t_peak_detection(-signal_without_qrs, fs, w1_size,
+        t_start_low, t_peak_low, t_end_low, quality_factors_low = t_wave_detection.t_peak_detection_aux(-signal_without_qrs, fs, w1_size,
                                                                                k_factor, r_peaks, -ecg_signal_filtered,
                                                                                0.7, 0.15)
         print(np.average(quality_factors))
@@ -127,7 +127,7 @@ for i in range(1, 106, 1):
         if erase_last_real_dot:
             t_real_peaks = np.delete(t_real_peaks, t_real_peaks.size - 1)
 
-        t_united = np.sort(np.concatenate((t_peak_normal, t_peak_low)))
+        t_united = np.sort(np.concatenate((t_peak_normal, t_peak_low)), axis=None)
         success_record, number_of_t_dots_record = t_wave_detection.comparison_t_peaks(t_real_peaks.copy(), t_united.copy(), fs, r_peaks.size - 1, 0.050)
         success += success_record
         # number_of_t_dots_record = r_peaks.size - 1
