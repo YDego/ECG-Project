@@ -286,13 +286,6 @@ def comparison_t_peaks(t_peaks_real_annotations, t_peaks_our_annotations, fs, r_
     return success, distance_from_real.size
 
 
-def score_value(signal_without_dc, signal_moving_average, t_peak, norm_index, qf, ratio_factor=1.5):
-    loc_factor = get_location_factor(norm_index)
-    peak_height = get_peak_height(signal_without_dc, signal_moving_average, t_peak)
-    score = ratio_factor * loc_factor * peak_height * qf
-    return score
-
-
 def gaussian(x, mu, sig):
     g = 1.0 / (np.sqrt(2.0 * np.pi) * sig) * np.exp(-np.power((x - mu) / sig, 2.0) / 2)
 
@@ -342,13 +335,13 @@ def find_t_between_r(this_r, next_r, t_list):
 
 def choose_t_peak(max_score, min_score, t_max, t_min, inverted, threshold=0):
     if threshold != 0 and abs(max_score - min_score) <= threshold:
-        return [t_max], True
+        return min(t_min, t_max), True
     else:
         is_correct = (max_score < min_score) == inverted
         if min_score > max_score:
-            return [t_min], is_correct
+            return t_min, is_correct
         else:
-            return [t_max], is_correct
+            return t_max, is_correct
 
 
 def calculate_total_score(signal_without_dc, signal_moving_average, t_min, t_max, qf_min_avg, qf_max_avg, norm_idx_minima, norm_idx_maxima, inverted, to_plot=False):
@@ -376,7 +369,7 @@ def calculate_total_score(signal_without_dc, signal_moving_average, t_min, t_max
 
 
 def total_score_function(ph, loc, qf):
-    total_score = qf + 0.5 * (ph + loc)
+    total_score = qf
     return total_score
 
 

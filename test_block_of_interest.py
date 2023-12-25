@@ -114,7 +114,7 @@ for i in range(1, 200, 1):
             selected_peak, peak_is_correct = t_wave_detection.calculate_total_score(signal_without_dc, signal_moving_average, t_min, t_max,
                                                                                     qf_min_avg, qf_max_avg, norm_idx_minima, norm_idx_maxima, inverted)
             all_peaks_correct = all_peaks_correct and peak_is_correct
-            t_peak_location.extend(selected_peak)
+            t_peak_location.append(selected_peak)
 
             number_of_t_dots += 1
             success_per_peak += int(peak_is_correct)
