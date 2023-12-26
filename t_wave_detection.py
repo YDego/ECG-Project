@@ -51,7 +51,7 @@ def main_t_peak_detection(ecg_dict_original, w1_size, signal_len_in_time, which_
 
 def t_peak_classifier(t_normal, t_low, q_normal, q_low, threshold=0):
     # check if diff is lower than threshold
-    if threshold and abs((q_normal-q_low)/max(q_normal, q_low)) < threshold:
+    if abs((q_normal-q_low)/max(q_normal, q_low)) < threshold:
         return min(t_normal, t_low)
     elif q_normal>q_low:
         return t_normal
