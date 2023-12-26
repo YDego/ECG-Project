@@ -12,8 +12,7 @@ import scipy
 def main_t_peak_detection(ecg_dict_original, w1_size, signal_len_in_time, which_r_ann):
     fs = ecg_dict_original['fs']
     ecg_dict_copy = copy.deepcopy(ecg_dict_original)
-    t_peak_normal_all_seg_list = []
-    t_peak_low_all_seg_list = []
+    t_peak_selected_all_seg_list = []
     for seg in range(ecg_dict_copy['num_of_segments']):
         signal = ecg_dict_copy['original_signal'][seg]
         b, a = scipy.signal.butter(2, [0.5, 10], btype='bandpass', output='ba', fs=fs)
@@ -41,11 +40,22 @@ def main_t_peak_detection(ecg_dict_original, w1_size, signal_len_in_time, which_
             k_factor, r_peaks, -ecg_signal_filtered,
             0.7, 0.15)
         print(quality_factors, quality_factors_low)
-        t_peak_normal_all_seg_list.extend(t_peak_normal + seg * signal_len_in_time * fs)
-        t_peak_low_all_seg_list.extend(t_peak_low + seg * signal_len_in_time * fs)
-    t_peak_normal_all_seg_np = np.array(t_peak_normal_all_seg_list)
-    t_peak_low_all_seg_np = np.array(t_peak_low_all_seg_list)
-    return t_peak_normal_all_seg_np
+
+        threshold = 0.3  # 0 to 1
+        t_peak_selected = t_peak_classifier(t_peak_normal, t_peak_low, quality_factors, quality_factors_low, threshold)
+        t_peak_selected_all_seg_list.extend(t_peak_selected + seg * signal_len_in_time * fs)
+
+    t_peak_selected_all_seg_np = np.array(t_peak_selected_all_seg_list)
+    return t_peak_selected_all_seg_np
+
+
+def t_peak_classifier(t_normal, t_low, q_normal, q_low, threshold=0):
+    # check if diff is lower than threshold
+    if threshold and abs((q_normal-q_low)/max(q_normal, q_low)) < threshold:
+        return min(t_normal, t_low)
+    elif q_normal>q_low:
+        return t_normal
+    return t_low
 
 # page 9-10
 def t_peak_detection_aux(signal_without_qrs, fs, w1_size, k_factor, r_peaks, ecg_signal_filtered_by25, d_max=0.800, d_min=0.150):
