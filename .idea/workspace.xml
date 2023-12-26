@@ -4,9 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d8d475bc-520b-42e2-87af-b9dcea367782" name="Changes" comment="k">
-      <change beforePath="$PROJECT_DIR$/.idea/ECG-Project.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ECG-Project.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="d8d475bc-520b-42e2-87af-b9dcea367782" name="Changes" comment="classifier added">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/t_wave_detection.py" beforeDir="false" afterPath="$PROJECT_DIR$/t_wave_detection.py" afterDir="false" />
     </list>
@@ -283,7 +281,23 @@
       <option name="project" value="LOCAL‎" />
       <updated>1698934189478</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="classifier added">
+      <option name="closed" value="true" />
+      <created>1703600461318</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1703600461318</updated>
+    </task>
+    <task id="LOCAL-00015" summary="classifier added">
+      <option name="closed" value="true" />
+      <created>1703600569528</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1703600569528</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -324,7 +338,8 @@
     <MESSAGE value="fft also works again" />
     <MESSAGE value="." />
     <MESSAGE value="t peak detection" />
-    <option name="LAST_COMMIT_MESSAGE" value="t peak detection" />
+    <MESSAGE value="classifier added" />
+    <option name="LAST_COMMIT_MESSAGE" value="classifier added" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -361,12 +376,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/t_wave_detection.py</url>
-          <line>25</line>
+          <line>24</line>
           <option name="timeStamp" value="24" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/t_wave_detection.py</url>
-          <line>20</line>
+          <line>19</line>
           <option name="timeStamp" value="25" />
         </line-breakpoint>
       </breakpoints>

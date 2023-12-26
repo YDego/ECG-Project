@@ -41,9 +41,36 @@ def main_t_peak_detection(ecg_dict_original, w1_size, signal_len_in_time, which_
             0.7, 0.15)
         print(quality_factors, quality_factors_low)
 
-        threshold = 0.3  # 0 to 1
-        t_peak_selected = t_peak_classifier(t_peak_normal, t_peak_low, quality_factors, quality_factors_low, threshold)
-        t_peak_selected_all_seg_list.extend(t_peak_selected + seg * signal_len_in_time * fs)
+        decision_threshold = 0.3  # 0 to 1
+
+        qf_max_avg = np.average(quality_factors)
+        qf_min_avg = np.average(quality_factors_low)
+
+        t_peak_location = []
+
+        for r_idx, r_peak in enumerate(r_peaks):
+
+            if r_idx + 1 == len(r_peaks):
+                break
+
+            next_r = r_peaks[r_idx + 1]
+            t_max = find_t_between_r(r_peak, next_r, t_peak_normal)
+            t_min = find_t_between_r(r_peak, next_r, t_peak_low)
+
+            if t_min is None and t_max is None:
+                t_peak_location.append(-1)
+                continue
+            elif t_min is None:
+                t_peak_location.append(t_max)
+                continue
+            elif t_max is None:
+                t_peak_location.append(t_min)
+                continue
+
+            t_peak_selected = t_peak_classifier(t_max, t_min, qf_max_avg, qf_min_avg, decision_threshold)
+            t_peak_location.append(t_peak_selected)
+
+        t_peak_selected_all_seg_list.extend(np.array(t_peak_location) + seg * signal_len_in_time * fs)
 
     t_peak_selected_all_seg_np = np.array(t_peak_selected_all_seg_list)
     return t_peak_selected_all_seg_np
@@ -51,11 +78,20 @@ def main_t_peak_detection(ecg_dict_original, w1_size, signal_len_in_time, which_
 
 def t_peak_classifier(t_normal, t_low, q_normal, q_low, threshold=0):
     # check if diff is lower than threshold
-    if abs((q_normal-q_low)/max(q_normal, q_low)) < threshold:
+    if abs(q_normal-q_low)/max(q_normal, q_low) < threshold:
         return min(t_normal, t_low)
     elif q_normal>q_low:
         return t_normal
     return t_low
+
+
+def find_t_between_r(this_r, next_r, t_list):
+    for t in t_list:
+        if not this_r < t < next_r:
+            continue
+        else:
+            return t
+
 
 # page 9-10
 def t_peak_detection_aux(signal_without_qrs, fs, w1_size, k_factor, r_peaks, ecg_signal_filtered_by25, d_max=0.800, d_min=0.150):
