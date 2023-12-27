@@ -65,8 +65,8 @@ def main_t_peak_detection(ecg_dict_original, w1_size, signal_len_in_time, which_
                 t_peak_location.append(t_min)
                 continue
 
-            amp_normal = ecg_signal_filtered[t_max]
-            amp_low = ecg_signal_filtered[t_min]
+            amp_normal = abs(ecg_signal_filtered[t_max])
+            amp_low = abs(ecg_signal_filtered[t_min])
             t_peak_selected = t_peak_classifier(t_max, t_min, qf_max, qf_min, amp_normal, amp_low, decision_threshold)
             t_peak_location.append(t_peak_selected)
 

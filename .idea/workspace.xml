@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d8d475bc-520b-42e2-87af-b9dcea367782" name="Changes" comment="classifier added">
+    <list default="true" id="d8d475bc-520b-42e2-87af-b9dcea367782" name="Changes" comment="classifier per qf">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/t_wave_detection.py" beforeDir="false" afterPath="$PROJECT_DIR$/t_wave_detection.py" afterDir="false" />
     </list>
@@ -31,6 +31,9 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 6
+}</component>
   <component name="ProjectId" id="2Ps7BaF32fPmZRJCf4qjNM1ITLm" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
@@ -45,7 +48,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "git-widget-placeholder": "shahar-__merge__between__r__t__p",
-    "last_opened_file_path": "C:/Users/hoday/PycharmProjects/ECG-Project"
+    "last_opened_file_path": "C:/Users/ydego/Documents/GitHub/ECG-Project"
   },
   "keyToStringList": {
     "ChangesTree.GroupingKeys": [
@@ -181,6 +184,13 @@
       </list>
     </recent_temporary>
   </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-python-sdk-50da183f06c8-d3b881c8e49f-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-233.13135.95" />
+      </set>
+    </attachedChunks>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -305,7 +315,23 @@
       <option name="project" value="LOCAL" />
       <updated>1703602512332</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="bug fix">
+      <option name="closed" value="true" />
+      <created>1703612292545</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1703612292545</updated>
+    </task>
+    <task id="LOCAL-00018" summary="classifier per qf">
+      <option name="closed" value="true" />
+      <created>1703688979715</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1703688979715</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -348,7 +374,9 @@
     <MESSAGE value="t peak detection" />
     <MESSAGE value="classifier added" />
     <MESSAGE value="classifier ready" />
-    <option name="LAST_COMMIT_MESSAGE" value="classifier ready" />
+    <MESSAGE value="bug fix" />
+    <MESSAGE value="classifier per qf" />
+    <option name="LAST_COMMIT_MESSAGE" value="classifier per qf" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
