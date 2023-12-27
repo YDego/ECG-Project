@@ -65,7 +65,9 @@ def main_t_peak_detection(ecg_dict_original, w1_size, signal_len_in_time, which_
                 t_peak_location.append(t_min)
                 continue
 
-            t_peak_selected = t_peak_classifier(t_max, t_min, qf_max, qf_min, decision_threshold)
+            amp_normal = ecg_signal_filtered[t_max]
+            amp_low = ecg_signal_filtered[t_min]
+            t_peak_selected = t_peak_classifier(t_max, t_min, qf_max, qf_min, amp_normal, amp_low, decision_threshold)
             t_peak_location.append(t_peak_selected)
 
         t_peak_selected_all_seg_list.extend(np.array(t_peak_location) + seg * signal_len_in_time * fs)
@@ -74,13 +76,20 @@ def main_t_peak_detection(ecg_dict_original, w1_size, signal_len_in_time, which_
     return t_peak_selected_all_seg_np
 
 
-def t_peak_classifier(t_normal, t_low, q_normal, q_low, threshold=0):
+def t_peak_classifier(t_normal, t_low, qf_normal, qf_low, amp_normal, amp_low, threshold=0):
     # check if diff is lower than threshold
-    if abs(q_normal-q_low)/max(q_normal, q_low) < threshold:
+    qf_check = abs(qf_normal-qf_low) / max(qf_normal, qf_low) > threshold
+    amp_check = abs(amp_normal-amp_low) / max(amp_normal, amp_low) > threshold
+    if qf_check:
+        if qf_normal > qf_low:
+            return t_normal
+        return t_low
+    elif amp_check:
+        if qf_normal > qf_low:
+            return t_normal
+        return t_low
+    else:
         return min(t_normal, t_low)
-    elif q_normal>q_low:
-        return t_normal
-    return t_low
 
 
 def find_t_between_r(this_r, next_r, t_list):
