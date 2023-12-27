@@ -41,17 +41,15 @@ def main_t_peak_detection(ecg_dict_original, w1_size, signal_len_in_time, which_
             0.7, 0.15)
         print(quality_factors, quality_factors_low)
 
-        decision_threshold = 0.3  # 0 to 1
-
-        qf_max_avg = np.average(quality_factors)
-        qf_min_avg = np.average(quality_factors_low)
+        decision_threshold = 0.25  # 0 to 1
 
         t_peak_location = []
-
         for r_idx, r_peak in enumerate(r_peaks):
 
             if r_idx + 1 == len(r_peaks):
                 break
+            qf_max = quality_factors[r_idx]
+            qf_min = quality_factors_low[r_idx]
 
             next_r = r_peaks[r_idx + 1]
             t_max = find_t_between_r(r_peak, next_r, t_peak_normal)
@@ -67,7 +65,7 @@ def main_t_peak_detection(ecg_dict_original, w1_size, signal_len_in_time, which_
                 t_peak_location.append(t_min)
                 continue
 
-            t_peak_selected = t_peak_classifier(t_max, t_min, qf_max_avg, qf_min_avg, decision_threshold)
+            t_peak_selected = t_peak_classifier(t_max, t_min, qf_max, qf_min, decision_threshold)
             t_peak_location.append(t_peak_selected)
 
         t_peak_selected_all_seg_list.extend(np.array(t_peak_location) + seg * signal_len_in_time * fs)
