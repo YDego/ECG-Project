@@ -1,3 +1,4 @@
+import statistics
 
 import qrs_detection as qrs
 import plot_manager as pm
@@ -64,9 +65,9 @@ def main_t_peak_detection(ecg_dict_original, w1_size, signal_len_in_time, which_
             elif t_max is None:
                 t_peak_location.append(t_min)
                 continue
-
-            amp_normal = abs(ecg_signal_filtered[t_max])
-            amp_low = abs(ecg_signal_filtered[t_min])
+            median = statistics.median(ecg_signal_filtered[r_peaks[r_idx]:r_peaks[r_idx+1]])
+            amp_normal = abs(ecg_signal_filtered[t_max] - median)
+            amp_low = abs(ecg_signal_filtered[t_min] - median)
             t_peak_selected = t_peak_classifier(t_max, t_min, qf_max, qf_min, amp_normal, amp_low, decision_threshold)
             t_peak_location.append(t_peak_selected)
 
