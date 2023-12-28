@@ -93,6 +93,7 @@ def t_peak_classifier(t_normal, t_low, qf_normal, qf_low, amp_normal, amp_low, t
         return min(t_normal, t_low)
 
 
+
 def find_t_between_r(this_r, next_r, t_list):
     for t in t_list:
         if not this_r < t < next_r:
@@ -339,15 +340,27 @@ def union_block_of_interest(boi_diff, min_size_of_window_to_union, max_distance_
 
 
 
-def t_peaks_annotations(ecg_original, chosen_ann, seg):
+def t_peaks_annotations(ecg_original, chosen_ann, seg=0, all_seg=False):
     fs = ecg_original['fs']
     signal_len_in_time = ecg_original['signal_len']
+    annotations_samples = []
+    annotations_markers = []
     if chosen_ann == "real":
-        annotations_samples = ecg_original["ann"][seg]
-        annotations_markers = ecg_original["ann_markers"][seg]
+        if all_seg:
+            for seg in range(ecg_original["num_of_segments"]):
+                annotations_samples.extend(ecg_original["ann"][seg])
+                annotations_markers.extend(ecg_original["ann_markers"][seg])
+        else:
+            annotations_samples = ecg_original["ann"][seg]
+            annotations_markers = ecg_original["ann_markers"][seg]
     else:
-        annotations_samples = ecg_original["our_ann"][seg]
-        annotations_markers = ecg_original["our_ann_markers"][seg]
+        if all_seg:
+            for seg in range(ecg_original["num_of_segments"]):
+                annotations_samples.extend(ecg_original["our_ann"][seg])
+                annotations_markers.extend(ecg_original["our_ann_markers"][seg])
+        else:
+            annotations_samples = ecg_original["our_ann"][seg]
+            annotations_markers = ecg_original["our_ann_markers"][seg]
     len_ann = len(annotations_samples)
     t_annotations = np.zeros(len_ann, dtype=int)
     for index, marker in enumerate(annotations_markers):
