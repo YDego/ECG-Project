@@ -5,7 +5,7 @@ import copy
 import scipy
 import qrs_detection as qrs
 
-def main_p_peak_detection(ecg_dict_original, w1_size, signal_len_in_time, which_r_ann):
+def main_p_peak_detection(ecg_dict_original, w1_size, signal_len_in_time, which_r_ann, real_q_s_ann=False):
     fs = ecg_dict_original['fs']
     ecg_dict_copy = copy.deepcopy(ecg_dict_original)
     p_peak_normal_all_seg_list = []
@@ -13,7 +13,7 @@ def main_p_peak_detection(ecg_dict_original, w1_size, signal_len_in_time, which_
         signal = ecg_dict_copy['original_signal'][seg]
         b, a = scipy.signal.butter(2, [0.5, 12], btype='bandpass', output='ba', fs=fs)
         signal = scipy.signal.filtfilt(b, a, signal)
-        q_ann, s_ann = qrs.find_q_s_ann(ecg_dict_original, seg, True, True, realLabels=False)
+        q_ann, s_ann = qrs.find_q_s_ann(ecg_dict_original, seg, True, True, realLabels=real_q_s_ann)
         if q_ann.size == 0 or s_ann.size == 0:
             continue
         p_real_peaks = p_peaks_annotations(ecg_dict_original, 'real', seg)
@@ -81,15 +81,28 @@ def p_peak_detection(signal_without_qrs, fs, w1_size, k_factor, r_peaks, ecg_sig
     _, p_peak_low, _ , _= t_wave_detection.t_peak_detection_aux(-signal_without_qrs, fs, w1_size, k_factor, r_peaks, -ecg_signal_filtered_by25, d_max, d_min)
     p_united = np.sort(np.concatenate((p_peak_normal, p_peak_low)))
     return p_united , p_peak_normal, p_peak_low
-def p_peaks_annotations(ecg_original, chosen_ann, seg):
+
+def p_peaks_annotations(ecg_original, chosen_ann, seg=0, all_seg=False):
     fs = ecg_original['fs']
     signal_len_in_time = ecg_original['signal_len']
+    annotations_samples = []
+    annotations_markers = []
     if chosen_ann == "real":
-        annotations_samples = ecg_original["ann"][seg]
-        annotations_markers = ecg_original["ann_markers"][seg]
+        if all_seg:
+            for seg in range(ecg_original["num_of_segments"]):
+                annotations_samples.extend(ecg_original["ann"][seg])
+                annotations_markers.extend(ecg_original["ann_markers"][seg])
+        else:
+            annotations_samples = ecg_original["ann"][seg]
+            annotations_markers = ecg_original["ann_markers"][seg]
     else:
-        annotations_samples = ecg_original["our_ann"][seg]
-        annotations_markers = ecg_original["our_ann_markers"][seg]
+        if all_seg:
+            for seg in range(ecg_original["num_of_segments"]):
+                annotations_samples.extend(ecg_original["our_ann"][seg])
+                annotations_markers.extend(ecg_original["our_ann_markers"][seg])
+        else:
+            annotations_samples = ecg_original["our_ann"][seg]
+            annotations_markers = ecg_original["our_ann_markers"][seg]
     len_ann = len(annotations_samples)
     p_annotations = np.zeros(len_ann, dtype=int)
     for index, marker in enumerate(annotations_markers):
@@ -118,8 +131,8 @@ def comparison_p_peaks(p_peaks_real_annotations, p_peaks_our_annotations, fs, r_
                 p_peaks_our_annotations[j] = -1
                 success = success + 1
                 break  # break the t_peaks_our_ann for
-        if distance_from_real[i] == 0:
-            print(p_peaks_real_annotations[i] / fs)
+        # if distance_from_real[i] == 0:
+        #    print(p_peaks_real_annotations[i] / fs)
 
     return success, distance_from_real.size
 

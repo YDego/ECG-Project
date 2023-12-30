@@ -242,20 +242,32 @@ def check_radius_closed_dot(signal, index, threshold, distance, margin_error):
 
 
 ### changed at 16.6.23 - 22:45
-def r_peaks_annotations(ecg_original, chosen_ann, seg):
+def r_peaks_annotations(ecg_original, chosen_ann, seg=0, all_seg=False):
     fs = ecg_original['fs']
     signal_len_in_time = ecg_original['signal_len']
+    annotations_samples = []
+    annotations_markers = []
     if chosen_ann == "real":
-        real_annotations_samples = ecg_original["ann"][seg]
-        real_annotations_markers = ecg_original["ann_markers"][seg]
+        if all_seg:
+            for seg in range(ecg_original["num_of_segments"]):
+                annotations_samples.extend(ecg_original["ann"][seg])
+                annotations_markers.extend(ecg_original["ann_markers"][seg])
+        else:
+            annotations_samples = ecg_original["ann"][seg]
+            annotations_markers = ecg_original["ann_markers"][seg]
     else:
-        real_annotations_samples = ecg_original["our_ann"][seg]
-        real_annotations_markers = ecg_original["our_ann_markers"][seg]
+        if all_seg:
+            for seg in range(ecg_original["num_of_segments"]):
+                annotations_samples.extend(ecg_original["our_ann"][seg])
+                annotations_markers.extend(ecg_original["our_ann_markers"][seg])
+        else:
+            annotations_samples = ecg_original["our_ann"][seg]
+            annotations_markers = ecg_original["our_ann_markers"][seg]
 
-    r_peaks_real_annotations = np.zeros(len(real_annotations_samples), dtype=int)
-    for index, marker in enumerate(real_annotations_markers):
+    r_peaks_real_annotations = np.zeros(len(annotations_samples), dtype=int)
+    for index, marker in enumerate(annotations_markers):
         if marker == 'N' or marker == 'n': ## r_peak marker is 'N'
-            r_peaks_real_annotations = np.insert(r_peaks_real_annotations, 0, real_annotations_samples[index])
+            r_peaks_real_annotations = np.insert(r_peaks_real_annotations, 0, annotations_samples[index]) ## check with my version todo -> annotations_sampels , was markers
 
     r_peaks_real_annotations = r_peaks_real_annotations[r_peaks_real_annotations != 0]
     r_peaks_real_annotations = np.sort(r_peaks_real_annotations)

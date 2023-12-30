@@ -10,7 +10,7 @@ import processing_functions as pf
 import scipy
 
 ## function to run without any tests
-def main_t_peak_detection(ecg_dict_original, w1_size, signal_len_in_time, which_r_ann):
+def main_t_peak_detection(ecg_dict_original, w1_size, signal_len_in_time, which_r_ann, real_q_s_ann=False):
     fs = ecg_dict_original['fs']
     ecg_dict_copy = copy.deepcopy(ecg_dict_original)
     t_peak_selected_all_seg_list = []
@@ -18,7 +18,7 @@ def main_t_peak_detection(ecg_dict_original, w1_size, signal_len_in_time, which_
         signal = ecg_dict_copy['original_signal'][seg]
         b, a = scipy.signal.butter(2, [0.5, 10], btype='bandpass', output='ba', fs=fs)
         signal = scipy.signal.filtfilt(b, a, signal)
-        q_ann, s_ann = qrs.find_q_s_ann(ecg_dict_original, seg, True, True, realLabels=False) ## todo !!!!!
+        q_ann, s_ann = qrs.find_q_s_ann(ecg_dict_original, seg, True, True, realLabels=real_q_s_ann) ## todo !!!!!
         if q_ann.size <= 1 or s_ann.size <= 1:
             continue
         signal_without_qrs = qrs_removal(signal, seg, q_ann, s_ann)
@@ -40,7 +40,7 @@ def main_t_peak_detection(ecg_dict_original, w1_size, signal_len_in_time, which_
             -signal_without_qrs, fs, w1_size,
             k_factor, r_peaks, -ecg_signal_filtered,
             0.7, 0.15)
-        print(quality_factors, quality_factors_low)
+        #print(quality_factors, quality_factors_low)
 
         decision_threshold = 0.25  # 0 to 1
 
@@ -66,6 +66,7 @@ def main_t_peak_detection(ecg_dict_original, w1_size, signal_len_in_time, which_
                 t_peak_location.append(t_min)
                 continue
             median = statistics.median(ecg_signal_filtered[r_peaks[r_idx]:r_peaks[r_idx+1]])
+            #print(median)
             amp_normal = abs(ecg_signal_filtered[t_max] - median)
             amp_low = abs(ecg_signal_filtered[t_min] - median)
             t_peak_selected = t_peak_classifier(t_max, t_min, qf_max, qf_min, amp_normal, amp_low, decision_threshold)
@@ -86,7 +87,7 @@ def t_peak_classifier(t_normal, t_low, qf_normal, qf_low, amp_normal, amp_low, t
             return t_normal
         return t_low
     elif amp_check:
-        if qf_normal > qf_low:
+        if amp_normal > amp_low:
             return t_normal
         return t_low
     else:
@@ -235,7 +236,12 @@ def find_real_blocks(original_signal, fs, signal_filtered, r_peaks, boi, ma_peak
         quality_factor_for_beats = np.zeros(number_of_intervals, dtype=float)
         factor_functions_list = []
         for index in range(0, number_of_intervals):
+            #if index > 843:
+            #    break
+            #print(index, number_of_intervals)
             window_len_interval = r_peaks[index+1] - r_peaks[index]
+            if window_len_interval == 0:
+                continue
             t_potential_start_one_interval = t_potential_start[r_peaks[index] < t_potential_start]
             t_potential_start_one_interval = t_potential_start_one_interval[t_potential_start_one_interval < r_peaks[index + 1]]
             t_potential_end_one_interval = t_potential_end[r_peaks[index] < t_potential_end]
@@ -308,11 +314,14 @@ def choose_one_block(t_potential_start, t_potential_end, ma_peak, ma_t_wave, fac
 def create_factor_function(initial_value, middle_value, final_value, window_len):
     function = np.zeros(window_len, dtype=float)
     first_window_size = int(0.27*window_len - 1)# TODO
+    if window_len == 0:
+        print('what the hell')
     m1 = (middle_value - initial_value) / (first_window_size - 1)
     m2 = (final_value - middle_value) / (window_len - first_window_size)
     for index in range(first_window_size):
         function[index] = initial_value + m1*index
     for index2 in range(first_window_size, window_len):
+        #print(index2, first_window_size, window_len)
         function[index2] = middle_value * math.exp(2*m2*(index2 - first_window_size + 1))
         #function[index2] = middle_value + m2 * (index2 - first_window_size + 1)
     # print(function.size, function)
@@ -388,8 +397,8 @@ def comparison_t_peaks(t_peaks_real_annotations, t_peaks_our_annotations, fs, r_
                 t_peaks_our_annotations[j] = -1
                 success = success + 1
                 break  # break the t_peaks_our_ann for
-        if distance_from_real[i] == 0:
-            print(t_peaks_real_annotations[i] / fs)
+        # if distance_from_real[i] == 0:
+        #    print(t_peaks_real_annotations[i] / fs)
     return success, distance_from_real.size
 
 

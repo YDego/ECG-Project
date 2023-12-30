@@ -171,15 +171,13 @@ def plot_signal_with_dots(signal1 , signal2, fs , label1='None' , label2='None',
 
 
 def plot_signal_with_dots2(signal1 , signal2, signal3, fs , label1 , label2, label3, record_number, seg=0, record_len=10):
-    signal1_len = len(signal1)
-
     time = [(i / fs) + seg * record_len for i in range(len(signal1))]
     fig, ax = plt.subplots()
     ax.plot(time, signal1, color='red', label=label1)
     on_time2 = signal2 * (1/fs) + seg * record_len
     on_time3 = signal3 * (1/fs) + seg * record_len
-    ax.plot(on_time2, signal1[signal2],color='y', linestyle='None', marker='o', label=label2)
-    ax.plot(on_time3, signal1[signal3],color='b', linestyle='None', marker='x', label=label3)
+    ax.plot(on_time2, signal1[signal2],color='b', linestyle='None', marker='x', label=label2)
+    ax.plot(on_time3, signal1[signal3],color='m', linestyle='None', marker='o', label=label3)
     # Enable legend
     ax.legend()
     ax.set_title(f'record number {record_number} seg {seg}')
