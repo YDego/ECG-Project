@@ -18,7 +18,7 @@ def main_t_peak_detection(ecg_dict_original, w1_size, signal_len_in_time, which_
         signal = ecg_dict_copy['original_signal'][seg]
         b, a = scipy.signal.butter(2, [0.5, 10], btype='bandpass', output='ba', fs=fs)
         signal = scipy.signal.filtfilt(b, a, signal)
-        q_ann, s_ann = qrs.find_q_s_ann(ecg_dict_original, seg, True, True, realLabels=real_q_s_ann) ## todo !!!!!
+        q_ann, s_ann = qrs.find_q_s_ann(ecg_dict_original, seg, True, True, realLabels=real_q_s_ann)
         if q_ann.size <= 1 or s_ann.size <= 1:
             continue
         signal_without_qrs = qrs_removal(signal, seg, q_ann, s_ann)
