@@ -44,7 +44,7 @@ def comparison_peaks(peaks_real_annotations, peaks_our_annotations, fs, margin_m
 def main():
 
     all_signals = input("Perform QRS detection for all signals in ludb/qt/mit [input: l/q/m]? ")
-    if all_signals in all_signals_input:
+    if all_signals in ALL_SIGNALS_INPUT:
 
         dataset = DATASETS[all_signals]
         num_sets = NUM_OF_SETS[all_signals]
@@ -78,7 +78,7 @@ def main():
             for keys in dict_all_success_peaks.keys():
                 dict_all_success_peaks[keys] += all_success_tuple[index]
                 index += 1
-            # pm.plot_signal_with_dots2(ecg_original['original_signal'][0], all_united, np.array(ecg_original['ann'][0]), ecg_original['fs'], 'ecg signal', 'all our annotations', 'all real annotations', i)
+            pm.plot_signal_with_dots2(ecg_original['original_signal'][0], np.array(ecg_original['ann'][0]), all_united, ecg_original['fs'], 'ecg signal', 'all real annotations', 'all our annotations', i)
 
         for key, value in dict_success.items():
             print(key, ":", value)

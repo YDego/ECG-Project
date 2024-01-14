@@ -1,43 +1,18 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.lines as mlines
+from project_variables import *
 
-marker_dict = {
-    '(': '<',
-    ')': '>',
-    'p': 'X',
-    'N': 'X',
-    'n': 'o',
-    't': 'X'
-}
-
-color_dict = {
-    '(': 'k',
-    ')': 'k',
-    'p': 'b',
-    'N': 'g',
-    'n': 'g',
-    't': 'r'
-}
-
-marker_title_dict = {
-    '(': 'Opening point',
-    ')': 'Closing point',
-    'p': 'P peak',
-    'N': 'R peak',
-    'n': 'R peak',
-    't': 't peak'
-}
 
 legends = []
-for marker in marker_dict:
-    legends.append(mlines.Line2D([], [], color=color_dict[marker], marker=marker_dict[marker], markersize=5, label=marker_title_dict[marker]))
+for marker in MARKER_DICT:
+    legends.append(mlines.Line2D([], [], color=COLOR_DICT[marker], marker=MARKER_DICT[marker], markersize=5, label=MARKER_TITLE_DICT[marker]))
 
 
 def marker_converter(ann_markers):
     markers_converted = ann_markers[:]
     for i in range(len(ann_markers)):
-        markers_converted[i] = marker_dict[ann_markers[i]]
+        markers_converted[i] = MARKER_DICT[ann_markers[i]]
 
     return markers_converted
 
@@ -45,7 +20,7 @@ def marker_converter(ann_markers):
 def color_converter(ann_markers):
     colors = ann_markers[:]
     for i in range(len(ann_markers)):
-        colors[i] = color_dict[ann_markers[i]]
+        colors[i] = COLOR_DICT[ann_markers[i]]
 
     return colors
 
@@ -158,40 +133,55 @@ def plot_original_vs_processed_single_segment(ecg_dict_1, ecg_dict_2, ann=False,
 
     plt.show()
 
+
 def plot_signal_with_dots(signal1 , signal2, fs , label1='None' , label2='None', record_number=0):
     time = [i / fs for i in range(len(signal1))]
     fig, ax = plt.subplots()
     ax.plot(time, signal1, color='red', label=label1)
     t_peak_time = signal2 * (1/fs)
     ax.plot(t_peak_time, signal1[signal2], linestyle='None', marker='o', label=label2)
+
     # Enable legend
+    ax.set_xlabel('time [sec]')
+    ax.set_ylabel('Amplitude [volts]')
     ax.legend()
     ax.set_title(f'record number {record_number}')
     plt.show()
 
 
-def plot_signal_with_dots2(signal1 , signal2, signal3, fs , label1 , label2, label3, record_number, seg=0, record_len=10):
-    time = [(i / fs) + seg * record_len for i in range(len(signal1))]
+def plot_signal_with_dots2(ecg_signal, signal2, signal3, fs, label1, label2, label3, record_number, seg=0, record_len=10):
+    time = [(i / fs) + seg * record_len for i in range(len(ecg_signal))]
     fig, ax = plt.subplots()
-    ax.plot(time, signal1, color='red', label=label1)
     on_time2 = signal2 * (1/fs) + seg * record_len
     on_time3 = signal3 * (1/fs) + seg * record_len
-    ax.plot(on_time2, signal1[signal2],color='b', linestyle='None', marker='x', label=label2)
-    ax.plot(on_time3, signal1[signal3],color='m', linestyle='None', marker='o', label=label3)
+
+    # Plot
+    ax.plot(time, ecg_signal, color='red', label=label1)
+    ax.plot(on_time2, ecg_signal[signal2], color='y', linestyle='None', marker='o', label=label2)
+    ax.plot(on_time3, ecg_signal[signal3], color='b', linestyle='None', marker='x', label=label3)
+
     # Enable legend
+    ax.set_xlabel('time [sec]')
+    ax.set_ylabel('Amplitude [volts]')
     ax.legend()
     ax.set_title(f'record number {record_number} seg {seg}')
     plt.show()
+
+
 def plot_2_signals(signal1 , signal2,  fs , label1='None', label2='None'):
     time = [i / fs for i in range(len(signal1))]
 
     fig, ax = plt.subplots()
     ax.plot(time, signal1, color='red', label=label1)
     ax.plot(time, signal2, color='blue', label=label2)
+
     # Enable legend
+    ax.set_xlabel('time [sec]')
+    ax.set_ylabel('Amplitude [volts]')
     ax.legend()
     ax.set_title("title")
     plt.show()
+
 
 
 def plot_3_signals(signal1, signal2, signal3,  fs, label1='None', label2='None', label3='None'):
@@ -201,7 +191,10 @@ def plot_3_signals(signal1, signal2, signal3,  fs, label1='None', label2='None',
     ax.plot(time, signal1, color='r', label=label1)
     ax.plot(time, signal2, '--', color='blue', label=label2)
     ax.plot(time, signal3, color='green', label=label3)
+
     # Enable legend
+    ax.set_xlabel('time [sec]')
+    ax.set_ylabel('Amplitude [volts]')
     ax.legend()
     ax.set_title("title")
     plt.show()
@@ -213,7 +206,10 @@ def plot_signal(signal1,  fs, label1='None'):
 
     fig, ax = plt.subplots()
     ax.plot(time, signal1, color='r', label=label1)
+
     # Enable legend
+    ax.set_xlabel('time [sec]')
+    ax.set_ylabel('Amplitude [volts]')
     ax.legend()
     ax.set_title("title")
     plt.show()
