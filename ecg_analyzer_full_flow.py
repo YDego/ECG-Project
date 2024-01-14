@@ -3,16 +3,11 @@ import p_wave_detection
 import processing_functions as pf
 import lead_extractor as le
 import plot_manager as pm
-import csv
 import qrs_detection as qrs
 import t_wave_detection
 import numpy as np
+from project_variables import *
 
-SIGNAL_LEN_FOR_LUDB = 10
-SIGNAL_LEN_FOR_QT = 900
-SIGNAL_LEN_FOR_MIT = 1806
-WINDOW_SIZE_FOR_T_PEAKS = 0.070
-WINDOW_SIZE_FOR_P_PEAKS = 0.030
 
 dict_success = {}
 
@@ -47,23 +42,13 @@ def comparison_peaks(peaks_real_annotations, peaks_our_annotations, fs, margin_m
 
 
 def main():
-    dataset = ''
-    num_sets = 0
-    signal_len_in_time = 0
+
     all_signals = input("Perform QRS detection for all signals in ludb/qt/mit [input: l/q/m]? ")
-    if all_signals == 'l' or all_signals == 'q' or all_signals == 'm':
-        if all_signals == 'l':
-            dataset = 'ludb'
-            num_sets = 201
-            signal_len_in_time = SIGNAL_LEN_FOR_LUDB
-        elif all_signals == 'q':
-            dataset = 'qt'
-            num_sets = 106
-            signal_len_in_time = SIGNAL_LEN_FOR_QT
-        elif all_signals == 'm':
-            dataset = 'mit'
-            num_sets = 46
-            signal_len_in_time = SIGNAL_LEN_FOR_MIT
+    if all_signals in all_signals_input:
+
+        dataset = DATASETS[all_signals]
+        num_sets = NUM_OF_SETS[all_signals]
+        signal_len_in_time = SIGNAL_LEN[all_signals]
 
         dict_all_success_peaks = {'all_r_success': 0,
                                   'len_all_real_r_peaks': 0,
@@ -93,9 +78,7 @@ def main():
             for keys in dict_all_success_peaks.keys():
                 dict_all_success_peaks[keys] += all_success_tuple[index]
                 index += 1
-            pm.plot_signal_with_dots2(ecg_original['original_signal'][0], all_united, np.array(ecg_original['ann'][0]), ecg_original['fs'], 'ecg signal', 'all our annotations', 'all real annotations', i)
-
-
+            # pm.plot_signal_with_dots2(ecg_original['original_signal'][0], all_united, np.array(ecg_original['ann'][0]), ecg_original['fs'], 'ecg signal', 'all our annotations', 'all real annotations', i)
 
         for key, value in dict_success.items():
             print(key, ":", value)
@@ -139,7 +122,6 @@ def main():
 
         ecg_processed["signal"] = ecg_original["signal"]
         pm.plot_original_vs_processed(ecg_original, ecg_processed, seg, show_all_segments, plot_ann, plot_our_ann)
-
 
 
 if __name__ == "__main__":
