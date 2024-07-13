@@ -2,11 +2,24 @@ import numpy as np
 from scipy.signal import find_peaks
 
 
-def baseline_removal_moving_median(signal, fs):
-    window_size = int(0.2 * fs)  # 200ms window size
+def baseline_removal_moving_median(signal, fs, window_size_in_sec=0.2):
+    window_size = int(window_size_in_sec * fs)  # 200ms window size
     median = np.median(signal)
     baseline = np.convolve(signal, np.ones(window_size) / window_size, mode='same')
     return signal - baseline + median
+
+def band_pass_filter(cutoff_freq_down, cutoff_freq_up, signal, sampling_rate):
+    spectrum = fftshift(fft(signal))
+    spectrum[0:(round((len(spectrum) * (sampling_rate / 2 - cutoff_freq_up)) / sampling_rate) + 1)] = 0
+    spectrum[(signal.shape[-1] - round((len(spectrum) * (sampling_rate / 2 - cutoff_freq_up)) / sampling_rate)): (
+        signal.shape[-1])] = 0
+    spectrum_without_shift = (ifftshift(spectrum))
+    spectrum_without_shift[0:(round((len(spectrum_without_shift) * cutoff_freq_down) / sampling_rate) + 1)] = 0
+    spectrum_without_shift[
+        (signal.shape[-1] - round((len(spectrum_without_shift) * cutoff_freq_down) / sampling_rate)): (
+            signal.shape[-1])] = 0
+    filter_signal = np.real(ifft(spectrum_without_shift))
+    return filter_signal
 
 def compute_fft(signal, fs):
     freqs = np.fft.fftfreq(len(signal), 1/fs)
@@ -16,7 +29,7 @@ def compute_fft(signal, fs):
 
 def qrs_detection(ecg_signal, fs):
     # Apply band-pass filtering
-    filtered_signal = pf.band_pass_filter(8, 49, ecg_signal, fs)
+    filtered_signal = band_pass_filter(8, 49, ecg_signal, fs)
 
     # Cube the absolute values to enhance peaks
     cubed_signal = np.abs(filtered_signal) ** 3
