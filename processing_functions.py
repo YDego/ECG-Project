@@ -62,11 +62,13 @@ def find_peaks_above_threshold(signal, threshold):
     peaks, _ = find_peaks(signal, height=threshold)
     return peaks
 
+
 def t_wave_detection(ecg_signal, fs):
     # Placeholder for T-wave detection, assuming peaks with larger intervals
     distance = int(0.8 * fs)  # Minimum distance between T-waves (800ms)
     t_wave_peaks, _ = find_peaks(ecg_signal, distance=distance)
     return t_wave_peaks
+
 
 def p_wave_detection(ecg_signal, fs):
     # Placeholder for P-wave detection, assuming peaks with smaller intervals
