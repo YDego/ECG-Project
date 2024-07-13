@@ -5,9 +5,6 @@ import math
 
 
 
-
-
-
 # page 9-10
 def t_peak_detection(signal_without_qrs, fs, w1_size, k_factor, r_peaks, ecg_signal_filtered_by25, d_max=0.800, d_min=0.150):
     first_boi, ma_peak, ma_t_wave = block_of_interest(signal_without_qrs, fs, w1_size, w1_size * 2, 1) # TODO k factor changed

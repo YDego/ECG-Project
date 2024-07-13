@@ -63,15 +63,39 @@ def find_peaks_above_threshold(signal, threshold):
     return peaks
 
 
-def t_wave_detection(ecg_signal, fs):
-    # Placeholder for T-wave detection, assuming peaks with larger intervals
-    distance = int(0.8 * fs)  # Minimum distance between T-waves (800ms)
-    t_wave_peaks, _ = find_peaks(ecg_signal, distance=distance)
-    return t_wave_peaks
-
-
 def p_wave_detection(ecg_signal, fs):
     # Placeholder for P-wave detection, assuming peaks with smaller intervals
     distance = int(0.2 * fs)  # Minimum distance between P-waves (200ms)
     p_wave_peaks, _ = find_peaks(ecg_signal, distance=distance)
     return p_wave_peaks
+
+
+def moving_average(signal, window_size):
+    """ Compute moving average using a simple sliding window approach. """
+    cumsum_vec = np.cumsum(np.insert(signal, 0, 0))
+    return (cumsum_vec[window_size:] - cumsum_vec[:-window_size]) / window_size
+
+
+def t_wave_detection(signal, fs, qrs_indices):
+    """ Detect T-waves in an ECG signal given QRS indices. """
+    t_waves = []
+    window_size = int(0.1 * fs)  # Example window size: 100ms
+    for idx in qrs_indices:
+        start_idx = idx + window_size  # Start after QRS
+        end_idx = start_idx + window_size  # End after another window size
+        if end_idx < len(signal):
+            window = signal[start_idx:end_idx]
+            t_wave_idx = np.argmax(window) + start_idx
+            t_waves.append(t_wave_idx)
+    return t_waves
+
+
+def qrs_removal(signal, qrs_indices, fs):
+    """ Remove QRS complexes based on indices to focus on T waves. """
+    mask = np.ones(len(signal), dtype=bool)
+    for idx in qrs_indices:
+        start_idx = max(0, idx - int(0.05 * fs))  # 50ms before
+        end_idx = min(len(signal), idx + int(0.05 * fs))  # 50ms after
+        mask[start_idx:end_idx] = False
+    return signal[mask]
+

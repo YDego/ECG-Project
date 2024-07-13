@@ -12,6 +12,7 @@ class ECGProcessor:
         self.frequency_bins_segmented = []
         self.annotation_sample_segmented = []
         self.ann_markers_segmented = []
+        self.qrs_indices = []
         self.num_of_segments = 0
 
     def process(self):
@@ -27,11 +28,11 @@ class ECGProcessor:
         self.plot_segment(self.segmented_signals[0], title="Pre-Processed ECG Signal", annotations=self.annotation_sample_segmented[0], markers=self.ann_markers_segmented[0])
 
     def detect_qrs(self):
-        qrs_indices = pf.qrs_detection(self.segmented_signals[0], self.ecg_record.fs)
-        self.plot_segment(self.segmented_signals[0], title="QRS Detection", annotations=qrs_indices, markers=['R'] * len(qrs_indices))
+        self.qrs_indices = pf.qrs_detection(self.segmented_signals[0], self.ecg_record.fs)
+        self.plot_segment(self.segmented_signals[0], title="QRS Detection", annotations=self.qrs_indices, markers=['R'] * len(self.qrs_indices))
 
     def detect_t_wave(self):
-        t_wave_indices = pf.t_wave_detection(self.segmented_signals[0], self.ecg_record.fs)
+        t_wave_indices = pf.t_wave_detection(self.segmented_signals[0], self.ecg_record.fs, self.qrs_indices)
         self.plot_segment(self.segmented_signals[0], title="T Wave Detection", annotations=t_wave_indices, markers=['T'] * len(t_wave_indices))
 
     def detect_p_wave(self):
