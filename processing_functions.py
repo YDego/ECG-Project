@@ -1,124 +1,30 @@
-# import matplotlib.pyplot as plt
 import numpy as np
-from scipy.fftpack import fft, fftfreq, ifft, fftshift, ifftshift
-import pywt
-import copy
-# from wfdb import processing
-# from scipy.signal import butter
-# from scipy import signal
-
+from scipy.signal import find_peaks
 
 def baseline_removal_moving_median(signal, fs):
-    """
-    Perform baseline removal using a moving median.
+    window_size = int(fs * 0.2)  # 200ms window
+    baseline = np.convolve(signal, np.ones(window_size)/window_size, mode='same')
+    return signal - baseline
 
-    Parameters:
-    -----------
-    signal : numpy array
-        The signal to be filtered.
-    window_size : int
-        The size of the window for the moving median filter.
+def compute_fft(signal, fs):
+    freqs = np.fft.fftfreq(len(signal), 1/fs)
+    fft_vals = np.abs(np.fft.fft(signal))
+    return fft_vals, freqs
 
-    Returns:
-    --------
-    filtered_signal : numpy array
-        The baseline-corrected signal.
-    """
-    window_size = 2 * fs
-    filtered_signal = signal - np.convolve(signal, np.ones(window_size) / window_size, mode='same')
-    filtered_signal = filtered_signal - np.convolve(filtered_signal, np.ones(window_size) / window_size, mode='same')
-    return filtered_signal
+def qrs_detection(ecg_signal, fs):
+    # Example implementation using a simple peak detector
+    distance = int(0.6 * fs)  # Minimum distance between peaks (600ms)
+    qrs_peaks, _ = find_peaks(ecg_signal, distance=distance)
+    return qrs_peaks
 
+def t_wave_detection(ecg_signal, fs):
+    # Placeholder for T-wave detection, assuming peaks with larger intervals
+    distance = int(0.8 * fs)  # Minimum distance between T-waves (800ms)
+    t_wave_peaks, _ = find_peaks(ecg_signal, distance=distance)
+    return t_wave_peaks
 
-def low_pass_filter(cutoff_freq, signal, sampling_rate):
-    spectrum = fftshift(fft(signal))
-    freq = fftshift(fftfreq(signal.shape[-1], 1 / sampling_rate))
-    spectrum[0:(round((len(spectrum) * (sampling_rate / 2 - cutoff_freq)) / sampling_rate) + 1)] = 0
-    spectrum[(signal.shape[-1] - round((len(spectrum) * (sampling_rate / 2 - cutoff_freq)) / sampling_rate)): (
-        signal.shape[-1])] = 0
-    filter_signal = ifft(ifftshift(spectrum))
-    return filter_signal, freq, spectrum
-
-
-def high_pass_filter(cutoff_freq, signal, sampling_rate):
-    freq = fftshift(fftfreq(signal.shape[-1], 1 / sampling_rate))
-    spectrum_without_shift = (fft(signal))
-    spectrum_without_shift[0:(round((len(spectrum_without_shift) * cutoff_freq) / sampling_rate) + 1)] = 0
-    spectrum_without_shift[
-        (signal.shape[-1] - round((len(spectrum_without_shift) * cutoff_freq) / sampling_rate)): (signal.shape[-1])] = 0
-    filter_signal = ifft(spectrum_without_shift)
-    return filter_signal, freq, fftshift(spectrum_without_shift)
-
-
-def band_pass_filter(cutoff_freq_down, cutoff_freq_up, signal, sampling_rate):
-    # freq = fftshift(fftfreq(signal.shape[-1], 1 / sampling_rate))
-    spectrum = fftshift(fft(signal))
-    spectrum[0:(round((len(spectrum) * (sampling_rate / 2 - cutoff_freq_up)) / sampling_rate) + 1)] = 0
-    spectrum[(signal.shape[-1] - round((len(spectrum) * (sampling_rate / 2 - cutoff_freq_up)) / sampling_rate)): (
-        signal.shape[-1])] = 0
-    spectrum_without_shift = (ifftshift(spectrum))
-    spectrum_without_shift[0:(round((len(spectrum_without_shift) * cutoff_freq_down) / sampling_rate) + 1)] = 0
-    spectrum_without_shift[
-        (signal.shape[-1] - round((len(spectrum_without_shift) * cutoff_freq_down) / sampling_rate)): (
-            signal.shape[-1])] = 0
-    filter_signal = np.real(ifft(spectrum_without_shift))
-    return filter_signal
-
-
-def compute_fft(signal, sample_rate):
-    N = len(signal)
-    fft_signal = np.abs(fft(signal-np.mean(signal))[0:N // 2])
-    frequency_bins = fftfreq(N, 1/sample_rate)[:N // 2]
-
-    return fft_signal, frequency_bins
-
-
-def wavelet_filter(signal):
-    wavelet = pywt.Wavelet('db2')
-    # levdec = min(pywt.dwt_max_level(signal.shape[-1], wavelet.dec_len), 6)
-    Ca4, Cd4, Cd3, Cd2, Cd1 = pywt.wavedec(signal, wavelet=wavelet, level=4)
-    Ca4, Cd2, Cd1 = np.zeros(Ca4.shape[-1]), np.zeros(Cd2.shape[-1]), np.zeros(Cd1.shape[-1])
-    filtered_signal = pywt.waverec([Ca4, Cd4, Cd3, Cd2, Cd1], wavelet)
-    return filtered_signal
-
-
-def ecg_pre_processing(ecg_dict):
-    fs = ecg_dict['fs']
-    ecg_processed = copy.deepcopy(ecg_dict)
-    for i in range(ecg_dict['num_of_segments']):
-
-        processed_signal = ecg_processed['signal'][i]
-
-        # Baseline removal
-        processed_signal = baseline_removal_moving_median(processed_signal, fs)
-
-        """
-        if input("Perform powerline filter [y/N]? ") == "y":
-            # Remove powerline interference
-            powerline = [50, 60]
-            bandwidth = 1
-            ecg_filtered['signal'] = notch_filter(ecg_filtered['signal'], powerline, bandwidth, fs)
-    
-        if input("Perform BP filter [y/N]? ") == "y":
-            # Remove high frequency noise
-            ecg_filtered['signal'] = band_pass_filter(0.5, 50, ecg_filtered['signal'], fs)
-    
-        if input("Perform Wavelet filter [y/N]? ") == "y":
-            # Remove high frequency noise
-            ecg_filtered['signal'] = wavelet_filter(ecg_filtered['signal'])
-        """
-        ecg_processed['signal'][i] = processed_signal
-        ecg_processed['fft'][i], ecg_processed['frequency_bins'][i] = compute_fft(ecg_processed["signal"][i], fs)
-
-    return ecg_processed
-
-
-def dict_compare(d1, d2):
-    d1_keys = set(d1.keys())
-    d2_keys = set(d2.keys())
-    shared_keys = d1_keys.intersection(d2_keys)
-    added = d1_keys - d2_keys
-    removed = d2_keys - d1_keys
-    modified = {o : (d1[o], d2[o]) for o in shared_keys if d1[o] != d2[o]}
-    same = set(o for o in shared_keys if d1[o] == d2[o])
-    print('dict compare result: \nadded: {},\nremoved: {},\nmodified: {},\nsame: {}'.format(added, removed, modified, same))
+def p_wave_detection(ecg_signal, fs):
+    # Placeholder for P-wave detection, assuming peaks with smaller intervals
+    distance = int(0.2 * fs)  # Minimum distance between P-waves (200ms)
+    p_wave_peaks, _ = find_peaks(ecg_signal, distance=distance)
+    return p_wave_peaks
