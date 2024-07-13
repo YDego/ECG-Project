@@ -2,6 +2,7 @@ import numpy as np
 import processing_functions as pf
 import matplotlib.pyplot as plt
 
+
 class ECGProcessor:
     def __init__(self, ecg_record, signal_len):
         self.ecg_record = ecg_record
@@ -65,7 +66,8 @@ class ECGProcessor:
 
         return segmented_signals
 
-    def plot_segment(self, signal, title, annotations=None, markers=None):
+    @staticmethod
+    def plot_segment(signal, title, annotations=None, markers=None):
         plt.figure(figsize=(10, 4))
         plt.plot(signal, label='Processed ECG Signal')
         if annotations is not None and markers is not None and len(annotations) > 0 and len(markers) > 0:

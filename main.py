@@ -3,6 +3,7 @@ from ecg_record import ECGRecord
 from ecg_processor import ECGProcessor
 import processing_functions as pf
 
+
 def main():
     selected_dataset = input("Choose a dataset (ludb, qt, mit) [default ludb]: ") or 'ludb'
     dataset = ECGDataset.load_dataset(selected_dataset)
@@ -23,6 +24,7 @@ def main():
     processor.plot_segment(processor.segmented_signals[0], title="Processed ECG Signal with Annotations", annotations=processor.annotation_sample_segmented[0], markers=processor.ann_markers_segmented[0])
 
     print("ECG processing complete.")
+
 
 if __name__ == "__main__":
     main()
