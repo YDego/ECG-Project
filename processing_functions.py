@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.fftpack import fft, fftfreq, ifft, fftshift, ifftshift
 from scipy.signal import find_peaks
 
 
@@ -7,6 +8,7 @@ def baseline_removal_moving_median(signal, fs, window_size_in_sec=0.2):
     median = np.median(signal)
     baseline = np.convolve(signal, np.ones(window_size) / window_size, mode='same')
     return signal - baseline + median
+
 
 def band_pass_filter(cutoff_freq_down, cutoff_freq_up, signal, sampling_rate):
     spectrum = fftshift(fft(signal))
@@ -21,6 +23,7 @@ def band_pass_filter(cutoff_freq_down, cutoff_freq_up, signal, sampling_rate):
     filter_signal = np.real(ifft(spectrum_without_shift))
     return filter_signal
 
+
 def compute_fft(signal, fs):
     freqs = np.fft.fftfreq(len(signal), 1/fs)
     fft_vals = np.abs(np.fft.fft(signal))
@@ -28,33 +31,36 @@ def compute_fft(signal, fs):
 
 
 def qrs_detection(ecg_signal, fs):
-    # Apply band-pass filtering
+    # Apply band-pass filter
     filtered_signal = band_pass_filter(8, 49, ecg_signal, fs)
 
-    # Cube the absolute values to enhance peaks
-    cubed_signal = np.abs(filtered_signal) ** 3
-    mean_val = np.mean(cubed_signal)
+    # Enhance the signal by squaring
+    processed_signal = filtered_signal ** 3
 
-    # Apply a threshold to the signal
-    thresholded_signal = np.where(cubed_signal > mean_val, cubed_signal, mean_val)
+    # threshold
+    threshold = np.mean(processed_signal[round(0.1*fs): processed_signal.shape[-1] - round(0.1*fs)])
 
-    # Detect potential QRS complexes
-    qrs_candidates = pf.detect_qrs_complexes(thresholded_signal, fs)
+    # Adjust the signal ends
+    processed_signal = adjust_signal_ends(processed_signal, fs)
 
-    # Refine QRS detection by analyzing the morphology
-    qrs_peaks = refine_qrs_detection(qrs_candidates, filtered_signal, fs)
+    # Dynamic thresholding
+    threshold = np.mean(processed_signal)
+    qrs_indices = find_peaks_above_threshold(processed_signal, threshold)
 
-    return qrs_peaks
+    return qrs_indices
 
-def refine_qrs_detection(candidates, signal, fs):
-    # Placeholder for a function to refine detected QRS candidates
-    # This might involve additional filtering or morphological analysis
-    refined_peaks = []
-    for candidate in candidates:
-        # Implement logic to refine each candidate peak
-        if True:  # Condition to accept the candidate
-            refined_peaks.append(candidate)
-    return refined_peaks
+
+def adjust_signal_ends(signal, fs):
+    trim_size = round(0.1 * fs)
+    mean_value = np.mean(signal[trim_size:-trim_size])
+    signal[:trim_size] = mean_value
+    signal[-trim_size:] = mean_value
+    return signal
+
+
+def find_peaks_above_threshold(signal, threshold):
+    peaks, _ = find_peaks(signal, height=threshold)
+    return peaks
 
 def t_wave_detection(ecg_signal, fs):
     # Placeholder for T-wave detection, assuming peaks with larger intervals
