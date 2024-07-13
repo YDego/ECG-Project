@@ -1,15 +1,110 @@
-import numpy as np
-import qrs_detection
+import statistics
+
+import qrs_detection as qrs
 import plot_manager as pm
 import math
+import numpy as np
+import lead_extractor as le
+import copy
+import processing_functions as pf
+import scipy
+
+## function to run without any tests
+def main_t_peak_detection(ecg_dict_original, w1_size, signal_len_in_time, which_r_ann, real_q_s_ann=False):
+    fs = ecg_dict_original['fs']
+    ecg_dict_copy = copy.deepcopy(ecg_dict_original)
+    t_peak_selected_all_seg_list = []
+    for seg in range(ecg_dict_copy['num_of_segments']):
+        signal = ecg_dict_copy['original_signal'][seg]
+        b, a = scipy.signal.butter(2, [0.5, 10], btype='bandpass', output='ba', fs=fs)
+        signal = scipy.signal.filtfilt(b, a, signal)
+        q_ann, s_ann = qrs.find_q_s_ann(ecg_dict_original, seg, True, True, realLabels=real_q_s_ann)
+        if q_ann.size <= 1 or s_ann.size <= 1:
+            continue
+        signal_without_qrs = qrs_removal(signal, seg, q_ann, s_ann)
+        # pm.plot_signal_with_dots2(signal, s_ann, q_ann, fs, 'signal', 's ann', 'q ann', i)
+        r_peaks = qrs.r_peaks_annotations(ecg_dict_original, which_r_ann, seg)
+        if r_peaks.size <= 1:
+            print(f'there is only {r_peaks.size} peaks')
+            continue
+        k_factor = 1
+        b, a = scipy.signal.butter(2, [0.5, 25], btype='bandpass', output='ba', fs=fs)
+        ecg_signal_filtered = scipy.signal.filtfilt(b, a, ecg_dict_original['original_signal'][seg])
+        t_start, t_peak_normal, t_end, quality_factors = t_peak_detection_aux(signal_without_qrs, fs,
+                                                                                               w1_size, k_factor,
+                                                                                               r_peaks,
+                                                                                               ecg_signal_filtered, 0.7,
+                                                                                               0.15)
+
+        t_start_low, t_peak_low, t_end_low, quality_factors_low = t_peak_detection_aux(
+            -signal_without_qrs, fs, w1_size,
+            k_factor, r_peaks, -ecg_signal_filtered,
+            0.7, 0.15)
+        #print(quality_factors, quality_factors_low)
+
+        decision_threshold = 0.25  # 0 to 1
+
+        t_peak_location = []
+        for r_idx, r_peak in enumerate(r_peaks):
+
+            if r_idx + 1 == len(r_peaks):
+                break
+            qf_max = quality_factors[r_idx]
+            qf_min = quality_factors_low[r_idx]
+
+            next_r = r_peaks[r_idx + 1]
+            t_max = find_t_between_r(r_peak, next_r, t_peak_normal)
+            t_min = find_t_between_r(r_peak, next_r, t_peak_low)
+
+            if t_min is None and t_max is None:
+                t_peak_location.append(-1)
+                continue
+            elif t_min is None:
+                t_peak_location.append(t_max)
+                continue
+            elif t_max is None:
+                t_peak_location.append(t_min)
+                continue
+            median = statistics.median(ecg_signal_filtered[r_peaks[r_idx]:r_peaks[r_idx+1]])
+            #print(median)
+            amp_normal = abs(ecg_signal_filtered[t_max] - median)
+            amp_low = abs(ecg_signal_filtered[t_min] - median)
+            t_peak_selected = t_peak_classifier(t_max, t_min, qf_max, qf_min, amp_normal, amp_low, decision_threshold)
+            t_peak_location.append(t_peak_selected)
+
+        t_peak_selected_all_seg_list.extend(np.array(t_peak_location) + seg * signal_len_in_time * fs)
+
+    t_peak_selected_all_seg_np = np.array(t_peak_selected_all_seg_list)
+    return t_peak_selected_all_seg_np
+
+
+def t_peak_classifier(t_normal, t_low, qf_normal, qf_low, amp_normal, amp_low, threshold=0):
+    # check if diff is lower than threshold
+    qf_check = abs(qf_normal-qf_low) / max(qf_normal, qf_low) > threshold
+    amp_check = abs(amp_normal-amp_low) / max(amp_normal, amp_low) > threshold
+    if qf_check:
+        if qf_normal > qf_low:
+            return t_normal
+        return t_low
+    elif amp_check:
+        if amp_normal > amp_low:
+            return t_normal
+        return t_low
+    else:
+        return min(t_normal, t_low)
 
 
 
-
+def find_t_between_r(this_r, next_r, t_list):
+    for t in t_list:
+        if not this_r < t < next_r:
+            continue
+        else:
+            return t
 
 
 # page 9-10
-def t_peak_detection(signal_without_qrs, fs, w1_size, k_factor, r_peaks, ecg_signal_filtered_by25, d_max=0.800, d_min=0.150):
+def t_peak_detection_aux(signal_without_qrs, fs, w1_size, k_factor, r_peaks, ecg_signal_filtered_by25, d_max=0.800, d_min=0.150):
     first_boi, ma_peak, ma_t_wave = block_of_interest(signal_without_qrs, fs, w1_size, w1_size * 2, 1) # TODO k factor changed
     #pm.plot_2_signals(signal_without_qrs, first_boi, fs, 'signal without qrs', 'initial block of interests')
     new_boi = thresholding(fs, first_boi, r_peaks, w1_size, k_factor, d_max, d_min)
@@ -141,7 +236,12 @@ def find_real_blocks(original_signal, fs, signal_filtered, r_peaks, boi, ma_peak
         quality_factor_for_beats = np.zeros(number_of_intervals, dtype=float)
         factor_functions_list = []
         for index in range(0, number_of_intervals):
+            #if index > 843:
+            #    break
+            #print(index, number_of_intervals)
             window_len_interval = r_peaks[index+1] - r_peaks[index]
+            if window_len_interval == 0:
+                continue
             t_potential_start_one_interval = t_potential_start[r_peaks[index] < t_potential_start]
             t_potential_start_one_interval = t_potential_start_one_interval[t_potential_start_one_interval < r_peaks[index + 1]]
             t_potential_end_one_interval = t_potential_end[r_peaks[index] < t_potential_end]
@@ -214,11 +314,14 @@ def choose_one_block(t_potential_start, t_potential_end, ma_peak, ma_t_wave, fac
 def create_factor_function(initial_value, middle_value, final_value, window_len):
     function = np.zeros(window_len, dtype=float)
     first_window_size = int(0.27*window_len - 1)# TODO
+    if window_len == 0:
+        print('what the hell')
     m1 = (middle_value - initial_value) / (first_window_size - 1)
     m2 = (final_value - middle_value) / (window_len - first_window_size)
     for index in range(first_window_size):
         function[index] = initial_value + m1*index
     for index2 in range(first_window_size, window_len):
+        #print(index2, first_window_size, window_len)
         function[index2] = middle_value * math.exp(2*m2*(index2 - first_window_size + 1))
         #function[index2] = middle_value + m2 * (index2 - first_window_size + 1)
     # print(function.size, function)
@@ -244,15 +347,29 @@ def union_block_of_interest(boi_diff, min_size_of_window_to_union, max_distance_
     return boi_diff
 
 
-def t_peaks_annotations(ecg_original, chosen_ann, seg):
+
+
+def t_peaks_annotations(ecg_original, chosen_ann, seg=0, all_seg=False):
     fs = ecg_original['fs']
     signal_len_in_time = ecg_original['signal_len']
+    annotations_samples = []
+    annotations_markers = []
     if chosen_ann == "real":
-        annotations_samples = ecg_original["ann"][seg]
-        annotations_markers = ecg_original["ann_markers"][seg]
+        if all_seg:
+            for seg in range(ecg_original["num_of_segments"]):
+                annotations_samples.extend(ecg_original["ann"][seg])
+                annotations_markers.extend(ecg_original["ann_markers"][seg])
+        else:
+            annotations_samples = ecg_original["ann"][seg]
+            annotations_markers = ecg_original["ann_markers"][seg]
     else:
-        annotations_samples = ecg_original["our_ann"][seg]
-        annotations_markers = ecg_original["our_ann_markers"][seg]
+        if all_seg:
+            for seg in range(ecg_original["num_of_segments"]):
+                annotations_samples.extend(ecg_original["our_ann"][seg])
+                annotations_markers.extend(ecg_original["our_ann_markers"][seg])
+        else:
+            annotations_samples = ecg_original["our_ann"][seg]
+            annotations_markers = ecg_original["our_ann_markers"][seg]
     len_ann = len(annotations_samples)
     t_annotations = np.zeros(len_ann, dtype=int)
     for index, marker in enumerate(annotations_markers):
@@ -264,14 +381,13 @@ def t_peaks_annotations(ecg_original, chosen_ann, seg):
     t_annotations = t_annotations - seg * signal_len_in_time * fs
     return t_annotations
 
-
 def comparison_t_peaks(t_peaks_real_annotations, t_peaks_our_annotations, fs, r_intervals_size, margin_mistake_in_sec=0.030):
     distance_from_real = np.zeros(t_peaks_real_annotations.size, dtype=int)
     success = 0
     margin_mistake = round(margin_mistake_in_sec*fs)
 
     for i in range(distance_from_real.size):
-        for j in range(len(t_peaks_our_annotations)):
+        for j in range(t_peaks_our_annotations.size):
             if t_peaks_our_annotations[j] != -1:
                 distance = abs(t_peaks_real_annotations[i] - t_peaks_our_annotations[j])
             else:
@@ -281,101 +397,11 @@ def comparison_t_peaks(t_peaks_real_annotations, t_peaks_our_annotations, fs, r_
                 t_peaks_our_annotations[j] = -1
                 success = success + 1
                 break  # break the t_peaks_our_ann for
-        if distance_from_real[i] == 0:
-            print(t_peaks_real_annotations[i] / fs)
+        # if distance_from_real[i] == 0:
+        #    print(t_peaks_real_annotations[i] / fs)
     return success, distance_from_real.size
 
 
-def gaussian(x, mu, sig):
-    g = 1.0 / (np.sqrt(2.0 * np.pi) * sig) * np.exp(-np.power((x - mu) / sig, 2.0) / 2)
-
-    return g/np.max(g)
 
 
-def unit_func(x_values, c=2):
-    return 1 / (1 + np.exp(- 2 * c * x_values))
 
-
-def get_location_factor(norm_index):
-    g = generate_location_func()
-    return g[round(norm_index * 100)]  # between 1 and zero
-
-
-def get_peak_height(signal_without_dc, signal_moving_average, t_peak):
-    return np.abs(signal_without_dc[t_peak] - signal_moving_average[t_peak])  # no exact range
-
-
-def generate_location_func(height=1, plot=False):
-    x_values = np.linspace(0, 1, 100)
-    c = 5.5
-    a = 0.05
-    sig = 0.3
-    mu = 0.25
-
-    g = gaussian(x_values, mu, sig)
-    ramp = unit_func(x_values-a, c) * unit_func(-(x_values-(0.8-a)), c)
-    g = g * ramp
-    g = height * g / np.max(g)
-
-    if plot:
-        from matplotlib import pyplot as mp
-        mp.plot(x_values, g)
-        mp.show()
-
-    return g
-
-
-def find_t_between_r(this_r, next_r, t_list):
-    for t in t_list:
-        if not this_r < t < next_r:
-            continue
-        else:
-            return t
-
-
-def choose_t_peak(max_score, min_score, t_max, t_min, inverted, threshold=0):
-    if threshold != 0 and abs(max_score - min_score) <= threshold:
-        return min(t_min, t_max), True
-    else:
-        is_correct = (max_score < min_score) == inverted
-        if min_score > max_score:
-            return t_min, is_correct
-        else:
-            return t_max, is_correct
-
-
-def calculate_total_score(signal_without_dc, signal_moving_average, t_min, t_max, qf_min_avg, qf_max_avg, norm_idx_minima, norm_idx_maxima, inverted, to_plot=False):
-    ratio_factor = 1.5
-    ph_max = get_peak_height(signal_without_dc, signal_moving_average, t_max) * ratio_factor
-    ph_min = get_peak_height(signal_without_dc, signal_moving_average, t_min)
-    ph_max, ph_min = norm_values(ph_max, ph_min)
-
-    loc_max = get_location_factor(norm_idx_maxima)
-    loc_min = get_location_factor(norm_idx_minima)
-
-    qf_max_avg, qf_min_avg = norm_values(qf_max_avg, qf_min_avg)
-
-    total_score_max = total_score_function(ph_max, loc_max, qf_max_avg)
-    total_score_min = total_score_function(ph_min, loc_min, qf_min_avg)
-    total_score_max, total_score_min = norm_values(total_score_max, total_score_min)
-
-    selected_t_peak, is_correct = choose_t_peak(total_score_max, total_score_min, t_max, t_min, inverted)
-    if to_plot:
-        pairs = [[ph_max, ph_min], [loc_max, loc_min], [qf_max_avg, qf_min_avg], [total_score_max, total_score_min]]
-        pair_titles = ['Peak height', 'location factor', 'quality factor', 'Total score']
-        pm.plot_scores_pairs(pairs, inverted, pair_titles)
-
-    return selected_t_peak, is_correct
-
-
-def total_score_function(ph, loc, qf):
-    total_score = qf
-    return total_score
-
-
-def norm_values(max_val, min_val):
-    return max_val/max(max_val, min_val), min_val/max(max_val, min_val)
-
-
-if __name__ == "__main__":
-    generate_location_func(plot=True)

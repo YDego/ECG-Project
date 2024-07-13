@@ -170,43 +170,18 @@ def plot_signal_with_dots(signal1 , signal2, fs , label1='None' , label2='None',
     plt.show()
 
 
-def plot_signal_with_dots2(signal1, signal2, signal3, fs , label1 , label2, label3, record_number, seg=0, record_len=10):
-    signal1_len = len(signal1)
-
+def plot_signal_with_dots2(signal1 , signal2, signal3, fs , label1 , label2, label3, record_number, seg=0, record_len=10):
     time = [(i / fs) + seg * record_len for i in range(len(signal1))]
     fig, ax = plt.subplots()
     ax.plot(time, signal1, color='red', label=label1)
     on_time2 = signal2 * (1/fs) + seg * record_len
     on_time3 = signal3 * (1/fs) + seg * record_len
-    ax.plot(on_time2, signal1[signal2],color='y', linestyle='None', marker='o', label=label2)
-    ax.plot(on_time3, signal1[signal3],color='b', linestyle='None', marker='x', label=label3)
+    ax.plot(on_time2, signal1[signal2],color='b', linestyle='None', marker='x', label=label2)
+    ax.plot(on_time3, signal1[signal3],color='m', linestyle='None', marker='o', label=label3)
     # Enable legend
     ax.legend()
     ax.set_title(f'record number {record_number} seg {seg}')
     plt.show()
-
-
-def plot_signal_with_dots3(signal1, signal2, signal3, signal4, fs, label1, label2, label3, label4, record_number, seg=0,
-                           record_len=10):
-    signal1_len = len(signal1)
-
-    time = [(i / fs) + seg * record_len for i in range(len(signal1))]
-    fig, ax = plt.subplots()
-    ax.plot(time, signal1, color='red', label=label1)
-    on_time2 = signal2 * (1 / fs) + seg * record_len
-    on_time3 = signal3 * (1 / fs) + seg * record_len
-    on_time4 = signal4 * (1 / fs) + seg * record_len
-
-    ax.plot(on_time3, signal1[signal3], color='y', linestyle='None', marker='^', label=label3)
-    ax.plot(on_time4, signal1[signal4], color='y', linestyle='None', marker='v', label=label4)
-    ax.plot(on_time2, signal1[signal2], color='b', linestyle='None', marker='x', label=label2)
-
-    # Enable legend
-    ax.legend()
-    ax.set_title(f'record number {record_number} seg {seg}')
-    plt.show()
-
-
 def plot_2_signals(signal1 , signal2,  fs , label1='None', label2='None'):
     time = [i / fs for i in range(len(signal1))]
 
@@ -232,40 +207,13 @@ def plot_3_signals(signal1, signal2, signal3,  fs, label1='None', label2='None',
     plt.show()
 
 
-def plot_hist(x):
-    plt.hist(x, bins=100)
+
+def plot_signal(signal1,  fs, label1='None'):
+    time = [i / fs for i in range(len(signal1))]
+
+    fig, ax = plt.subplots()
+    ax.plot(time, signal1, color='r', label=label1)
+    # Enable legend
+    ax.legend()
+    ax.set_title("title")
     plt.show()
-
-
-def plot_scores_pairs(values_pairs, inverted=False, titles=None):
-    fig = plt.figure(figsize=(10, 5))
-
-    if inverted:
-        color_bar = ['grey', 'green']
-    else:
-        color_bar = ['green', 'grey']
-
-    # Extracting the pairs of values
-    maxima_score = [pair[0] for pair in values_pairs]
-    minima_score = [pair[1] for pair in values_pairs]
-
-    # Creating the bar plot
-    bar_width = 0.4
-    bar_positions = np.arange(len(maxima_score))
-
-    plt.bar(bar_positions, maxima_score, color=color_bar[0], width=bar_width, label='Maxima peak score')
-    plt.bar(bar_positions + bar_width, minima_score, color=color_bar[1], width=bar_width,
-            label='Minima (inverted) peak score')
-
-    plt.ylabel("Score")
-    plt.title("Score View")
-
-    if titles:
-        plt.xticks(bar_positions + bar_width / 2, titles)
-
-    plt.legend()
-    plt.show()
-
-
-
-

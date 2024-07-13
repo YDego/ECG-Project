@@ -36,7 +36,7 @@ def detect_qrs_single_segment(ecg_original_copy, seg):
             all_dots = np.delete(all_dots, np.where(all_dots == dot))
             continue
         _, extra_close_dot, _ = detection_qrs_aux_new(signal[dot:dot+re_check_samples], threshold/2, 0.6, 1, True, fs)
-        closed_dots = np.concatenate((extra_close_dot + dot, closed_dots))
+        closed_dots = np.concatenate((extra_close_dot + dot, closed_dots), axis=None)
 
     for dot in single_closed_dots:
         if dot < re_check_samples:
@@ -44,14 +44,15 @@ def detect_qrs_single_segment(ecg_original_copy, seg):
             all_dots = np.delete(all_dots, np.where(all_dots == dot))
             continue
         extra_open_dot, _, _ = detection_qrs_aux_new(signal[dot - re_check_samples:dot], threshold/2, 0.6, 0, True, fs)
-        open_dots = np.concatenate((dot - re_check_samples + extra_open_dot, open_dots))
+        open_dots = np.concatenate((dot - re_check_samples + extra_open_dot, open_dots), axis=None)
 
     closed_dots = sorted(closed_dots)
     open_dots = sorted(open_dots)
     r_peaks = find_r_peak(open_dots, closed_dots, new_signal, fs)
     all_dots = sorted(np.concatenate((open_dots, r_peaks, closed_dots)))
-    ecg_original_copy["our_ann"].append(all_dots)
-    ecg_original_copy["our_ann_markers"].append(np.zeros(len(all_dots), dtype=str))
+
+    ecg_original_copy["our_ann"].append(list(all_dots))
+    ecg_original_copy["our_ann_markers"].append(list(np.zeros(len(all_dots), dtype=str)))
     for index, dot in enumerate(all_dots):
         if dot in open_dots:
             ecg_original_copy["our_ann_markers"][-1][index] = '('
@@ -194,7 +195,7 @@ def detection_qrs_aux_new(signal, threshold, margin_error, start_from, one_point
     open_dots = open_dots[open_dots != 0]
     closed_dots = closed_dots[closed_dots != 0]
     closed_dots = np.flip(closed_dots)
-    all_dots = np.concatenate((open_dots, closed_dots))
+    all_dots = np.concatenate((open_dots, closed_dots), axis=None)
     all_dots = sorted(all_dots)
     return open_dots, closed_dots, all_dots
 
@@ -241,20 +242,32 @@ def check_radius_closed_dot(signal, index, threshold, distance, margin_error):
 
 
 ### changed at 16.6.23 - 22:45
-def r_peaks_annotations(ecg_original, chosen_ann, seg):
+def r_peaks_annotations(ecg_original, chosen_ann, seg=0, all_seg=False):
     fs = ecg_original['fs']
     signal_len_in_time = ecg_original['signal_len']
+    annotations_samples = []
+    annotations_markers = []
     if chosen_ann == "real":
-        real_annotations_samples = ecg_original["ann"][seg]
-        real_annotations_markers = ecg_original["ann_markers"][seg]
+        if all_seg:
+            for seg in range(ecg_original["num_of_segments"]):
+                annotations_samples.extend(ecg_original["ann"][seg])
+                annotations_markers.extend(ecg_original["ann_markers"][seg])
+        else:
+            annotations_samples = ecg_original["ann"][seg]
+            annotations_markers = ecg_original["ann_markers"][seg]
     else:
-        real_annotations_samples = ecg_original["our_ann"][seg]
-        real_annotations_markers = ecg_original["our_ann_markers"][seg]
+        if all_seg:
+            for seg in range(ecg_original["num_of_segments"]):
+                annotations_samples.extend(ecg_original["our_ann"][seg])
+                annotations_markers.extend(ecg_original["our_ann_markers"][seg])
+        else:
+            annotations_samples = ecg_original["our_ann"][seg]
+            annotations_markers = ecg_original["our_ann_markers"][seg]
 
-    r_peaks_real_annotations = np.zeros(len(real_annotations_samples), dtype=int)
-    for index, marker in enumerate(real_annotations_markers):
+    r_peaks_real_annotations = np.zeros(len(annotations_samples), dtype=int)
+    for index, marker in enumerate(annotations_markers):
         if marker == 'N' or marker == 'n': ## r_peak marker is 'N'
-            r_peaks_real_annotations = np.insert(r_peaks_real_annotations, 0, real_annotations_samples[index])
+            r_peaks_real_annotations = np.insert(r_peaks_real_annotations, 0, annotations_samples[index]) ## check with my version todo -> annotations_sampels , was markers
 
     r_peaks_real_annotations = r_peaks_real_annotations[r_peaks_real_annotations != 0]
     r_peaks_real_annotations = np.sort(r_peaks_real_annotations)
@@ -413,21 +426,33 @@ def find_r_peak(q_peak, s_peak, original_signal, fs):
     return r_peak
 
 
-def find_q_s_ann(ecg_original_copy, seg, findQann , findSann, realLabels = True):
+def find_q_s_ann(ecg_original_copy, seg=0, findQann = False , findSann = False, realLabels = True, all_seg=False):
     fs = ecg_original_copy['fs']
     signal_len_in_time = ecg_original_copy['signal_len']
+    ann = []
+    ann_markers = []
     if realLabels:
-        ann = ecg_original_copy["ann"][seg]
-        ann_markers = ecg_original_copy["ann_markers"][seg]
+        if all_seg:
+            for seg in range(ecg_original_copy["num_of_segments"]):
+                ann.extend(ecg_original_copy["ann"][seg])
+                ann_markers.extend(ecg_original_copy["ann_markers"][seg])
+        else:
+            ann = ecg_original_copy["ann"][seg]
+            ann_markers = ecg_original_copy["ann_markers"][seg]
     else:
-        ann = ecg_original_copy["our_ann"][seg]
-        ann_markers = ecg_original_copy["our_ann_markers"][seg]
+        if all_seg:
+            for seg in range(ecg_original_copy["num_of_segments"]):
+                ann.extend(ecg_original_copy["our_ann"][seg])
+                ann_markers.extend(ecg_original_copy["our_ann_markers"][seg])
+        else:
+            ann = ecg_original_copy["our_ann"][seg]
+            ann_markers = ecg_original_copy["our_ann_markers"][seg]
 
     if findQann:
         q_ann = np.zeros(len(ann), dtype=int)
         q_ann_size = 0
-        for index in range(0 ,len(ann_markers) - 1):
-            if ann_markers[index] == '(' and ann_markers[index + 1] == 'N':
+        for index in range(0, len(ann_markers) - 1):
+            if ann_markers[index] == '(' and (ann_markers[index + 1] == 'N' or ann_markers[index + 1] == 'n'):
                 q_ann[q_ann_size] = ann[index]
                 q_ann_size = q_ann_size + 1
         q_ann = q_ann[q_ann != 0]
@@ -438,7 +463,7 @@ def find_q_s_ann(ecg_original_copy, seg, findQann , findSann, realLabels = True)
         s_ann = np.zeros(len(ann), dtype=int)
         s_ann_size = 0
         for index in range(1, len(ann_markers)):
-            if ann_markers[index] == ')' and ann_markers[index - 1] == 'N':
+            if ann_markers[index] == ')' and (ann_markers[index - 1] == 'N' or ann_markers[index - 1] == 'n'):
                 s_ann[s_ann_size] = ann[index]
                 s_ann_size = s_ann_size + 1
         s_ann = s_ann[s_ann != 0]
@@ -448,3 +473,4 @@ def find_q_s_ann(ecg_original_copy, seg, findQann , findSann, realLabels = True)
     q_ann = q_ann - seg * signal_len_in_time * fs
     s_ann = s_ann - seg * signal_len_in_time * fs
     return q_ann, s_ann
+
