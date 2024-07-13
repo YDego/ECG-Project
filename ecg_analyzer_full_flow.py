@@ -38,9 +38,9 @@ def comparison_peaks(peaks_real_annotations, peaks_our_annotations, fs, margin_m
             if peaks_our_annotations[j] != -1:
                 distance = abs(peaks_real_annotations[index] - peaks_our_annotations[j])  # calc distance between real peak and our peak
             else:
-                distance = tolerance + 1  # will not enter second if statement cause distance > tolerance -> meaning we have not find peak
+                continue  # will not enter second if statement -> meaning we already found real peak that connect to this peak
             if distance <= tolerance:
-                peaks_our_annotations[j] = -1  # set -1 because we already found real peak that connect to our peak
+                peaks_our_annotations[j] = -1  # set -1 because suitable peak was found to real peak
                 success = success + 1
                 break  # break the t_peaks_our_ann for
     return success, peaks_real_annotations.size
@@ -81,21 +81,21 @@ def main():
             ecg_processed = qrs.detect_qrs(ecg_processed)
             ecg_original['our_ann'] = copy.deepcopy(ecg_processed['our_ann'])
             ecg_original['our_ann_markers'] = copy.deepcopy(ecg_processed['our_ann_markers'])
-            our_r_peaks = qrs.r_peaks_annotations(ecg_processed, 'real', all_seg=True)
+            our_q_peaks, our_s_peaks = qrs.find_q_s_ann(ecg_original, findQann=True, findSann=True, realLabels=False, all_seg=True)
+            our_r_peaks = qrs.r_peaks_annotations(ecg_processed, 'our', all_seg=True)
             our_t_peaks = t_wave_detection.main_t_peak_detection(ecg_original, WINDOW_SIZE_FOR_T_PEAKS, SIGNAL_LEN_FOR_LUDB, which_r_ann='our', real_q_s_ann=False)
             our_p_peaks = p_wave_detection.main_p_peak_detection(ecg_original, WINDOW_SIZE_FOR_P_PEAKS, SIGNAL_LEN_FOR_LUDB, which_r_ann='our', real_q_s_ann=False)
             real_r_peaks = qrs.r_peaks_annotations(ecg_processed, 'real', all_seg=True)
             real_t_peaks = t_wave_detection.t_peaks_annotations(ecg_original, 'real', all_seg=True)
             real_p_peaks = p_wave_detection.p_peaks_annotations(ecg_original, 'real', all_seg=True)
-            all_united = np.sort(np.concatenate((our_p_peaks, our_t_peaks, our_r_peaks)))
+            all_united = np.sort(np.concatenate((our_p_peaks, our_t_peaks, our_r_peaks, our_q_peaks, our_s_peaks)))
             all_success_tuple = comparison_all_peaks(real_r_peaks, our_r_peaks, real_t_peaks, our_t_peaks, real_p_peaks, our_p_peaks, ecg_original['fs'], i)
             index = 0
             for keys in dict_all_success_peaks.keys():
                 dict_all_success_peaks[keys] += all_success_tuple[index]
                 index += 1
-            pm.plot_signal_with_dots2(ecg_original['original_signal'][0], all_united, np.array(ecg_original['ann'][0]), ecg_original['fs'], 'ecg signal', 'all our annotations', 'all real annotations', i)
-
-
+            #  np.array(ecg_original['ann'][0]) , 'all real annotations',
+            pm.plot_signal_with_dots(ecg_original['original_signal'][0], all_united, ecg_original['fs'], 'ecg signal', 'all our annotations',  i)
 
         for key, value in dict_success.items():
             print(key, ":", value)

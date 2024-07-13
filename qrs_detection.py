@@ -426,20 +426,32 @@ def find_r_peak(q_peak, s_peak, original_signal, fs):
     return r_peak
 
 
-def find_q_s_ann(ecg_original_copy, seg, findQann , findSann, realLabels = True):
+def find_q_s_ann(ecg_original_copy, seg=0, findQann = False , findSann = False, realLabels = True, all_seg=False):
     fs = ecg_original_copy['fs']
     signal_len_in_time = ecg_original_copy['signal_len']
+    ann = []
+    ann_markers = []
     if realLabels:
-        ann = ecg_original_copy["ann"][seg]
-        ann_markers = ecg_original_copy["ann_markers"][seg]
+        if all_seg:
+            for seg in range(ecg_original_copy["num_of_segments"]):
+                ann.extend(ecg_original_copy["ann"][seg])
+                ann_markers.extend(ecg_original_copy["ann_markers"][seg])
+        else:
+            ann = ecg_original_copy["ann"][seg]
+            ann_markers = ecg_original_copy["ann_markers"][seg]
     else:
-        ann = ecg_original_copy["our_ann"][seg]
-        ann_markers = ecg_original_copy["our_ann_markers"][seg]
+        if all_seg:
+            for seg in range(ecg_original_copy["num_of_segments"]):
+                ann.extend(ecg_original_copy["our_ann"][seg])
+                ann_markers.extend(ecg_original_copy["our_ann_markers"][seg])
+        else:
+            ann = ecg_original_copy["our_ann"][seg]
+            ann_markers = ecg_original_copy["our_ann_markers"][seg]
 
     if findQann:
         q_ann = np.zeros(len(ann), dtype=int)
         q_ann_size = 0
-        for index in range(0 ,len(ann_markers) - 1):
+        for index in range(0, len(ann_markers) - 1):
             if ann_markers[index] == '(' and (ann_markers[index + 1] == 'N' or ann_markers[index + 1] == 'n'):
                 q_ann[q_ann_size] = ann[index]
                 q_ann_size = q_ann_size + 1
