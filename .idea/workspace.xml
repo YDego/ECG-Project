@@ -6,8 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="d8d475bc-520b-42e2-87af-b9dcea367782" name="Changes" comment="combine r ,t ,p peaks">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ecg_analyzer_full_flow.py" beforeDir="false" afterPath="$PROJECT_DIR$/ecg_analyzer_full_flow.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/qrs_detection.py" beforeDir="false" afterPath="$PROJECT_DIR$/qrs_detection.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -349,7 +347,14 @@
       <option name="project" value="LOCAL‎" />
       <updated>1703964731764</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL‎-00022" summary="combine r ,t ,p peaks">
+      <created>1720876640035</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL‎-00022" />
+      <option name="project" value="LOCAL‎" />
+      <updated>1720876640035</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
