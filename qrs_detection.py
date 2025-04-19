@@ -401,25 +401,57 @@ def find_r_peak(q_peak, s_peak, original_signal, fs):
     r_peak_potential = wfdb.processing.find_local_peaks(original_signal, radius=round(0.05 * fs))
     r_peak_potential_minimum = wfdb.processing.find_local_peaks((-1)*original_signal, radius=round(0.05 * fs))
     r_peak = np.zeros(len(q_peak), dtype=int)
-    s_peak_len = len(s_peak)
-    for index, value in enumerate(q_peak):
-        if index >= s_peak_len:
+    index_next_r, index_next_r_min = 0, 0
+    for index in range(0, len(q_peak), 1):
+        if index >= len(s_peak):
             continue
         potential_r_peak_one_interval = {}
-        for value_r in r_peak_potential:
+        index_r = 0
+        while index_r < len(r_peak_potential): ### change 28/02 speed change only
+            if index_next_r != 0:
+                index_r, index_next_r = index_next_r, 0
+            value_r = r_peak_potential[index_r]
+            q_peak_ = q_peak[index]  ## debug
+            s_peak_ = s_peak[index]  ## debug
+            if s_peak[index] < q_peak[index]:
+                s_peak = np.delete(s_peak, index)
+                continue
             if q_peak[index] < value_r < s_peak[index]:
                 potential_r_peak_one_interval[value_r] = original_signal[value_r]
+                index_r += 1
+                if index == 427:
+                    print('here')
+                    potential_r_peak_one_interval[value_r] = original_signal[value_r]
+                    index_r += 1
             else:
-                continue
+                if value_r > s_peak[index]: ## r peak not before s peak. 28/02/25
+                    index_next_r = index_r
+                    break
+                else:
+                    index_r += 1
+                    continue
         if len(potential_r_peak_one_interval) != 0:
             r_peak[index] = max(potential_r_peak_one_interval, key=potential_r_peak_one_interval.get)
         else:
-            #print("hey there is no max")
-            for value_r_minimum in r_peak_potential_minimum:
-                if q_peak[index] < value_r_minimum < s_peak[index]:
-                    potential_r_peak_one_interval[value_r_minimum] = original_signal[value_r_minimum]
+            index_r_min = 0
+            while index_r_min < len(r_peak_potential_minimum):  ### change 28/02 speed change only
+                if index_next_r_min != 0:
+                    index_r_min, index_next_r_min = index_next_r_min, 0
+                value_r_min = r_peak_potential_minimum[index_r_min]
+                if q_peak[index] < value_r_min < s_peak[index]:
+                    potential_r_peak_one_interval[value_r_min] = original_signal[value_r_min]
+                    index_r_min += 1
+                    if index == 428:
+                        print('here')
+                        potential_r_peak_one_interval[value_r_min] = original_signal[value_r_min]
+                        index_r_min += 1
                 else:
-                    continue
+                    if value_r_min > s_peak[index]:  ## r peak not before s peak. 28/02/25
+                        index_next_r_min = index_r_min
+                        break
+                    else:
+                        index_r_min += 1
+                        continue
             if len(potential_r_peak_one_interval) != 0:
                 r_peak[index] = min(potential_r_peak_one_interval, key=potential_r_peak_one_interval.get)
 
