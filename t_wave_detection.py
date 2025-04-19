@@ -314,8 +314,8 @@ def choose_one_block(t_potential_start, t_potential_end, ma_peak, ma_t_wave, fac
 def create_factor_function(initial_value, middle_value, final_value, window_len):
     function = np.zeros(window_len, dtype=float)
     first_window_size = int(0.27*window_len - 1)# TODO
-    if window_len == 0:
-        print('what the hell')
+    if first_window_size == 1:
+        first_window_size += 1
     m1 = (middle_value - initial_value) / (first_window_size - 1)
     m2 = (final_value - middle_value) / (window_len - first_window_size)
     for index in range(first_window_size):

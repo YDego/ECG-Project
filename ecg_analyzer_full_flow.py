@@ -13,12 +13,12 @@ SIGNAL_LEN_FOR_QT = 900
 SIGNAL_LEN_FOR_MIT = 1806
 WINDOW_SIZE_FOR_T_PEAKS = 0.070
 WINDOW_SIZE_FOR_P_PEAKS = 0.030
-
 dict_success = {}
 
 
 def comparison_all_peaks(real_r_peaks, our_r_peaks, real_t_peaks, our_t_peaks, real_p_peaks, our_p_peaks, fs, signal_number):
     success_r_peaks, len_r_peaks = comparison_peaks(real_r_peaks.copy(), our_r_peaks.copy(), fs, 0.050)
+    #print((len(real_r_peaks), len(our_r_peaks)))
     success_t_peaks, len_t_peaks = comparison_peaks(real_t_peaks.copy(), our_t_peaks.copy(), fs, 0.050)
     success_p_peaks, len_p_peaks = comparison_peaks(real_p_peaks.copy(), our_p_peaks.copy(), fs, 0.050)
     if len_p_peaks == 0 and len_t_peaks == 0:
@@ -83,6 +83,7 @@ def main():
             ecg_original['our_ann_markers'] = copy.deepcopy(ecg_processed['our_ann_markers'])
             our_q_peaks, our_s_peaks = qrs.find_q_s_ann(ecg_original, findQann=True, findSann=True, realLabels=False, all_seg=True)
             our_r_peaks = qrs.r_peaks_annotations(ecg_processed, 'our', all_seg=True)
+            #print(len(our_r_peaks))
             our_t_peaks = t_wave_detection.main_t_peak_detection(ecg_original, WINDOW_SIZE_FOR_T_PEAKS, SIGNAL_LEN_FOR_LUDB, which_r_ann='our', real_q_s_ann=False)
             our_p_peaks = p_wave_detection.main_p_peak_detection(ecg_original, WINDOW_SIZE_FOR_P_PEAKS, SIGNAL_LEN_FOR_LUDB, which_r_ann='our', real_q_s_ann=False)
             real_r_peaks = qrs.r_peaks_annotations(ecg_processed, 'real', all_seg=True)
@@ -95,13 +96,17 @@ def main():
                 dict_all_success_peaks[keys] += all_success_tuple[index]
                 index += 1
             #  np.array(ecg_original['ann'][0]) , 'all real annotations',
-            pm.plot_signal_with_dots(ecg_original['original_signal'][0], all_united, ecg_original['fs'], 'ecg signal', 'all our annotations',  i)
+            #pm.plot_signal_with_dots(ecg_original['original_signal'][0], our_r_peaks, ecg_original['fs'], 'ecg signal', 'all our annotations',  i)
 
         for key, value in dict_success.items():
             print(key, ":", value)
-        print(f'score for all signals -->  r peaks: {100*(dict_all_success_peaks["all_r_success"] / dict_all_success_peaks["len_all_real_r_peaks"])}'
-              f'------------------------>  t peaks: {100*(dict_all_success_peaks["all_t_success"] / dict_all_success_peaks["len_all_real_t_peaks"])}'
-              f'------------------------>  p peaks: {100*(dict_all_success_peaks["all_p_success"] / dict_all_success_peaks["len_all_real_p_peaks"])}')
+        if dict_all_success_peaks["len_all_real_r_peaks"] != 0:
+            print(f'score for all signals -->  r peaks: {round(100*(dict_all_success_peaks["all_r_success"] / dict_all_success_peaks["len_all_real_r_peaks"]), 3)}')
+        if dict_all_success_peaks["len_all_real_t_peaks"] != 0:
+            print(f'------------------------>  t peaks: {round(100*(dict_all_success_peaks["all_t_success"] / dict_all_success_peaks["len_all_real_t_peaks"]), 3)}')
+        if dict_all_success_peaks["len_all_real_p_peaks"] != 0:
+            print(f'------------------------>  p peaks: {round(100*(dict_all_success_peaks["all_p_success"] / dict_all_success_peaks["len_all_real_p_peaks"]),3)}')
+
         #print((success_final/number_of_dots_final)*100)
         #dict_bad_examples = {item: value for (item, value) in dict_success.items() if value < 90}
         #print(dict_bad_examples)
